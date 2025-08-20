@@ -49,12 +49,6 @@ export default function Header() {
                 </div>
               </div>
 
-              <Link href="/cluster-turistico" className={`${isActive('/cluster-turistico')} transition-colors font-medium`}>
-                Cluster Turismo
-              </Link>
-              <Link href="/casos-negocio" className={`${isActive('/casos-negocio')} transition-colors font-medium`}>
-                Casos de Negocio
-              </Link>
               <Link href="/retos-actuales" className={`${isActive('/retos-actuales')} transition-colors font-medium`}>
                 Retos Actuales
               </Link>
