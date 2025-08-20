@@ -1,63 +1,70 @@
 import React from 'react';
-import { Globe, Mail, Users, ChevronRight } from 'lucide-react';
 
 export default function ServicesSection() {
   const services = [
     {
-      icon: Globe,
+      id: 1,
       title: "Vitrina de Empresas Innovadoras",
-      description: "**Destaca tu empresa:** Gana visibilidad y atrae clientes.",
-      link: "Saber más"
+      description: "Destaca tu empresa: Gana visibilidad y atrae clientes.",
+      icon: "/images/sitio-web-90x90.png",
+      buttonText: "Saber más"
     },
     {
-      icon: Mail,
+      id: 2,
       title: "Campañas de Email Marketing Efectivas",
-      description: "**Email marketing:** Conecta con tus clientes y aumenta tus ventas.",
-      link: "Saber más"
+      description: "Email marketing: Conecta con tus clientes y aumenta tus ventas.",
+      icon: "/images/marketing-90x90.png",
+      buttonText: "Saber más"
     },
     {
-      icon: Users,
+      id: 3,
       title: "Chatbots Inteligentes para Redes Sociales",
-      description: "**Chatbots:** Automatiza tu atención al cliente y mejora la experiencia.",
-      link: "Saber más"
+      description: "Chatbots: Automatiza tu atención al cliente y mejora la experiencia.",
+      icon: "/images/chatbot-90x90.png",
+      buttonText: "Saber más"
     }
   ];
 
   return (
     <section className="py-20 bg-gray-50">
       <div className="container mx-auto px-6">
+        {/* Header */}
         <div className="text-center mb-16">
-          <p className="text-blue-600 font-semibold mb-4">
+          <p className="text-lg text-gray-600 mb-4">
             Descubre cómo nuestras herramientas y servicios pueden llevar tu empresa al siguiente nivel.
           </p>
-          <h2 className="text-4xl font-bold text-gray-800 mb-4">
-            Crece, innova y destaca en el
+          <h2 className="text-4xl lg:text-5xl font-bold text-gray-900 mb-8">
+            <span className="text-blue-600 underline">Crece, innova y destaca</span> en el mercado digital.
           </h2>
-          <h3 className="text-4xl font-bold text-gray-800 mb-12">
-            mercado <span className="text-blue-600">digital.</span>
-          </h3>
         </div>
 
-        <div className="grid md:grid-cols-3 gap-8">
-          {services.map((service, index) => {
-            const IconComponent = service.icon;
-            return (
-              <div key={index} className="bg-white rounded-xl p-8 shadow-md hover:shadow-lg transition-all duration-300 text-center group">
-                <div className="bg-blue-100 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6 group-hover:bg-blue-600 transition-colors">
-                  <IconComponent className="h-10 w-10 text-blue-600 group-hover:text-white transition-colors" />
-                </div>
-                <h4 className="text-xl font-bold text-gray-800 mb-4">{service.title}</h4>
-                <p className="text-gray-600 mb-6 leading-relaxed" dangerouslySetInnerHTML={{ __html: service.description }}></p>
-                <a
-                  href="#"
-                  className="inline-flex items-center space-x-2 text-blue-600 hover:text-blue-800 font-semibold transition-colors group"
-                >
-                  <span>{service.link}</span>
-                  <ChevronRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
-                </a>
+        {/* Services Grid */}
+        <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+          {services.map((service) => (
+            <div key={service.id} className="bg-white rounded-lg p-8 text-center shadow-lg hover:shadow-xl transition-shadow duration-300">
+              {/* Icon */}
+              <div className="mb-6">
+                <img
+                  src={service.icon}
+                  alt={service.title}
+                  className="w-20 h-20 mx-auto"
+                />
               </div>
-            );
-          })}
+
+              {/* Content */}
+              <h3 className="text-xl font-semibold text-gray-900 mb-4">
+                {service.title}
+              </h3>
+              <p className="text-gray-600 mb-6 leading-relaxed">
+                {service.description}
+              </p>
+
+              {/* Button */}
+              <button className="text-blue-600 hover:text-blue-700 font-semibold transition-colors duration-300">
+                {service.buttonText}
+              </button>
+            </div>
+          ))}
         </div>
       </div>
     </section>

@@ -1,142 +1,137 @@
 @import 'tailwindcss';
 
-@plugin 'tailwindcss-animate';
+/* Custom fonts from HTML source */
+@import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600&family=Quicksand:wght@400;500;600;700&family=Poppins:wght@400;500;600&family=Lato:wght@400;700&display=swap');
 
-@source '../views';
-@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
-@source '../js/**/*.{js,ts,jsx,tsx}';
-
-@custom-variant dark (&:is(.dark *));
-
-@theme {
-    --font-sans:
-        'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
-
-    --radius-lg: var(--radius);
-    --radius-md: calc(var(--radius) - 2px);
-    --radius-sm: calc(var(--radius) - 4px);
-
-    --color-background: var(--background);
-    --color-foreground: var(--foreground);
-
-    --color-card: var(--card);
-    --color-card-foreground: var(--card-foreground);
-
-    --color-popover: var(--popover);
-    --color-popover-foreground: var(--popover-foreground);
-
-    --color-primary: var(--primary);
-    --color-primary-foreground: var(--primary-foreground);
-
-    --color-secondary: var(--secondary);
-    --color-secondary-foreground: var(--secondary-foreground);
-
-    --color-muted: var(--muted);
-    --color-muted-foreground: var(--muted-foreground);
-
-    --color-accent: var(--accent);
-    --color-accent-foreground: var(--accent-foreground);
-
-    --color-destructive: var(--destructive);
-    --color-destructive-foreground: var(--destructive-foreground);
-
-    --color-border: var(--border);
-    --color-input: var(--input);
-    --color-ring: var(--ring);
-
-    --color-chart-1: var(--chart-1);
-    --color-chart-2: var(--chart-2);
-    --color-chart-3: var(--chart-3);
-    --color-chart-4: var(--chart-4);
-    --color-chart-5: var(--chart-5);
-
-    --color-sidebar: var(--sidebar);
-    --color-sidebar-foreground: var(--sidebar-foreground);
-    --color-sidebar-primary: var(--sidebar-primary);
-    --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
-    --color-sidebar-accent: var(--sidebar-accent);
-    --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
-    --color-sidebar-border: var(--sidebar-border);
-    --color-sidebar-ring: var(--sidebar-ring);
-}
-
+/* Custom CSS variables from HTML source */
 :root {
-    --background: oklch(1 0 0);
-    --foreground: oklch(0.145 0 0);
-    --card: oklch(1 0 0);
-    --card-foreground: oklch(0.145 0 0);
-    --popover: oklch(1 0 0);
-    --popover-foreground: oklch(0.145 0 0);
-    --primary: oklch(0.205 0 0);
-    --primary-foreground: oklch(0.985 0 0);
-    --secondary: oklch(0.97 0 0);
-    --secondary-foreground: oklch(0.205 0 0);
-    --muted: oklch(0.97 0 0);
-    --muted-foreground: oklch(0.556 0 0);
-    --accent: oklch(0.97 0 0);
-    --accent-foreground: oklch(0.205 0 0);
-    --destructive: oklch(0.577 0.245 27.325);
-    --destructive-foreground: oklch(0.577 0.245 27.325);
-    --border: oklch(0.922 0 0);
-    --input: oklch(0.922 0 0);
-    --ring: oklch(0.87 0 0);
-    --chart-1: oklch(0.646 0.222 41.116);
-    --chart-2: oklch(0.6 0.118 184.704);
-    --chart-3: oklch(0.398 0.07 227.392);
-    --chart-4: oklch(0.828 0.189 84.429);
-    --chart-5: oklch(0.769 0.188 70.08);
-    --radius: 0.625rem;
-    --sidebar: oklch(0.985 0 0);
-    --sidebar-foreground: oklch(0.145 0 0);
-    --sidebar-primary: oklch(0.205 0 0);
-    --sidebar-primary-foreground: oklch(0.985 0 0);
-    --sidebar-accent: oklch(0.97 0 0);
-    --sidebar-accent-foreground: oklch(0.205 0 0);
-    --sidebar-border: oklch(0.922 0 0);
-    --sidebar-ring: oklch(0.87 0 0);
+    --wd-text-font: "Open Sans", Arial, Helvetica, sans-serif;
+    --wd-text-font-weight: 400;
+    --wd-text-color: #777777;
+    --wd-text-font-size: 14px;
+    --wd-title-font: "Quicksand", Arial, Helvetica, sans-serif;
+    --wd-title-font-weight: 500;
+    --wd-title-color: #242424;
+    --wd-entities-title-font: "Poppins", Arial, Helvetica, sans-serif;
+    --wd-entities-title-font-weight: 500;
+    --wd-entities-title-color: #333333;
+    --wd-alternative-font: "Lato", Arial, Helvetica, sans-serif;
+    --wd-widget-title-font: "Poppins", Arial, Helvetica, sans-serif;
+    --wd-widget-title-font-weight: 600;
+    --wd-widget-title-transform: uppercase;
+    --wd-widget-title-color: #333;
+    --wd-widget-title-font-size: 16px;
+    --wd-header-el-font: "Lato", Arial, Helvetica, sans-serif;
+    --wd-header-el-font-weight: 700;
+    --wd-header-el-transform: uppercase;
+    --wd-header-el-font-size: 13px;
+    --wd-primary-color: rgb(15,145,227);
+    --wd-alternative-color: #fbbc34;
+    --wd-link-color: #333333;
+    --wd-link-color-hover: #242424;
+    --btn-default-bgcolor: #f7f7f7;
+    --btn-default-bgcolor-hover: #efefef;
+    --btn-accented-bgcolor: rgb(15,145,227);
+    --btn-accented-bgcolor-hover: rgb(14,132,207);
+    --wd-form-brd-width: 2px;
+    --notices-success-bg: #459647;
+    --notices-success-color: #fff;
+    --notices-warning-bg: #E0B252;
+    --notices-warning-color: #fff;
 }
 
-.dark {
-    --background: oklch(0.145 0 0);
-    --foreground: oklch(0.985 0 0);
-    --card: oklch(0.145 0 0);
-    --card-foreground: oklch(0.985 0 0);
-    --popover: oklch(0.145 0 0);
-    --popover-foreground: oklch(0.985 0 0);
-    --primary: oklch(0.985 0 0);
-    --primary-foreground: oklch(0.205 0 0);
-    --secondary: oklch(0.269 0 0);
-    --secondary-foreground: oklch(0.985 0 0);
-    --muted: oklch(0.269 0 0);
-    --muted-foreground: oklch(0.708 0 0);
-    --accent: oklch(0.269 0 0);
-    --accent-foreground: oklch(0.985 0 0);
-    --destructive: oklch(0.396 0.141 25.723);
-    --destructive-foreground: oklch(0.637 0.237 25.331);
-    --border: oklch(0.269 0 0);
-    --input: oklch(0.269 0 0);
-    --ring: oklch(0.439 0 0);
-    --chart-1: oklch(0.488 0.243 264.376);
-    --chart-2: oklch(0.696 0.17 162.48);
-    --chart-3: oklch(0.769 0.188 70.08);
-    --chart-4: oklch(0.627 0.265 303.9);
-    --chart-5: oklch(0.645 0.246 16.439);
-    --sidebar: oklch(0.205 0 0);
-    --sidebar-foreground: oklch(0.985 0 0);
-    --sidebar-primary: oklch(0.985 0 0);
-    --sidebar-primary-foreground: oklch(0.985 0 0);
-    --sidebar-accent: oklch(0.269 0 0);
-    --sidebar-accent-foreground: oklch(0.985 0 0);
-    --sidebar-border: oklch(0.269 0 0);
-    --sidebar-ring: oklch(0.439 0 0);
+/* Apply custom fonts */
+body {
+    font-family: var(--wd-text-font);
+    font-weight: var(--wd-text-font-weight);
+    color: var(--wd-text-color);
+    font-size: var(--wd-text-font-size);
 }
 
-@layer base {
-    * {
-        @apply border-border;
-    }
+h1, h2, h3, h4, h5, h6 {
+    font-family: var(--wd-title-font);
+    font-weight: var(--wd-title-font-weight);
+    color: var(--wd-title-color);
+}
 
-    body {
-        @apply bg-background text-foreground;
+/* Custom button styles */
+.btn {
+    font-family: var(--wd-header-el-font);
+    font-weight: var(--wd-header-el-font-weight);
+    text-transform: var(--wd-header-el-transform);
+    font-size: var(--wd-header-el-font-size);
+}
+
+/* Custom animations */
+@keyframes slideFromBottom {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
     }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes slideFromLeft {
+    from {
+        opacity: 0;
+        transform: translateX(-30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes slideFromRight {
+    from {
+        opacity: 0;
+        transform: translateX(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+.animate-slide-from-bottom {
+    animation: slideFromBottom 0.6s ease-out;
+}
+
+.animate-slide-from-left {
+    animation: slideFromLeft 0.6s ease-out;
+}
+
+.animate-slide-from-right {
+    animation: slideFromRight 0.6s ease-out;
+}
+
+/* Custom wave shapes */
+.wave-shape {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 10;
+}
+
+.wave-shape svg {
+    width: 100%;
+    height: 64px;
+}
+
+/* Custom gradients */
+.gradient-blue {
+    background: linear-gradient(135deg, rgb(15,145,227) 0%, rgb(14,132,207) 100%);
+}
+
+/* Custom shadows */
+.custom-shadow {
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+}
+
+.custom-shadow-lg {
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
 }
