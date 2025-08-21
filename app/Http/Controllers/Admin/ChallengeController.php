@@ -47,7 +47,8 @@ class ChallengeController extends Controller
         $categories = Category::all();
         $companies = Company::all();
         $statuses = ['draft', 'active', 'completed', 'cancelled'];
-        $difficulties = ['beginner', 'intermediate', 'advanced', 'expert'];
+        // Align with DB enum('easy','medium','hard')
+        $difficulties = ['easy', 'medium', 'hard'];
 
         return Inertia::render('admin/challenges/index', [
             'challenges' => $challenges,
@@ -82,7 +83,8 @@ class ChallengeController extends Controller
             'name' => 'required|string|max:255',
             'description' => 'required|string',
             'objective' => 'required|string',
-            'difficulty' => 'required|in:beginner,intermediate,advanced,expert',
+            // Align with DB enum
+            'difficulty' => 'required|in:easy,medium,hard',
             'requirements' => 'array',
             'status' => 'required|in:draft,active,completed,cancelled',
             'start_date' => 'required|date',
@@ -139,7 +141,8 @@ class ChallengeController extends Controller
             'name' => 'required|string|max:255',
             'description' => 'required|string',
             'objective' => 'required|string',
-            'difficulty' => 'required|in:beginner,intermediate,advanced,expert',
+            // Align with DB enum
+            'difficulty' => 'required|in:easy,medium,hard',
             'requirements' => 'array',
             'status' => 'required|in:draft,active,completed,cancelled',
             'start_date' => 'required|date',

@@ -1,6 +1,7 @@
 import MainLayout from '@/layouts/main-layout';
 import { Challenge, Category } from '@/types';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
+import { router } from '@inertiajs/react';
 
 interface Props {
     challenges: Challenge[];
@@ -12,6 +13,21 @@ interface Props {
 }
 
 export default function RetosActuales({ challenges, categories, filters }: Props) {
+    const [categoryId, setCategoryId] = useState<string>(filters.category_id ? String(filters.category_id) : '');
+    const [difficulty, setDifficulty] = useState<string>(filters.difficulty || '');
+
+    const applyFilters = (next: { category_id?: string; difficulty?: string }) => {
+        const params: Record<string, string> = {};
+        const cat = next.category_id ?? categoryId;
+        const dif = next.difficulty ?? difficulty;
+        if (cat) params.category_id = cat;
+        if (dif) params.difficulty = dif;
+        router.get('/retos-actuales', params, {
+            preserveScroll: true,
+            preserveState: true,
+            replace: true,
+        });
+    };
     useEffect(() => {
         // Agregar estilos CSS para line-clamp
         const style = document.createElement('style');
@@ -90,7 +106,12 @@ export default function RetosActuales({ challenges, categories, filters }: Props
                                 </label>
                                 <select
                                     className="border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                    defaultValue={filters.category_id || ''}
+                                    value={categoryId}
+                                    onChange={(e) => {
+                                        const val = e.target.value;
+                                        setCategoryId(val);
+                                        applyFilters({ category_id: val });
+                                    }}
                                 >
                                     <option value="">Todas las categorías</option>
                                     {categories.map((category) => (
@@ -106,7 +127,12 @@ export default function RetosActuales({ challenges, categories, filters }: Props
                                 </label>
                                 <select
                                     className="border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                    defaultValue={filters.difficulty || ''}
+                                    value={difficulty}
+                                    onChange={(e) => {
+                                        const val = e.target.value;
+                                        setDifficulty(val);
+                                        applyFilters({ difficulty: val });
+                                    }}
                                 >
                                     <option value="">Todas las dificultades</option>
                                     <option value="easy">Fácil</option>
@@ -126,7 +152,7 @@ export default function RetosActuales({ challenges, categories, filters }: Props
                                     {challenge.link_video && (
                                         <div className="aspect-video bg-gray-200">
                                             <iframe
-                                                src={getVideoEmbedUrl(challenge.link_video)}
+                                                src={getVideoEmbedUrl(challenge.link_video) || ''}
                                                 title={challenge.name}
                                                 className="w-full h-full"
                                                 frameBorder="0"

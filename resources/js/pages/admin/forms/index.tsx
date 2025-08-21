@@ -1,6 +1,6 @@
 import MainLayout from '@/layouts/main-layout';
 import { Form, Category } from '@/types';
-import { Link } from '@inertiajs/react';
+import { Link, router } from '@inertiajs/react';
 
 interface Props {
     forms: {
@@ -18,6 +18,12 @@ interface Props {
 }
 
 export default function AdminForms({ forms, categories, filters }: Props) {
+    const handleDelete = (id: number) => {
+        if (!confirm('¿Estás seguro de que quieres eliminar este formulario?')) return;
+        router.delete(`/admin/forms/${id}`, {
+            preserveScroll: true,
+        });
+    };
     return (
         <MainLayout title="Gestión de Formularios - Panel Administrativo" description="Administra todos los formularios del sistema">
             <div className="bg-gray-50 py-8">
@@ -164,7 +170,7 @@ export default function AdminForms({ forms, categories, filters }: Props) {
                                                     >
                                                         Exportar
                                                     </Link>
-                                                    <button className="text-red-600 hover:text-red-900">
+                                                    <button onClick={() => handleDelete(form.id)} className="text-red-600 hover:text-red-900">
                                                         Eliminar
                                                     </button>
                                                 </div>

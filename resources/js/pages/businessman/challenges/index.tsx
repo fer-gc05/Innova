@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useForm } from '@inertiajs/react';
+import { Link, useForm, router } from '@inertiajs/react';
 import MainLayout from '@/layouts/main-layout';
 import { Challenge, Category, Form, FormQuestion } from '@/types';
 
@@ -88,6 +88,14 @@ export default function ChallengesIndex({ challenges, stats, categories = [], di
     setData('category_questions', {
       ...data.category_questions,
       [question.text]: value
+    });
+  };
+
+  const handleDelete = (challenge: BusinessmanChallenge) => {
+    if (!challenge) return;
+    if (!confirm('¿Seguro que deseas eliminar este reto? Esta acción no se puede deshacer.')) return;
+    router.delete(`/businessman/challenges/${challenge.id}`, {
+      preserveScroll: true,
     });
   };
 
@@ -564,7 +572,10 @@ export default function ChallengesIndex({ challenges, stats, categories = [], di
                               </button>
                             )}
                             {challenge.students.length === 0 && challenge.status === 'pending' && (
-                              <button className="text-red-600 hover:text-red-900">
+                              <button
+                                onClick={() => handleDelete(challenge)}
+                                className="text-red-600 hover:text-red-900"
+                              >
                                 Eliminar
                               </button>
                             )}
