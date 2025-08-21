@@ -29,7 +29,7 @@ export default function RegisterCompany() {
                 </CardDescription>
               </CardHeader>
               <CardContent className="pt-6">
-                <Form method="post" action={route('register.company')} className="space-y-8">
+                <Form method="post" action={route('register.company')} encType="multipart/form-data" className="space-y-8">
                   {({ processing, errors }) => (
                     <>
                       {/* Datos de usuario */}

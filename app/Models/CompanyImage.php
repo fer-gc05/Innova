@@ -25,6 +25,11 @@ class CompanyImage extends Model
         'order' => 'integer',
     ];
 
+    protected $appends = [
+        'image_url',
+        'type_label',
+    ];
+
     /**
      * Relación con la empresa
      */

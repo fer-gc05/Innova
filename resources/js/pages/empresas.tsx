@@ -43,17 +43,12 @@ export default function EmpresasPage({ companies }: Props) {
                                     <article key={company.id} className="bg-white rounded-xl shadow-md hover:shadow-lg transition-shadow overflow-hidden">
                                         <header className="relative">
                                             <a href={`/empresas/${company.id}`} className="block">
-                                                {company.logo_url ? (
-                                                    <img
-                                                        src={company.logo_url}
-                                                        alt={`Logo de ${company.name}`}
-                                                        className="w-full h-72 object-cover"
-                                                    />
-                                                ) : company.images && company.images.length > 0 ? (
-                                                    <img
-                                                        src={company.images[0].image_url || `/storage/${company.images[0].image_path}`}
-                                                        alt={company.images[0].title || `Imagen de ${company.name}`}
-                                                        className="w-full h-72 object-cover"
+                                                {(company.logo_url || (company.images && company.images.length > 0)) ? (
+                                                    <div
+                                                        className="w-full h-72 bg-cover bg-center"
+                                                        style={{
+                                                            backgroundImage: `url(${company.logo_url || (company.images![0].image_url || `/storage/${company.images![0].image_path}`)})`
+                                                        }}
                                                     />
                                                 ) : (
                                                     <div className="w-full h-72 bg-gradient-to-br from-blue-100 to-blue-200 flex items-center justify-center">
@@ -95,10 +90,6 @@ export default function EmpresasPage({ companies }: Props) {
                                                         month: 'long',
                                                         day: 'numeric'
                                                     })}</time>
-                                                </li>
-                                                <li className="flex items-center gap-2">
-                                                    <img src="/images/corporate-conf.png" alt="Red de Innovación" className="h-5 w-5 rounded-full object-cover" />
-                                                    <span>Red de Innovación</span>
                                                 </li>
                                             </ul>
                                             <p className="text-gray-600 mb-4">

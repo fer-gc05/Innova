@@ -50,9 +50,12 @@ const MiCuenta = () => {
 
         {/* Contenedor principal */}
         <div className="max-w-4xl mx-auto bg-white rounded-2xl shadow-lg p-6 relative">
-          {/* Imagen de portada */}
-          <div className="h-40 bg-gray-100 rounded-xl flex items-center justify-center">
-            <span className="text-gray-400 text-2xl">+</span>
+          {/* Imagen de portada (logo de la empresa como fondo si existe) */}
+          <div
+            className={`h-40 rounded-xl flex items-center justify-center ${company?.logo_url ? 'bg-cover bg-center' : 'bg-gray-100'}`}
+            style={company?.logo_url ? { backgroundImage: `url(${company.logo_url})` } : undefined}
+          >
+            {!company?.logo_url && <span className="text-gray-400 text-2xl">+</span>}
           </div>
 
           {/* Perfil */}
