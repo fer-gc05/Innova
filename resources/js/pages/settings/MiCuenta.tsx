@@ -1,15 +1,43 @@
-import React, { useState } from "react";
-import { Settings, LogOut, Edit } from "lucide-react";
+import React from "react";
+import { usePage } from '@inertiajs/react';
 import MainLayout from '@/layouts/main-layout';
 
-const MiCuenta = () => {
-  const [activeTab, setActiveTab] = useState("informacion");
+type PageProps = {
+  user: {
+    id: number;
+    name: string;
+    email: string;
+    created_at: string;
+    roles: string[];
+  } | null;
+  company: {
+    id: number;
+    name: string;
+    nit: string;
+    responsible_name: string | null;
+    responsible_email: string | null;
+    responsible_phone: string | null;
+    responsible_position: string | null;
+    address: string | null;
+    logo_url: string | null;
+    images: Array<{
+      id: number;
+      url: string;
+      title: string | null;
+      description: string | null;
+      type: string;
+      order: number;
+    }>;
+  } | null;
+  student: {
+    id: number;
+    is_leader: boolean;
+  } | null;
+};
 
-  const tabs = [
-    { id: "informacion", label: "Información" },
-    { id: "entradas", label: "Entradas" },
-    { id: "comentarios", label: "Comentarios" },
-  ];
+const MiCuenta = () => {
+  const { props } = usePage<PageProps>();
+  const { user, company, student } = props;
 
   return (
     <MainLayout title="Mi Cuenta - IN-NOVA" description="Gestiona tu perfil y configuración">
@@ -32,79 +60,70 @@ const MiCuenta = () => {
             <div className="w-24 h-24 bg-gray-200 rounded-full border-4 border-white flex items-center justify-center">
               <span className="text-gray-400 text-3xl">👤</span>
             </div>
-            <h2 className="mt-2 text-xl font-semibold">Sebastian Lemus</h2>
+            <h2 className="mt-2 text-xl font-semibold">{user?.name}</h2>
           </div>
 
-          {/* Menú de configuración */}
-          <div className="absolute top-6 right-6">
-            <div className="relative group">
-              <button className="p-2 bg-gray-100 rounded-full hover:bg-gray-200">
-                <Settings className="w-5 h-5" />
-              </button>
-              <div className="absolute right-0 mt-2 w-40 bg-white border rounded-xl shadow-lg hidden group-hover:block">
-                <button className="w-full flex items-center px-4 py-2 text-sm hover:bg-gray-100">
-                  <Edit className="w-4 h-4 mr-2" /> Editar perfil
-                </button>
-                <button className="w-full px-4 py-2 text-sm hover:bg-gray-100">
-                  Mi cuenta
-                </button>
-                <button className="w-full flex items-center px-4 py-2 text-sm text-red-500 hover:bg-gray-100">
-                  <LogOut className="w-4 h-4 mr-2" /> Salir
-                </button>
-                <button className="w-full px-4 py-2 text-sm hover:bg-gray-100">
-                  Cancelar
-                </button>
-              </div>
-            </div>
-          </div>
 
-          {/* Tabs */}
-          <div className="mt-6 flex border-b">
-            {tabs.map((tab) => (
-              <button
-                key={tab.id}
-                onClick={() => setActiveTab(tab.id)}
-                className={`px-4 py-2 text-sm font-medium ${
-                  activeTab === tab.id
-                    ? "border-b-2 border-blue-500 text-blue-600"
-                    : "text-gray-500 hover:text-gray-700"
-                }`}
-              >
-                {tab.label}
-              </button>
-            ))}
-          </div>
 
-          {/* Contenido de la pestaña */}
+
+
+          {/* Información */}
           <div className="mt-4">
-            {activeTab === "informacion" && (
-              <div>
+            <div>
+              <p className="mb-2">
+                <strong>Dirección de correo electrónico:</strong>{" "}{user?.email}
+              </p>
+              <p className="mb-2">
+                <strong>Fecha de registro:</strong> {user?.created_at ? new Date(user.created_at).toLocaleDateString() : ''}
+              </p>
+              {user?.roles && user.roles.length > 0 && (
                 <p className="mb-2">
-                  <strong>Dirección de correo electrónico:</strong>{" "}
-                  sebastian@correo.com
+                  <strong>Roles:</strong> {user.roles.join(', ')}
                 </p>
-                <p className="mb-2">
-                  <strong>Fecha de registro:</strong> Registrado el 24 de julio,
-                  2025
-                </p>
+              )}
+            </div>
+            {company && (
+              <div className="mt-6">
+                <h3 className="text-lg font-semibold mb-2">Información de la empresa</h3>
+                <p className="mb-1"><strong>Nombre:</strong> {company.name}</p>
+                <p className="mb-1"><strong>NIT:</strong> {company.nit}</p>
+                {company.address && <p className="mb-1"><strong>Dirección:</strong> {company.address}</p>}
+                {company.responsible_name && <p className="mb-1"><strong>Responsable:</strong> {company.responsible_name}</p>}
+                {company.responsible_email && <p className="mb-1"><strong>Email responsable:</strong> {company.responsible_email}</p>}
+                {company.responsible_phone && <p className="mb-1"><strong>Teléfono responsable:</strong> {company.responsible_phone}</p>}
+                {company.responsible_position && <p className="mb-1"><strong>Cargo:</strong> {company.responsible_position}</p>}
+                {company.logo_url && (
+                  <div className="mt-3">
+                    <img src={company.logo_url} alt="Logo de la empresa" className="h-16 object-contain" />
+                  </div>
+                )}
+                {company.images && company.images.length > 0 && (
+                  <div className="mt-4 grid grid-cols-2 md:grid-cols-3 gap-3">
+                    {company.images.map((img) => (
+                      <div key={img.id} className="border rounded-md p-2">
+                        <img src={img.url} alt={img.title ?? 'Imagen'} className="w-full h-24 object-cover rounded" />
+                        <div className="mt-1 text-sm text-gray-600">
+                          {img.title && <div className="font-medium">{img.title}</div>}
+                          {img.description && <div>{img.description}</div>}
+                          <div>{img.type}</div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
             )}
-            {activeTab === "entradas" && <p>No hay entradas todavía.</p>}
-            {activeTab === "comentarios" && <p>No hay comentarios todavía.</p>}
+
+            {student && (
+              <div className="mt-6">
+                <h3 className="text-lg font-semibold mb-2">Información de estudiante</h3>
+                <p className="mb-1"><strong>Líder de equipo:</strong> {student.is_leader ? 'Sí' : 'No'}</p>
+              </div>
+            )}
+
           </div>
 
-          {/* Botones de acción */}
-          <div className="mt-6 flex justify-center gap-4">
-            <button className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600">
-              Publicar Reto
-            </button>
-            <button className="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600">
-              Estudiantes Inscritos
-            </button>
-            <button className="px-4 py-2 bg-gray-700 text-white rounded-lg hover:bg-gray-800">
-              Administrador
-            </button>
-          </div>
+
         </div>
       </div>
     </MainLayout>

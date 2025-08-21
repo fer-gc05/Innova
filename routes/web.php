@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
+use App\Http\Controllers\Settings\AccountController;
 
 // Rutas públicas
 require __DIR__.'/public.php';
@@ -25,11 +26,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
         })->name('businessman.panel');
     });
 
-    //panel de perfil de usuario
-    Route::get('/mi-cuenta', function () {
-        return Inertia::render('settings/MiCuenta');
-    })->name('mi-cuenta');
-    
+    // Perfil de usuario (Mi Cuenta)
+    Route::get('/mi-cuenta', [AccountController::class, 'show'])->name('mi-cuenta');
+
 
     // Configuraciones
     require __DIR__.'/settings.php';

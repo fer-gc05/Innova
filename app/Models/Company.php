@@ -21,6 +21,7 @@ class Company extends Model
         'responsible_position',
         'address',
         'logo',
+        'user_id',
     ];
 
     public function user(): BelongsTo

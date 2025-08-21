@@ -3,6 +3,8 @@
 namespace Database\Seeders;
 
 use App\Models\User;
+use App\Models\Company;
+use App\Models\CompanyImage;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
 
@@ -33,6 +35,37 @@ class UserRoleSeeder extends Seeder
         ]);
         $businessman->assignRole('businessman');
 
+        // Crear empresa asociada al empresario y algunas imágenes activas
+        $company = Company::create([
+            'name' => 'Empresa Ejemplo S.A.S.',
+            'nit' => '123456789-0',
+            'responsible_name' => 'Empresario Ejemplo',
+            'responsible_email' => 'empresario@innova.com',
+            'responsible_phone' => '3001234567',
+            'responsible_position' => 'CEO',
+            'address' => 'Calle 123 # 45-67, Bogotá, Colombia',
+            'logo' => 'companies/logos/placeholder-logo.png',
+            'user_id' => $businessman->id,
+        ]);
+
+        // Crear imágenes variadas para la empresa
+        CompanyImage::factory()->count(2)->product()->create([
+            'company_id' => $company->id,
+            'is_active' => true,
+        ]);
+        CompanyImage::factory()->count(2)->service()->create([
+            'company_id' => $company->id,
+            'is_active' => true,
+        ]);
+        CompanyImage::factory()->count(1)->facility()->create([
+            'company_id' => $company->id,
+            'is_active' => true,
+        ]);
+        CompanyImage::factory()->count(1)->team()->create([
+            'company_id' => $company->id,
+            'is_active' => true,
+        ]);
+
         // Crear usuario estudiante
         $student = User::create([
             'name' => 'Estudiante Ejemplo',
@@ -42,6 +75,12 @@ class UserRoleSeeder extends Seeder
             'email_verified_at' => now(),
         ]);
         $student->assignRole('student');
+
+        // Crear registro de estudiante asociado
+        \App\Models\Student::create([
+            'user_id' => $student->id,
+            'is_leader' => true,
+        ]);
 
         // Crear usuarios adicionales con roles aleatorios
         $roles = ['admin', 'businessman', 'student'];
