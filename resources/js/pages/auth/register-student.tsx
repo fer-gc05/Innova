@@ -7,7 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Checkbox } from '@/components/ui/checkbox';
+
 import InputError from '@/components/input-error';
 import TextLink from '@/components/text-link';
 
@@ -64,10 +64,7 @@ export default function RegisterStudent() {
                           <InputError message={errors.password_confirmation} />
                         </div>
 
-                        <div className="flex items-center space-x-3">
-                          <Checkbox id="is_leader" name="is_leader" />
-                          <Label htmlFor="is_leader" className="text-gray-700">Soy líder de un equipo</Label>
-                        </div>
+
                       </div>
 
                       <Button type="submit" className="w-full bg-blue-600 hover:bg-blue-700 text-white" disabled={processing}>
