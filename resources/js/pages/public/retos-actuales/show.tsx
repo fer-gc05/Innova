@@ -1,12 +1,24 @@
 import MainLayout from '@/layouts/main-layout';
 import { Challenge } from '@/types';
-import { Link } from '@inertiajs/react';
+import { Link, usePage } from '@inertiajs/react';
+import ChallengeRegistrationForm from '@/components/challenge-registration-form';
 
 interface Props {
     challenge: Challenge;
+    isRegistered?: boolean;
+    userGroupCode?: string;
+    isGroupLeader?: boolean;
+    groupInfo?: {
+        group_name: string;
+        leader_name: string;
+        current_members: number;
+        max_participants: number;
+        group_code: string;
+    };
 }
 
-export default function RetoDetalle({ challenge }: Props) {
+export default function RetoDetalle({ challenge, isRegistered, userGroupCode, isGroupLeader, groupInfo }: Props) {
+    const { auth } = usePage().props as any;
     const getDifficultyColor = (difficulty: string) => {
         switch (difficulty) {
             case 'easy': return 'bg-green-100 text-green-800';
@@ -33,7 +45,8 @@ export default function RetoDetalle({ challenge }: Props) {
         const match = linkVideo.match(youtubeRegex);
 
         if (match) {
-            return `https://www.youtube.com/embed/${match[1]}`;
+            // Usar youtube-nocookie.com para reducir tracking
+            return `https://www.youtube-nocookie.com/embed/${match[1]}?rel=0&modestbranding=1`;
         }
 
         return linkVideo;
@@ -98,7 +111,7 @@ export default function RetoDetalle({ challenge }: Props) {
                                 <div className="bg-white rounded-lg shadow-sm overflow-hidden">
                                     <div className="aspect-video bg-gray-200">
                                         <iframe
-                                            src={getVideoEmbedUrl(challenge.link_video)}
+                                            src={getVideoEmbedUrl(challenge.link_video) || ''}
                                             title={challenge.name}
                                             className="w-full h-full"
                                             frameBorder="0"
@@ -225,20 +238,75 @@ export default function RetoDetalle({ challenge }: Props) {
                                 </div>
                             )}
 
-                            {/* Acciones */}
+                            {/* Acciones Rápidas */}
                             <div className="bg-white rounded-lg shadow-sm p-6">
-                                <h3 className="text-lg font-semibold text-gray-900 mb-4">¿Te interesa este reto?</h3>
+                                <h3 className="text-lg font-semibold text-gray-900 mb-4">Acciones Rápidas</h3>
                                 <div className="space-y-3">
-                                    <button className="w-full bg-blue-600 text-white py-3 px-4 rounded-lg hover:bg-blue-700 transition-colors font-medium">
-                                        Participar en el Reto
+                                    <button className="w-full border border-gray-300 text-gray-700 py-3 px-4 rounded-lg hover:bg-gray-50 transition-colors font-medium">
+                                        📧 Contactar Empresa
                                     </button>
                                     <button className="w-full border border-gray-300 text-gray-700 py-3 px-4 rounded-lg hover:bg-gray-50 transition-colors font-medium">
-                                        Contactar Empresa
+                                        📤 Compartir Reto
+                                    </button>
+                                    <button className="w-full border border-gray-300 text-gray-700 py-3 px-4 rounded-lg hover:bg-gray-50 transition-colors font-medium">
+                                        ⭐ Guardar en Favoritos
                                     </button>
                                 </div>
                             </div>
                         </div>
                     </div>
+
+                    {/* Formulario de Inscripción - Sección Completa */}
+                    {auth?.user && auth.user.roles?.some((role: any) => role.name === 'student') ? (
+                        <div className="mt-12">
+                            <ChallengeRegistrationForm 
+                                challenge={challenge} 
+                                isRegistered={isRegistered}
+                                userGroupCode={userGroupCode}
+                                isGroupLeader={isGroupLeader}
+                                groupInfo={groupInfo}
+                                onSuccess={() => window.location.reload()}
+                            />
+                        </div>
+                    ) : (
+                        <div className="mt-12">
+                            <div className="bg-white rounded-lg shadow-sm p-8">
+                                <div className="text-center max-w-2xl mx-auto">
+                                    <h2 className="text-2xl font-bold text-gray-900 mb-4">¿Te interesa este reto?</h2>
+                                    {!auth?.user ? (
+                                        <div className="space-y-6">
+                                            <p className="text-lg text-gray-600">
+                                                Para participar en este reto, necesitas tener una cuenta de estudiante en nuestra plataforma.
+                                            </p>
+                                            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                                                <Link 
+                                                    href="/login" 
+                                                    className="bg-blue-600 text-white py-3 px-8 rounded-lg hover:bg-blue-700 transition-colors font-medium text-center"
+                                                >
+                                                    Iniciar Sesión
+                                                </Link>
+                                                <Link 
+                                                    href="/register/student" 
+                                                    className="border border-blue-600 text-blue-600 py-3 px-8 rounded-lg hover:bg-blue-50 transition-colors font-medium text-center"
+                                                >
+                                                    Registrarse como Estudiante
+                                                </Link>
+                                            </div>
+                                        </div>
+                                    ) : (
+                                        <div className="space-y-6">
+                                            <p className="text-lg text-gray-600">
+                                                Solo los estudiantes registrados pueden participar en los retos.
+                                            </p>
+                                            <button className="border border-gray-300 text-gray-700 py-3 px-8 rounded-lg hover:bg-gray-50 transition-colors font-medium">
+                                                📧 Contactar Empresa
+                                            </button>
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+                        </div>
+                    )}
                 </div>
             </div>
         </MainLayout>

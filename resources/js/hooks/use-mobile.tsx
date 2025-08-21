@@ -3,7 +3,13 @@ import { useEffect, useState } from 'react';
 const MOBILE_BREAKPOINT = 768;
 
 export function useIsMobile() {
-    const [isMobile, setIsMobile] = useState<boolean>();
+    const [isMobile, setIsMobile] = useState<boolean>(() => {
+        // Inicializar con el valor actual para evitar parpadeo
+        if (typeof window !== 'undefined') {
+            return window.innerWidth < MOBILE_BREAKPOINT;
+        }
+        return false;
+    });
 
     useEffect(() => {
         const mql = window.matchMedia(`(max-width: ${MOBILE_BREAKPOINT - 1}px)`);
@@ -13,10 +19,15 @@ export function useIsMobile() {
         };
 
         mql.addEventListener('change', onChange);
-        setIsMobile(window.innerWidth < MOBILE_BREAKPOINT);
+        
+        // Verificar si el estado inicial es correcto
+        const currentIsMobile = window.innerWidth < MOBILE_BREAKPOINT;
+        if (currentIsMobile !== isMobile) {
+            setIsMobile(currentIsMobile);
+        }
 
         return () => mql.removeEventListener('change', onChange);
-    }, []);
+    }, [isMobile]);
 
-    return !!isMobile;
+    return isMobile;
 }

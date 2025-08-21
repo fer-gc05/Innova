@@ -39,3 +39,6 @@ require __DIR__.'/admin.php';
 
 // Rutas del panel de empresarios
 require __DIR__.'/businessman.php';
+
+// Rutas de estudiantes
+require __DIR__.'/student.php';

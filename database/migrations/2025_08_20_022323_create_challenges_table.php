@@ -35,6 +35,24 @@ return new class extends Migration
             $table->foreignId('challenge_id')->constrained('challenges'); // El reto al que se suscribe el estudiante.
             $table->foreignId('student_id')->constrained('students'); // El estudiante que se suscribe al reto.
             $table->string('status'); // Estado del suscripcion del estudiante al reto.
+            $table->enum('participation_type', ['individual', 'leader']); // Solo individual y leader
+            $table->string('group_name')->nullable(); // Nombre del grupo (solo para líderes)
+            $table->boolean('is_group_leader')->default(false); // Si es líder del grupo
+            $table->text('motivation')->nullable(); // Motivación para participar
+            
+            // Información adicional del participante
+            $table->string('full_name'); // Nombre completo
+            $table->string('email'); // Correo electrónico
+            $table->string('phone_number'); // Número de teléfono
+            
+            // Información del prototipo
+            $table->decimal('prototype_price', 10, 2); // Precio del prototipo
+            $table->integer('estimated_delivery_days'); // Tiempo estimado de entrega en días
+            
+            // Sistema de códigos y límites de grupo (solo para líderes)
+            $table->string('group_code', 8)->nullable(); // Código único del grupo (8 caracteres)
+            $table->integer('group_max_participants')->nullable(); // Límite máximo de participantes en el grupo
+            
             $table->timestamps();
         });
 

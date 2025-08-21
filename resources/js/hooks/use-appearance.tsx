@@ -64,10 +64,16 @@ export function useAppearance() {
 
     useEffect(() => {
         const savedAppearance = localStorage.getItem('appearance') as Appearance | null;
-        updateAppearance(savedAppearance || 'system');
+        if (savedAppearance) {
+            setAppearance(savedAppearance);
+            applyTheme(savedAppearance);
+        } else {
+            setAppearance('system');
+            applyTheme('system');
+        }
 
         return () => mediaQuery()?.removeEventListener('change', handleSystemThemeChange);
-    }, [updateAppearance]);
+    }, []);
 
     return { appearance, updateAppearance } as const;
 }
