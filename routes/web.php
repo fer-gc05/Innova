@@ -25,6 +25,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
         })->name('businessman.panel');
     });
 
+    //panel de perfil de usuario
+    Route::get('/mi-cuenta', function () {
+        return Inertia::render('settings/MiCuenta');
+    })->name('mi-cuenta');
+    
+
     // Configuraciones
     require __DIR__.'/settings.php';
 });

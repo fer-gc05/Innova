@@ -86,7 +86,7 @@ export default function Header() {
                   {isAuthOpen && (
                     <div className="absolute top-full right-0 mt-2 w-64 bg-blue-600 rounded-md shadow-lg z-50 border border-blue-500">
                       <div className="py-2">
-                        <Link href="/dashboard" className="flex items-center px-4 py-2 text-white hover:bg-blue-700">
+                        <Link href={route('mi-cuenta')} className="flex items-center px-4 py-2 text-white hover:bg-blue-700">
                           <User className="h-4 w-4 mr-2" />
                           Mi Cuenta
                         </Link>

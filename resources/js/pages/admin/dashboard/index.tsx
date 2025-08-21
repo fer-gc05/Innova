@@ -1,4 +1,5 @@
 import MainLayout from '@/layouts/main-layout';
+import MiCuenta from '@/pages/settings/MiCuenta';
 
 interface Props {
     stats: any;
