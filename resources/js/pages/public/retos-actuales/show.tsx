@@ -132,7 +132,7 @@ export default function RetoDetalle({ challenge, isRegistered, userGroupCode, is
 
                             {/* Requisitos */}
                             {challenge.requirements && challenge.requirements.length > 0 && (
-                                <div className="bg-white rounded-lg shadow-sm p-6">
+                                <div className="bg-white rounded-lg shadow-sm p-6 mb-4">
                                     <h2 className="text-xl font-semibold text-gray-900 mb-4">Requisitos</h2>
                                     <ul className="space-y-3">
                                         {challenge.requirements.map((req, index) => (
@@ -144,7 +144,19 @@ export default function RetoDetalle({ challenge, isRegistered, userGroupCode, is
                                     </ul>
                                 </div>
                             )}
+                            {/* Botón para descargar ficha técnica */}
+                            <div className="bg-white rounded-lg shadow-sm p-6 mb-4 flex justify-end">
+                                <button
+                                    className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition-colors font-medium"
+                                    onClick={() => window.open(`/pdf/${challenge.id}`, '_blank')}
+                                >
+                                    Descargar ficha técnica PDF
+                                </button>
+                            </div>
+
                         </div>
+                       
+
 
                         {/* Sidebar */}
                         <div className="space-y-6">
@@ -238,21 +250,7 @@ export default function RetoDetalle({ challenge, isRegistered, userGroupCode, is
                                 </div>
                             )}
 
-                            {/* Acciones Rápidas */}
-                            <div className="bg-white rounded-lg shadow-sm p-6">
-                                <h3 className="text-lg font-semibold text-gray-900 mb-4">Acciones Rápidas</h3>
-                                <div className="space-y-3">
-                                    <button className="w-full border border-gray-300 text-gray-700 py-3 px-4 rounded-lg hover:bg-gray-50 transition-colors font-medium">
-                                        📧 Contactar Empresa
-                                    </button>
-                                    <button className="w-full border border-gray-300 text-gray-700 py-3 px-4 rounded-lg hover:bg-gray-50 transition-colors font-medium">
-                                        📤 Compartir Reto
-                                    </button>
-                                    <button className="w-full border border-gray-300 text-gray-700 py-3 px-4 rounded-lg hover:bg-gray-50 transition-colors font-medium">
-                                        ⭐ Guardar en Favoritos
-                                    </button>
-                                </div>
-                            </div>
+                            
                         </div>
                     </div>
 

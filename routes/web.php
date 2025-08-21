@@ -3,6 +3,9 @@
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use App\Http\Controllers\Settings\AccountController;
+use App\Http\Controllers\PdfController;
+//ruta de la plantilla del pdf
+Route::get('/pdf/{id}', [PdfController::class, 'generatePDF']);
 
 // Rutas públicas
 require __DIR__.'/public.php';
