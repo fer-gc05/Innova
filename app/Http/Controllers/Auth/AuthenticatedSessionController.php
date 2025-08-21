@@ -33,7 +33,16 @@ class AuthenticatedSessionController extends Controller
 
         $request->session()->regenerate();
 
-        return redirect()->intended(route('dashboard', absolute: false));
+        // Mantener al usuario en el sitio: si venía de /login (ruta guest), envíalo al inicio
+        $previousUrl = url()->previous();
+        $loginUrl = route('login', absolute: false);
+
+        if (str_ends_with($previousUrl, $loginUrl)) {
+            return redirect()->to('/');
+        }
+
+        // En cualquier otro caso, regresar a la URL anterior
+        return redirect()->to($previousUrl);
     }
 
     /**

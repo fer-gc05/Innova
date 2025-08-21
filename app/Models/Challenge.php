@@ -16,6 +16,22 @@ class Challenge extends Model
         'description',
         'objective',
         'difficulty',
+        'requirements',
+        'status',
+        'start_date',
+        'end_date',
+        'link_video',
+        'video_id',
+        'reward_amount',
+        'reward_currency',
+        'reward_description',
+        'reward_type',
+        'category_id',
+        'company_id',
+    ];
+
+    protected $casts = [
+        'requirements' => 'array',
     ];
 
     public function category(): BelongsTo

@@ -16,6 +16,10 @@ class Answer extends Model
         'answers',
     ];
 
+    protected $casts = [
+        'answers' => 'array',
+    ];
+
     public function form(): BelongsTo
     {
         return $this->belongsTo(Form::class);

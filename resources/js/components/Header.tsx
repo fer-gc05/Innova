@@ -1,10 +1,26 @@
 import React, { useState } from 'react';
-import { Link } from '@inertiajs/react';
-import { Menu, ChevronDown } from 'lucide-react';
+import { Link, usePage } from '@inertiajs/react';
+import { Menu, ChevronDown, User, Settings, LogOut } from 'lucide-react';
+
+interface User {
+  id: number;
+  name: string;
+  email: string;
+  roles: Array<{ name: string }>;
+}
+
+interface PageProps {
+  auth: {
+    user: User | null;
+  };
+  [key: string]: unknown;
+}
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isAuthOpen, setIsAuthOpen] = useState(false);
+  const { auth } = usePage<PageProps>().props;
+  const user = auth.user;
 
   const isActive = (path: string) => {
     return window.location.pathname === path ? 'text-blue-300' : 'hover:text-blue-300';
@@ -56,31 +72,74 @@ export default function Header() {
 
             {/* Auth & Mobile Menu */}
             <div className="flex items-center space-x-4">
-              {/* Auth Dropdown */}
-              <div className="relative">
-                <button
-                  onClick={() => setIsAuthOpen(!isAuthOpen)}
-                  className="flex items-center space-x-1 text-white hover:text-blue-300 transition-colors font-medium"
-                >
-                  <span className="text-sm">Inicia Sesión o Regístrate</span>
-                  <ChevronDown className="h-4 w-4" />
-                </button>
-                {isAuthOpen && (
-                  <div className="absolute top-full right-0 mt-2 w-64 bg-blue-600 rounded-md shadow-lg z-50 border border-blue-500">
-                    <div className="py-2">
-                      <Link href={route('login')} className="block px-4 py-2 text-white hover:bg-blue-700">
-                        Inicia Sesión
-                      </Link>
-                      <Link href="/empresas" className="block px-4 py-2 text-white hover:bg-blue-700">
-                        Registrarse como Empresa
-                      </Link>
-                      <Link href="/registro-usuarios" className="block px-4 py-2 text-white hover:bg-blue-700">
-                        Registrarse como Estudiante
-                      </Link>
+              {user ? (
+                /* User Menu */
+                <div className="relative">
+                  <button
+                    onClick={() => setIsAuthOpen(!isAuthOpen)}
+                    className="flex items-center space-x-2 text-white hover:text-blue-300 transition-colors font-medium"
+                  >
+                    <User className="h-5 w-5" />
+                    <span className="text-sm">{user.name}</span>
+                    <ChevronDown className="h-4 w-4" />
+                  </button>
+                  {isAuthOpen && (
+                    <div className="absolute top-full right-0 mt-2 w-64 bg-blue-600 rounded-md shadow-lg z-50 border border-blue-500">
+                      <div className="py-2">
+                        <Link href="/dashboard" className="flex items-center px-4 py-2 text-white hover:bg-blue-700">
+                          <User className="h-4 w-4 mr-2" />
+                          Mi Cuenta
+                        </Link>
+
+                        {user.roles.some(role => role.name === 'admin') && (
+                          <Link href="/admin/panel" className="flex items-center px-4 py-2 text-white hover:bg-blue-700">
+                            <Settings className="h-4 w-4 mr-2" />
+                            Panel Administrativo
+                          </Link>
+                        )}
+
+                        {user.roles.some(role => role.name === 'businessman') && (
+                          <Link href="/businessman/panel" className="flex items-center px-4 py-2 text-white hover:bg-blue-700">
+                            <Settings className="h-4 w-4 mr-2" />
+                            Panel de Retos
+                          </Link>
+                        )}
+
+                        <Link href={route('logout')} method="post" as="button" className="flex items-center w-full px-4 py-2 text-white hover:bg-blue-700">
+                          <LogOut className="h-4 w-4 mr-2" />
+                          Cerrar Sesión
+                        </Link>
+                      </div>
                     </div>
-                  </div>
-                )}
-              </div>
+                  )}
+                </div>
+              ) : (
+                /* Auth Dropdown */
+                <div className="relative">
+                  <button
+                    onClick={() => setIsAuthOpen(!isAuthOpen)}
+                    className="flex items-center space-x-1 text-white hover:text-blue-300 transition-colors font-medium"
+                  >
+                    <span className="text-sm">Inicia Sesión o Regístrate</span>
+                    <ChevronDown className="h-4 w-4" />
+                  </button>
+                  {isAuthOpen && (
+                    <div className="absolute top-full right-0 mt-2 w-64 bg-blue-600 rounded-md shadow-lg z-50 border border-blue-500">
+                      <div className="py-2">
+                        <Link href={route('login')} className="block px-4 py-2 text-white hover:bg-blue-700">
+                          Inicia Sesión
+                        </Link>
+                        <Link href={route('register.company')} className="block px-4 py-2 text-white hover:bg-blue-700">
+                          Registrarse como Empresa
+                        </Link>
+                        <Link href={route('register.student')} className="block px-4 py-2 text-white hover:bg-blue-700">
+                          Registrarse como Estudiante
+                        </Link>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
 
               {/* Mobile Menu Button */}
               <button

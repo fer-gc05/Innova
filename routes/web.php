@@ -3,31 +3,34 @@
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
-Route::get('/', function () {
-    return Inertia::render('welcome');
-})->name('home');
+// Rutas públicas
+require __DIR__.'/public.php';
 
-Route::get('/empresas', function () {
-    return Inertia::render('empresas');
-})->name('empresas');
+// Rutas de autenticación
+require __DIR__.'/auth.php';
 
-Route::get('/cluster-turistico', function () {
-    return Inertia::render('cluster-turistico');
-})->name('cluster-turistico');
-
-Route::get('/casos-negocio', function () {
-    return Inertia::render('casos-negocio');
-})->name('casos-negocio');
-
-Route::get('/retos-actuales', function () {
-    return Inertia::render('retos-actuales');
-})->name('retos-actuales');
-
+// Rutas protegidas por autenticación
 Route::middleware(['auth', 'verified'])->group(function () {
-    Route::get('dashboard', function () {
-        return Inertia::render('dashboard');
-    })->name('dashboard');
+    // Panel de administrador
+    Route::middleware(['role:admin'])->prefix('admin')->group(function () {
+        Route::get('/panel', function () {
+            return redirect()->route('admin.dashboard');
+        })->name('admin.panel');
+    });
+
+    // Panel de empresario
+    Route::middleware(['role:businessman'])->prefix('businessman')->group(function () {
+        Route::get('/panel', function () {
+            return Inertia::render('businessman/panel');
+        })->name('businessman.panel');
+    });
+
+    // Configuraciones
+    require __DIR__.'/settings.php';
 });
 
-require __DIR__.'/settings.php';
-require __DIR__.'/auth.php';
+// Rutas administrativas
+require __DIR__.'/admin.php';
+
+// Rutas del panel de empresarios
+require __DIR__.'/businessman.php';

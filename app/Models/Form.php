@@ -18,6 +18,10 @@ class Form extends Model
         'category_id',
     ];
 
+    protected $casts = [
+        'questions' => 'array',
+    ];
+
     public function category(): BelongsTo
     {
         return $this->belongsTo(Category::class);

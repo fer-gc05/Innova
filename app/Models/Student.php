@@ -13,6 +13,7 @@ class Student extends Model
 
     protected $fillable = [
         'is_leader',
+        'user_id',
     ];
 
     public function user(): BelongsTo
