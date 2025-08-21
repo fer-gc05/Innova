@@ -1,6 +1,7 @@
 import MainLayout from '@/layouts/main-layout';
 import { Challenge, Category, Company } from '@/types';
-import { Link } from '@inertiajs/react';
+import { Link, router, useForm } from '@inertiajs/react';
+import { useState } from 'react';
 
 interface Props {
     challenges: {
@@ -23,6 +24,153 @@ interface Props {
 }
 
 export default function AdminChallenges({ challenges, categories, companies, statuses, difficulties, filters }: Props) {
+    const [showViewModal, setShowViewModal] = useState(false);
+    const [viewChallenge, setViewChallenge] = useState<Challenge | null>(null);
+    const [showEditModal, setShowEditModal] = useState(false);
+    const [editingChallenge, setEditingChallenge] = useState<Challenge | null>(null);
+
+    const { data, setData, processing, reset, errors } = useForm({
+        name: '',
+        description: '',
+        objective: '',
+        difficulty: '',
+        status: '',
+        requirements: [] as string[],
+        start_date: '',
+        end_date: '',
+        category_id: '' as unknown as number | string,
+        company_id: '' as unknown as number | string,
+        link_video: '',
+        reward_amount: '' as unknown as number | string,
+        reward_currency: 'COP',
+        reward_description: '',
+        reward_type: 'fixed',
+    });
+
+    // Normaliza una fecha a YYYY-MM-DD para inputs date
+    const toDateInput = (value: string | null | undefined) => {
+        if (!value) return '';
+        // soporta formatos ISO y con tiempo
+        return String(value).slice(0, 10);
+    };
+
+    // Normaliza URL: si no tiene esquema, agrega https://
+    const normalizeUrl = (value: string | null | undefined) => {
+        if (!value) return '';
+        let url = value.trim();
+        if (url && !/^https?:\/\//i.test(url)) {
+            url = `https://${url}`;
+        }
+        try {
+            // validación básica
+            // eslint-disable-next-line no-new
+            new URL(url);
+            return url;
+        } catch {
+            return value; // deja que el backend reporte error si no es válida
+        }
+    };
+
+    // Normaliza difficulty a los valores de la BD: easy, medium, hard
+    const normalizeDifficulty = (value: string | null | undefined): string => {
+        const v = (value || '').toLowerCase();
+        if (['easy', 'medium', 'hard'].includes(v)) return v;
+        // mapeos desde esquema antiguo
+        if (v === 'beginner') return 'easy';
+        if (v === 'intermediate') return 'medium';
+        if (v === 'advanced' || v === 'expert') return 'hard';
+        // valor por defecto seguro
+        return 'easy';
+    };
+
+    const normalizeStatus = (value: string | null | undefined): string => {
+        const v = (value || '').toLowerCase();
+        // valores permitidos: draft, active, completed, cancelled
+        if (['draft', 'active', 'completed', 'cancelled'].includes(v)) return v;
+        // mapeos comunes
+        if (v === 'pending') return 'draft';
+        if (v === 'inactive') return 'draft';
+        return v || 'draft';
+    };
+
+    const handleView = (challenge: Challenge) => {
+        setViewChallenge(challenge);
+        setShowViewModal(true);
+    };
+    const handleEdit = (challenge: Challenge) => {
+        setEditingChallenge(challenge);
+        setData({
+            name: challenge.name || '',
+            description: challenge.description || '',
+            objective: challenge.objective || '',
+            difficulty: normalizeDifficulty(challenge.difficulty),
+            status: normalizeStatus(challenge.status),
+            requirements: Array.isArray(challenge.requirements) ? challenge.requirements : [],
+            start_date: toDateInput((challenge as any).start_date) || '',
+            end_date: toDateInput((challenge as any).end_date) || '',
+            category_id: (challenge as any).category_id ?? (challenge as any).category?.id ?? '',
+            company_id: (challenge as any).company_id ?? (challenge as any).company?.id ?? '',
+            link_video: (challenge as any).link_video || '',
+            reward_amount: (challenge as any).reward_amount ?? '',
+            reward_currency: (challenge as any).reward_currency || 'COP',
+            reward_description: (challenge as any).reward_description || '',
+            reward_type: (challenge as any).reward_type || 'fixed',
+        });
+        setShowEditModal(true);
+    };
+
+    const handleUpdate = (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!editingChallenge) return;
+        // Normaliza tipos: ids y montos numéricos
+        const payload: any = {
+            ...data,
+            company_id: data.company_id ? Number(data.company_id) : '',
+            category_id: data.category_id ? Number(data.category_id) : '',
+            reward_amount: data.reward_amount === '' || data.reward_amount === null ? null : Number(data.reward_amount as any),
+            link_video: data.link_video ? normalizeUrl(data.link_video) : null,
+            difficulty: normalizeDifficulty(data.difficulty),
+            status: normalizeStatus(data.status),
+        };
+        router.put(`/admin/challenges/${editingChallenge.id}`, payload, {
+            preserveScroll: true,
+            onSuccess: () => {
+                setShowEditModal(false);
+                setEditingChallenge(null);
+                reset();
+                // eslint-disable-next-line no-alert
+                alert('Reto actualizado correctamente');
+                router.reload({ only: [] });
+            },
+            onError: (errs) => {
+                // Mantiene el modal abierto y muestra errores bajo los campos
+                // eslint-disable-next-line no-alert
+                if (errs && Object.keys(errs).length) {
+                    const firstKey = Object.keys(errs)[0];
+                    alert(`No se pudo guardar: ${errs[firstKey as keyof typeof errs]}`);
+                }
+            },
+        });
+    };
+    const handleDelete = (id: number) => {
+        if (!confirm('¿Estás seguro de que quieres eliminar este reto?')) return;
+        router.delete(`/admin/challenges/${id}`, {
+            preserveScroll: true,
+            onSuccess: () => {
+                // Feedback y refresco ligero
+                // eslint-disable-next-line no-alert
+                alert('Reto eliminado correctamente');
+                router.reload({ only: [] });
+            },
+            onError: (errors) => {
+                const msg = typeof errors === 'string'
+                    ? errors
+                    : (errors && Object.values(errors)[0]) || 'No se pudo eliminar el reto.';
+                // eslint-disable-next-line no-alert
+                alert(msg as string);
+            },
+        });
+    };
     const getDifficultyColor = (difficulty: string) => {
         switch (difficulty) {
             case 'easy': return 'bg-green-100 text-green-800';
@@ -56,6 +204,197 @@ export default function AdminChallenges({ challenges, categories, companies, sta
                                     Administra todos los retos del sistema IN-NOVA
                                 </p>
                             </div>
+
+                    {/* Modal Ver Reto */}
+                    {showViewModal && viewChallenge && (
+                        <div className="fixed inset-0 z-50 flex items-center justify-center">
+                            <div className="absolute inset-0 bg-black/50" onClick={() => setShowViewModal(false)} />
+                            <div className="relative bg-white rounded-lg shadow-xl w-full max-w-3xl mx-4">
+                                <div className="px-6 py-4 border-b flex items-center justify-between">
+                                    <h2 className="text-xl font-semibold">Detalle del Reto</h2>
+                                    <button onClick={() => setShowViewModal(false)} className="text-gray-500 hover:text-gray-700">✕</button>
+                                </div>
+                                <div className="p-6 space-y-4 max-h-[70vh] overflow-auto">
+                                    <div>
+                                        <h3 className="text-lg font-bold text-gray-900">{viewChallenge.name}</h3>
+                                        <p className="text-gray-600 mt-1">{viewChallenge.description}</p>
+                                    </div>
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        <div>
+                                            <div className="text-sm text-gray-500">Empresa</div>
+                                            <div className="text-sm text-gray-900">{viewChallenge.company?.name || 'N/A'}</div>
+                                        </div>
+                                        <div>
+                                            <div className="text-sm text-gray-500">Categoría</div>
+                                            <div className="text-sm text-gray-900">{viewChallenge.category?.name || 'N/A'}</div>
+                                        </div>
+                                        <div>
+                                            <div className="text-sm text-gray-500">Estado</div>
+                                            <div className="text-sm"><span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(viewChallenge.status)}`}>{viewChallenge.status}</span></div>
+                                        </div>
+                                        <div>
+                                            <div className="text-sm text-gray-500">Dificultad</div>
+                                            <div className="text-sm"><span className={`px-2 py-1 rounded-full text-xs font-medium ${getDifficultyColor(viewChallenge.difficulty)}`}>{viewChallenge.difficulty}</span></div>
+                                        </div>
+                                        <div>
+                                            <div className="text-sm text-gray-500">Inicio</div>
+                                            <div className="text-sm text-gray-900">{viewChallenge.start_date}</div>
+                                        </div>
+                                        <div>
+                                            <div className="text-sm text-gray-500">Fin</div>
+                                            <div className="text-sm text-gray-900">{viewChallenge.end_date}</div>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <div className="text-sm text-gray-500">Objetivo</div>
+                                        <div className="text-sm text-gray-900">{viewChallenge.objective}</div>
+                                    </div>
+                                    {Array.isArray(viewChallenge.requirements) && viewChallenge.requirements.length > 0 && (
+                                        <div>
+                                            <div className="text-sm text-gray-500 mb-1">Requisitos</div>
+                                            <ul className="list-disc list-inside text-sm text-gray-900 space-y-1">
+                                                {viewChallenge.requirements.map((req, idx) => (
+                                                    <li key={idx}>{req}</li>
+                                                ))}
+                                            </ul>
+                                        </div>
+                                    )}
+                                    {(viewChallenge.reward_amount || viewChallenge.reward_description) && (
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                            <div>
+                                                <div className="text-sm text-gray-500">Recompensa</div>
+                                                <div className="text-sm text-green-700">
+                                                    {viewChallenge.reward_amount ? `$${Number(viewChallenge.reward_amount).toLocaleString()} ${viewChallenge.reward_currency}` : '—'}
+                                                </div>
+                                            </div>
+                                            <div>
+                                                <div className="text-sm text-gray-500">Detalle</div>
+                                                <div className="text-sm text-gray-900">{viewChallenge.reward_description || '—'}</div>
+                                            </div>
+                                        </div>
+                                    )}
+                                    {viewChallenge.link_video && (
+                                        <div>
+                                            <div className="text-sm text-gray-500 mb-1">Video</div>
+                                            <a href={viewChallenge.link_video} target="_blank" rel="noreferrer" className="text-blue-600 hover:underline">
+                                                Ver video
+                                            </a>
+                                        </div>
+                                    )}
+                                </div>
+                                <div className="px-6 py-4 border-t flex justify-end gap-2">
+                                    <button onClick={() => setShowViewModal(false)} className="px-4 py-2 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50">Cerrar</button>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Modal Editar Reto */}
+                    {showEditModal && editingChallenge && (
+                        <div className="fixed inset-0 z-50 flex items-center justify-center">
+                            <div className="absolute inset-0 bg-black/50" onClick={() => setShowEditModal(false)} />
+                            <div className="relative bg-white rounded-lg shadow-xl w-full max-w-3xl mx-4">
+                                <div className="px-6 py-4 border-b flex items-center justify-between">
+                                    <h2 className="text-xl font-semibold">Editar Reto</h2>
+                                    <button onClick={() => setShowEditModal(false)} className="text-gray-500 hover:text-gray-700">✕</button>
+                                </div>
+                                <form onSubmit={handleUpdate} className="p-6 space-y-4 max-h-[70vh] overflow-auto">
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        <div>
+                                            <label className="text-sm text-gray-600">Nombre</label>
+                                            <input value={data.name} onChange={e => setData('name', e.target.value)} className="mt-1 w-full border rounded-md px-3 py-2" required />
+                                            {errors.name && <p className="text-red-600 text-sm mt-1">{errors.name}</p>}
+                                        </div>
+                                        <div>
+                                            <label className="text-sm text-gray-600">Empresa</label>
+                                            <select value={data.company_id as any} onChange={e => setData('company_id', Number(e.target.value))} className="mt-1 w-full border rounded-md px-3 py-2" required>
+                                                <option value="">Seleccione</option>
+                                                {companies.map(c => (<option key={c.id} value={c.id}>{c.name}</option>))}
+                                            </select>
+                                            {errors.company_id && <p className="text-red-600 text-sm mt-1">{errors.company_id}</p>}
+                                        </div>
+                                        <div className="md:col-span-2">
+                                            <label className="text-sm text-gray-600">Descripción</label>
+                                            <textarea value={data.description} onChange={e => setData('description', e.target.value)} className="mt-1 w-full border rounded-md px-3 py-2" rows={3} required />
+                                            {errors.description && <p className="text-red-600 text-sm mt-1">{errors.description}</p>}
+                                        </div>
+                                        <div>
+                                            <label className="text-sm text-gray-600">Objetivo</label>
+                                            <input value={data.objective} onChange={e => setData('objective', e.target.value)} className="mt-1 w-full border rounded-md px-3 py-2" required />
+                                            {errors.objective && <p className="text-red-600 text-sm mt-1">{errors.objective}</p>}
+                                        </div>
+                                        <div>
+                                            <label className="text-sm text-gray-600">Categoría</label>
+                                            <select value={data.category_id as any} onChange={e => setData('category_id', Number(e.target.value))} className="mt-1 w-full border rounded-md px-3 py-2" required>
+                                                <option value="">Seleccione</option>
+                                                {categories.map(cat => (<option key={cat.id} value={cat.id}>{cat.name}</option>))}
+                                            </select>
+                                            {errors.category_id && <p className="text-red-600 text-sm mt-1">{errors.category_id}</p>}
+                                        </div>
+                                        <div>
+                                            <label className="text-sm text-gray-600">Dificultad</label>
+                                            <select value={data.difficulty} onChange={e => setData('difficulty', e.target.value)} className="mt-1 w-full border rounded-md px-3 py-2" required>
+                                                {difficulties.map(df => (<option key={df} value={df}>{df}</option>))}
+                                            </select>
+                                            {errors.difficulty && <p className="text-red-600 text-sm mt-1">{errors.difficulty}</p>}
+                                        </div>
+                                        <div>
+                                            <label className="text-sm text-gray-600">Estado</label>
+                                            <select value={data.status} onChange={e => setData('status', e.target.value)} className="mt-1 w-full border rounded-md px-3 py-2" required>
+                                                {statuses.map(st => (<option key={st} value={st}>{st}</option>))}
+                                            </select>
+                                            {errors.status && <p className="text-red-600 text-sm mt-1">{errors.status}</p>}
+                                        </div>
+                                        <div>
+                                            <label className="text-sm text-gray-600">Inicio</label>
+                                            <input type="date" value={data.start_date} onChange={e => setData('start_date', e.target.value)} className="mt-1 w-full border rounded-md px-3 py-2" required />
+                                            {errors.start_date && <p className="text-red-600 text-sm mt-1">{errors.start_date}</p>}
+                                        </div>
+                                        <div>
+                                            <label className="text-sm text-gray-600">Fin</label>
+                                            <input type="date" value={data.end_date} onChange={e => setData('end_date', e.target.value)} className="mt-1 w-full border rounded-md px-3 py-2" required />
+                                            {errors.end_date && <p className="text-red-600 text-sm mt-1">{errors.end_date}</p>}
+                                        </div>
+                                        <div>
+                                            <label className="text-sm text-gray-600">Recompensa (monto)</label>
+                                            <input type="number" value={data.reward_amount as any} onChange={e => setData('reward_amount', e.target.value)} className="mt-1 w-full border rounded-md px-3 py-2" min={0} />
+                                            {errors.reward_amount && <p className="text-red-600 text-sm mt-1">{errors.reward_amount}</p>}
+                                        </div>
+                                        <div>
+                                            <label className="text-sm text-gray-600">Moneda</label>
+                                            <input value={data.reward_currency} onChange={e => setData('reward_currency', e.target.value)} className="mt-1 w-full border rounded-md px-3 py-2" maxLength={3} />
+                                            {errors.reward_currency && <p className="text-red-600 text-sm mt-1">{errors.reward_currency}</p>}
+                                        </div>
+                                        <div className="md:col-span-2">
+                                            <label className="text-sm text-gray-600">Descripción recompensa</label>
+                                            <input value={data.reward_description} onChange={e => setData('reward_description', e.target.value)} className="mt-1 w-full border rounded-md px-3 py-2" />
+                                            {errors.reward_description && <p className="text-red-600 text-sm mt-1">{errors.reward_description}</p>}
+                                        </div>
+                                        <div>
+                                            <label className="text-sm text-gray-600">Tipo de recompensa</label>
+                                            <select value={data.reward_type} onChange={e => setData('reward_type', e.target.value)} className="mt-1 w-full border rounded-md px-3 py-2">
+                                                <option value="fixed">fixed</option>
+                                                <option value="variable">variable</option>
+                                                <option value="percentage">percentage</option>
+                                            </select>
+                                            {errors.reward_type && <p className="text-red-600 text-sm mt-1">{errors.reward_type}</p>}
+                                        </div>
+                                        <div>
+                                            <label className="text-sm text-gray-600">Video (URL)</label>
+                                            <input value={data.link_video} onChange={e => setData('link_video', e.target.value)} className="mt-1 w-full border rounded-md px-3 py-2" />
+                                            {errors.link_video && <p className="text-red-600 text-sm mt-1">{errors.link_video}</p>}
+                                        </div>
+                                    </div>
+                                    <div className="flex justify-end gap-2 pt-2">
+                                        <button type="button" onClick={() => setShowEditModal(false)} className="px-4 py-2 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50">Cancelar</button>
+                                        <button type="submit" disabled={processing} className="px-4 py-2 rounded-lg bg-indigo-600 text-white hover:bg-indigo-700 disabled:opacity-60">
+                                            {processing ? 'Guardando...' : 'Guardar cambios'}
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    )}
                             <Link
                                 href="/admin/challenges/create"
                                 className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
@@ -212,19 +551,19 @@ export default function AdminChallenges({ challenges, categories, companies, sta
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                                                 <div className="flex space-x-2">
-                                                    <Link
-                                                        href={`/admin/challenges/${challenge.id}`}
+                                                    <button
+                                                        onClick={() => handleView(challenge)}
                                                         className="text-blue-600 hover:text-blue-900"
                                                     >
                                                         Ver
-                                                    </Link>
-                                                    <Link
-                                                        href={`/admin/challenges/${challenge.id}/edit`}
+                                                    </button>
+                                                    <button
+                                                        onClick={() => handleEdit(challenge)}
                                                         className="text-indigo-600 hover:text-indigo-900"
                                                     >
                                                         Editar
-                                                    </Link>
-                                                    <button className="text-red-600 hover:text-red-900">
+                                                    </button>
+                                                    <button onClick={() => handleDelete(challenge.id)} className="text-red-600 hover:text-red-900">
                                                         Eliminar
                                                     </button>
                                                 </div>

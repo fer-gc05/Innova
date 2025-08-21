@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { Link, router } from '@inertiajs/react';
+import { useState, type FormEvent } from 'react';
+import { Link, router, useForm } from '@inertiajs/react';
 import MainLayout from '@/layouts/main-layout';
 
 
@@ -34,6 +34,15 @@ interface Props {
 
 export default function CategoriesIndex({ categories, filters }: Props) {
     const [searchTerm, setSearchTerm] = useState(filters.search || '');
+    const [showViewModal, setShowViewModal] = useState(false);
+    const [showEditModal, setShowEditModal] = useState(false);
+    const [viewingCategory, setViewingCategory] = useState<Category | null>(null);
+    const [editingCategory, setEditingCategory] = useState<Category | null>(null);
+
+    const { data, setData, put, processing, errors, reset, clearErrors } = useForm<{ name: string; description: string }>({
+        name: '',
+        description: '',
+    });
 
     const handleSearch = () => {
         router.get('/admin/categories', { search: searchTerm }, {
@@ -46,6 +55,38 @@ export default function CategoriesIndex({ categories, filters }: Props) {
         if (confirm('¿Estás seguro de que quieres eliminar esta categoría?')) {
             router.delete(`/admin/categories/${id}`);
         }
+    };
+
+    const handleView = (category: Category) => {
+        setViewingCategory(category);
+        setShowViewModal(true);
+    };
+
+    const handleEdit = (category: Category) => {
+        setEditingCategory(category);
+        setData({ name: category.name || '', description: category.description || '' });
+        clearErrors();
+        setShowEditModal(true);
+    };
+
+    const closeModals = () => {
+        setShowViewModal(false);
+        setShowEditModal(false);
+        setViewingCategory(null);
+        setEditingCategory(null);
+        reset();
+        clearErrors();
+    };
+
+    const handleUpdate = (e: FormEvent) => {
+        e.preventDefault();
+        if (!editingCategory) return;
+        put(`/admin/categories/${editingCategory.id}`, {
+            preserveScroll: true,
+            onSuccess: () => {
+                closeModals();
+            },
+        });
     };
 
     return (
@@ -159,20 +200,23 @@ export default function CategoriesIndex({ categories, filters }: Props) {
                                                 </div>
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                                <div className="flex space-x-2">
-                                                    <Link
-                                                        href={`/admin/categories/${category.id}`}
+                                                <div className="flex space-x-3">
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => handleView(category)}
                                                         className="text-blue-600 hover:text-blue-900"
                                                     >
                                                         Ver
-                                                    </Link>
-                                                    <Link
-                                                        href={`/admin/categories/${category.id}/edit`}
+                                                    </button>
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => handleEdit(category)}
                                                         className="text-indigo-600 hover:text-indigo-900"
                                                     >
                                                         Editar
-                                                    </Link>
+                                                    </button>
                                                     <button
+                                                        type="button"
                                                         onClick={() => handleDelete(category.id)}
                                                         className="text-red-600 hover:text-red-900"
                                                     >
@@ -205,20 +249,75 @@ export default function CategoriesIndex({ categories, filters }: Props) {
                             </div>
                         )}
 
-                        {/* Mensaje si no hay categorías */}
-                        {categories.data.length === 0 && (
-                            <Card className="p-12 text-center">
-                                <div className="text-gray-500 mb-4">
-                                    <svg className="mx-auto h-12 w-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14-7H5a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2V6a2 2 0 00-2-2z" />
-                                    </svg>
+                        {/* Modales */}
+                        {showViewModal && viewingCategory && (
+                            <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+                                <div className="bg-white w-full max-w-lg rounded-lg shadow-lg">
+                                    <div className="px-6 py-4 border-b flex items-center justify-between">
+                                        <h3 className="text-lg font-semibold">Detalle de Categoría</h3>
+                                        <button onClick={closeModals} className="text-gray-500 hover:text-gray-700">✕</button>
+                                    </div>
+                                    <div className="p-6 space-y-3">
+                                        <div>
+                                            <div className="text-sm text-gray-500">Nombre</div>
+                                            <div className="text-base font-medium">{viewingCategory.name}</div>
+                                        </div>
+                                        <div>
+                                            <div className="text-sm text-gray-500">Descripción</div>
+                                            <div className="text-base text-gray-700 whitespace-pre-line">{viewingCategory.description}</div>
+                                        </div>
+                                        <div className="grid grid-cols-2 gap-4 pt-2">
+                                            <div className="text-sm text-gray-600">📝 Formularios: {viewingCategory.forms_count ?? 0}</div>
+                                            <div className="text-sm text-gray-600">🎯 Retos: {viewingCategory.challenges_count ?? 0}</div>
+                                        </div>
+                                    </div>
+                                    <div className="px-6 py-4 border-t flex justify-end">
+                                        <button onClick={closeModals} className="px-4 py-2 rounded-lg border hover:bg-gray-50">Cerrar</button>
+                                    </div>
                                 </div>
-                                <h3 className="text-lg font-medium text-gray-900 mb-2">No hay categorías</h3>
-                                <p className="text-gray-500 mb-4">Comienza creando tu primera categoría.</p>
-                                <Button asChild>
-                                    <Link href="/admin/categories/create">Crear Primera Categoría</Link>
-                                </Button>
-                            </Card>
+                            </div>
+                        )}
+
+                        {showEditModal && editingCategory && (
+                            <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+                                <div className="bg-white w-full max-w-lg rounded-lg shadow-lg">
+                                    <div className="px-6 py-4 border-b flex items-center justify-between">
+                                        <h3 className="text-lg font-semibold">Editar Categoría</h3>
+                                        <button onClick={closeModals} className="text-gray-500 hover:text-gray-700">✕</button>
+                                    </div>
+                                    <form onSubmit={handleUpdate} className="p-6 space-y-4">
+                                        <div>
+                                            <label className="block text-sm font-medium text-gray-700 mb-1">Nombre</label>
+                                            <input
+                                                type="text"
+                                                className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                                value={data.name}
+                                                onChange={(e) => setData('name', e.target.value)}
+                                                required
+                                                maxLength={255}
+                                            />
+                                            {errors.name && <p className="mt-1 text-sm text-red-600">{errors.name}</p>}
+                                        </div>
+                                        <div>
+                                            <label className="block text-sm font-medium text-gray-700 mb-1">Descripción</label>
+                                            <textarea
+                                                className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                                rows={4}
+                                                value={data.description}
+                                                onChange={(e) => setData('description', e.target.value)}
+                                                required
+                                            />
+                                            {errors.description && <p className="mt-1 text-sm text-red-600">{errors.description}</p>}
+                                        </div>
+                                        <div className="flex justify-end space-x-3 pt-2">
+                                            <button type="button" onClick={closeModals} className="px-4 py-2 rounded-lg border hover:bg-gray-50">Cancelar</button>
+                                            <button type="submit" disabled={processing} className="px-4 py-2 rounded-lg bg-indigo-600 text-white hover:bg-indigo-700 disabled:opacity-50">
+                                                {processing ? 'Guardando...' : 'Guardar cambios'}
+                                            </button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
                         )}
 
                         {/* Paginación */}
