@@ -74,9 +74,16 @@ class ChallengeController extends Controller
         $categories = Category::all();
         $companies = Company::all();
 
+        $publicationStatuses = ['draft', 'published'];
+        $activityStatuses = ['active', 'completed', 'inactive'];
+        $difficulties = ['easy', 'medium', 'hard'];
+
         return Inertia::render('admin/challenges/create', [
             'categories' => $categories,
             'companies' => $companies,
+            'publicationStatuses' => $publicationStatuses,
+            'activityStatuses' => $activityStatuses,
+            'difficulties' => $difficulties,
         ]);
     }
 
@@ -151,7 +158,9 @@ class ChallengeController extends Controller
             // Align with DB enum
             'difficulty' => 'required|in:easy,medium,hard',
             'requirements' => 'array',
-            'status' => 'required|in:draft,active,completed,cancelled',
+            // Use the same fields as store()
+            'publication_status' => 'required|in:draft,published',
+            'activity_status' => 'required|in:active,completed,inactive',
             'start_date' => 'required|date',
             'end_date' => 'required|date|after:start_date',
             'link_video' => 'nullable|url',

@@ -13,17 +13,23 @@ interface Props {
     };
     categories: Category[];
     companies: Company[];
-    statuses: string[];
+    // Frontend esperaba 'statuses', pero el backend envía 'publicationStatuses' y 'activityStatuses'.
+    statuses?: string[];
+    publicationStatuses?: string[];
+    activityStatuses?: string[];
     difficulties: string[];
     filters: {
         search?: string;
         category_id?: number;
+        // El backend puede usar estas dos claves:
         status?: string;
+        publication_status?: string;
+        activity_status?: string;
         difficulty?: string;
     };
 }
 
-export default function AdminChallenges({ challenges, categories, companies, statuses, difficulties, filters }: Props) {
+export default function AdminChallenges({ challenges, categories, companies, statuses, publicationStatuses, activityStatuses, difficulties, filters }: Props) {
     const [showViewModal, setShowViewModal] = useState(false);
     const [viewChallenge, setViewChallenge] = useState<Challenge | null>(null);
     const [showEditModal, setShowEditModal] = useState(false);
@@ -34,7 +40,8 @@ export default function AdminChallenges({ challenges, categories, companies, sta
         description: '',
         objective: '',
         difficulty: '',
-        status: '',
+        publication_status: 'draft',
+        activity_status: 'active',
         requirements: [] as string[],
         start_date: '',
         end_date: '',
@@ -93,6 +100,14 @@ export default function AdminChallenges({ challenges, categories, companies, sta
         return v || 'draft';
     };
 
+    // Deriva un estado único para visualización desde publication/activity
+    const deriveStatus = (c: any): string => {
+        return (c?.status
+            || c?.publication_status
+            || c?.activity_status
+            || 'draft') as string;
+    };
+
     const handleView = (challenge: Challenge) => {
         setViewChallenge(challenge);
         setShowViewModal(true);
@@ -104,7 +119,8 @@ export default function AdminChallenges({ challenges, categories, companies, sta
             description: challenge.description || '',
             objective: challenge.objective || '',
             difficulty: normalizeDifficulty(challenge.difficulty),
-            status: normalizeStatus(challenge.status),
+            publication_status: ((challenge as any).publication_status || 'draft') as any,
+            activity_status: ((challenge as any).activity_status || 'active') as any,
             requirements: Array.isArray(challenge.requirements) ? challenge.requirements : [],
             start_date: toDateInput((challenge as any).start_date) || '',
             end_date: toDateInput((challenge as any).end_date) || '',
@@ -130,7 +146,8 @@ export default function AdminChallenges({ challenges, categories, companies, sta
             reward_amount: data.reward_amount === '' || data.reward_amount === null ? null : Number(data.reward_amount as any),
             link_video: data.link_video ? normalizeUrl(data.link_video) : null,
             difficulty: normalizeDifficulty(data.difficulty),
-            status: normalizeStatus(data.status),
+            publication_status: (data as any).publication_status,
+            activity_status: (data as any).activity_status,
         };
         router.put(`/admin/challenges/${editingChallenge.id}`, payload, {
             preserveScroll: true,
@@ -191,6 +208,11 @@ export default function AdminChallenges({ challenges, categories, companies, sta
         }
     };
 
+    // Unifica estados provenientes del backend para no romper si cambian las props
+    const safeStatuses: string[] = Array.isArray(statuses)
+        ? statuses
+        : Array.from(new Set([...(publicationStatuses || []), ...(activityStatuses || [])]));
+
     return (
         <MainLayout title="Gestión de Retos - Panel Administrativo" description="Administra todos los retos del sistema">
             <div className="bg-gray-50 py-8">
@@ -230,7 +252,7 @@ export default function AdminChallenges({ challenges, categories, companies, sta
                                         </div>
                                         <div>
                                             <div className="text-sm text-gray-500">Estado</div>
-                                            <div className="text-sm"><span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(viewChallenge.status)}`}>{viewChallenge.status}</span></div>
+                                            <div className="text-sm"><span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(deriveStatus(viewChallenge))}`}>{deriveStatus(viewChallenge)}</span></div>
                                         </div>
                                         <div>
                                             <div className="text-sm text-gray-500">Dificultad</div>
@@ -339,11 +361,18 @@ export default function AdminChallenges({ challenges, categories, companies, sta
                                             {errors.difficulty && <p className="text-red-600 text-sm mt-1">{errors.difficulty}</p>}
                                         </div>
                                         <div>
-                                            <label className="text-sm text-gray-600">Estado</label>
-                                            <select value={data.status} onChange={e => setData('status', e.target.value)} className="mt-1 w-full border rounded-md px-3 py-2" required>
-                                                {statuses.map(st => (<option key={st} value={st}>{st}</option>))}
+                                            <label className="text-sm text-gray-600">Estado de publicación</label>
+                                            <select value={(data as any).publication_status} onChange={e => setData('publication_status' as any, e.target.value)} className="mt-1 w-full border rounded-md px-3 py-2" required>
+                                                {(publicationStatuses || ['draft','published']).map(st => (<option key={st} value={st}>{st}</option>))}
                                             </select>
-                                            {errors.status && <p className="text-red-600 text-sm mt-1">{errors.status}</p>}
+                                            {(errors as any).publication_status && <p className="text-red-600 text-sm mt-1">{(errors as any).publication_status}</p>}
+                                        </div>
+                                        <div>
+                                            <label className="text-sm text-gray-600">Estado de actividad</label>
+                                            <select value={(data as any).activity_status} onChange={e => setData('activity_status' as any, e.target.value)} className="mt-1 w-full border rounded-md px-3 py-2" required>
+                                                {(activityStatuses || ['active','completed','inactive']).map(st => (<option key={st} value={st}>{st}</option>))}
+                                            </select>
+                                            {(errors as any).activity_status && <p className="text-red-600 text-sm mt-1">{(errors as any).activity_status}</p>}
                                         </div>
                                         <div>
                                             <label className="text-sm text-gray-600">Inicio</label>
@@ -441,10 +470,10 @@ export default function AdminChallenges({ challenges, categories, companies, sta
                                 </label>
                                 <select
                                     className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                    defaultValue={filters.status || ''}
+                                    defaultValue={(filters as any).status || (filters as any).publication_status || (filters as any).activity_status || ''}
                                 >
                                     <option value="">Todos los estados</option>
-                                    {statuses.map((status) => (
+                                    {safeStatuses.map((status) => (
                                         <option key={status} value={status}>
                                             {status.charAt(0).toUpperCase() + status.slice(1)}
                                         </option>
@@ -529,9 +558,11 @@ export default function AdminChallenges({ challenges, categories, companies, sta
                                                 </div>
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap">
-                                                <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(challenge.status)}`}>
-                                                    {challenge.status.charAt(0).toUpperCase() + challenge.status.slice(1)}
-                                                </span>
+                                                {(() => { const s = deriveStatus(challenge); return (
+                                                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(s)}`}>
+                                                        {s.charAt(0).toUpperCase() + s.slice(1)}
+                                                    </span>
+                                                ); })()}
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap">
                                                 <span className={`px-2 py-1 rounded-full text-xs font-medium ${getDifficultyColor(challenge.difficulty)}`}>

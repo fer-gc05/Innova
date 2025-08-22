@@ -102,9 +102,6 @@ export default function AdminForms({ forms, categories, filters }: Props) {
                                             Preguntas
                                         </th>
                                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            Respuestas
-                                        </th>
-                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                             Fecha Creación
                                         </th>
                                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -137,16 +134,6 @@ export default function AdminForms({ forms, categories, filters }: Props) {
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap">
                                                 <div className="text-sm text-gray-900">
-                                                    <Link
-                                                        href={`/admin/forms/${form.id}/answers`}
-                                                        className="text-blue-600 hover:text-blue-900"
-                                                    >
-                                                        Ver respuestas
-                                                    </Link>
-                                                </div>
-                                            </td>
-                                            <td className="px-6 py-4 whitespace-nowrap">
-                                                <div className="text-sm text-gray-900">
                                                     {new Date(form.created_at).toLocaleDateString()}
                                                 </div>
                                             </td>
@@ -163,12 +150,6 @@ export default function AdminForms({ forms, categories, filters }: Props) {
                                                         className="text-indigo-600 hover:text-indigo-900"
                                                     >
                                                         Editar
-                                                    </Link>
-                                                    <Link
-                                                        href={`/admin/forms/${form.id}/answers/export`}
-                                                        className="text-green-600 hover:text-green-900"
-                                                    >
-                                                        Exportar
                                                     </Link>
                                                     <button onClick={() => handleDelete(form.id)} className="text-red-600 hover:text-red-900">
                                                         Eliminar
