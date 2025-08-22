@@ -47,13 +47,16 @@
             margin-top: 5px;
         }
         .challenge-name {
-            font-size: 18px;
+            font-size: 20px;
             font-weight: bold;
-            margin-top: 10px;
-            padding: 8px 15px;
-            background-color: rgba(255, 255, 255, 0.2);
-            border-radius: 6px;
+            margin-top: 15px;
+            padding: 12px 20px;
+            background-color: rgba(255, 255, 255, 0.9);
+            border-radius: 8px;
             display: inline-block;
+            color: #1f2937;
+            text-shadow: none;
+            border: 2px solid #3b82f6;
         }
         .content {
             background: white;
@@ -136,7 +139,9 @@
         </div>
         <h1>Ficha Técnica del Reto</h1>
         <div class="subtitle">IN-NOVA - Plataforma de Innovación Empresarial</div>
-        <div class="challenge-name">{{ $challenge->name }}</div>
+        <div class="challenge-name">
+            {{ $challenge->name ?? 'Nombre del reto no disponible' }}
+        </div>
     </div>
 
     <div class="content">
