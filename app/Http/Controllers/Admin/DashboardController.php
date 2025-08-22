@@ -30,10 +30,16 @@ class DashboardController extends Controller
             'answers' => Answer::count(),
         ];
 
-        // Retos por estado
-        $challengesByStatus = Challenge::selectRaw('status, COUNT(*) as count')
-            ->groupBy('status')
-            ->pluck('count', 'status')
+        // Retos por estado de publicación
+        $challengesByPublicationStatus = Challenge::selectRaw('publication_status, COUNT(*) as count')
+            ->groupBy('publication_status')
+            ->pluck('count', 'publication_status')
+            ->toArray();
+
+        // Retos por estado de actividad
+        $challengesByActivityStatus = Challenge::selectRaw('activity_status, COUNT(*) as count')
+            ->groupBy('activity_status')
+            ->pluck('count', 'activity_status')
             ->toArray();
 
         // Retos recientes
@@ -50,7 +56,8 @@ class DashboardController extends Controller
 
         return Inertia::render('admin/dashboard/index', [
             'stats' => $stats,
-            'challengesByStatus' => $challengesByStatus,
+            'challengesByPublicationStatus' => $challengesByPublicationStatus,
+            'challengesByActivityStatus' => $challengesByActivityStatus,
             'recentChallenges' => $recentChallenges,
             'recentUsers' => $recentUsers,
         ]);
