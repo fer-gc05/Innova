@@ -9,6 +9,7 @@ use Illuminate\Http\Middleware\AddLinkHeadersForPreloadedAssets;
 use Spatie\Permission\Middleware\PermissionMiddleware;
 use Spatie\Permission\Middleware\RoleOrPermissionMiddleware;
 use Spatie\Permission\Middleware\RoleMiddleware;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
