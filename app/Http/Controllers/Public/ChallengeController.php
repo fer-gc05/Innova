@@ -14,7 +14,7 @@ class ChallengeController extends Controller
     public function index(Request $request)
     {
         $query = Challenge::with(['category', 'company'])
-            ->where('status', 'active')
+            ->where('publication_status', 'published')
             ->orderBy('created_at', 'desc');
 
         // Filtros
@@ -44,24 +44,24 @@ class ChallengeController extends Controller
         $userGroupCode = null;
         $isGroupLeader = false;
         $groupInfo = null;
-        
+
         if (auth()->check()) {
             // Buscar el student_id del usuario autenticado
             $student = DB::table('students')
                 ->where('user_id', auth()->id())
                 ->first();
-                
+
             if ($student) {
                 // Verificar si es líder o individual
                 $participation = DB::table('challenge_student')
                     ->where('challenge_id', $challenge->id)
                     ->where('student_id', $student->id)
                     ->first();
-                    
+
                 if ($participation) {
                     $isRegistered = true;
                     $isGroupLeader = $participation->is_group_leader;
-                    
+
                     // Si es líder, obtener su código
                     if ($isGroupLeader && $participation->group_code) {
                         $userGroupCode = $participation->group_code;
@@ -82,16 +82,16 @@ class ChallengeController extends Controller
                             'challenge_student.id as leader_id'
                         )
                         ->first();
-                        
+
                     if ($memberInfo) {
                         $isRegistered = true;
                         $isGroupLeader = false; // Es miembro, no líder
-                        
+
                         // Contar miembros actuales
                         $currentMembers = DB::table('group_members')
                             ->where('challenge_student_id', $memberInfo->leader_id)
                             ->count() + 1; // +1 por el líder
-                            
+
                         $groupInfo = [
                             'group_name' => $memberInfo->group_name,
                             'leader_name' => $memberInfo->leader_name,

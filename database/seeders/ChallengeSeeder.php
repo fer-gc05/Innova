@@ -57,7 +57,8 @@ class ChallengeSeeder extends Seeder
                     'Diseño de UX/UI intuitivo',
                     'Implementación de funcionalidades de escaneo'
                 ],
-                'status' => 'active',
+                'publication_status' => 'published',
+                'activity_status' => 'active',
                 'category_name' => 'Desarrollo de Software'
             ],
             [
@@ -72,7 +73,8 @@ class ChallengeSeeder extends Seeder
                     'Desarrollo de dashboard de visualización',
                     'Análisis de datos y estadísticas'
                 ],
-                'status' => 'active',
+                'publication_status' => 'published',
+                'activity_status' => 'active',
                 'category_name' => 'Inteligencia Artificial'
             ],
             [
@@ -87,7 +89,8 @@ class ChallengeSeeder extends Seeder
                     'Sistema de evaluaciones y certificaciones',
                     'Análisis de progreso y reportes'
                 ],
-                'status' => 'pending',
+                'publication_status' => 'draft',
+                'activity_status' => 'active',
                 'category_name' => 'Educación'
             ],
             [
@@ -102,7 +105,8 @@ class ChallengeSeeder extends Seeder
                     'Análisis de métricas y KPIs',
                     'Diseño de campañas personalizadas'
                 ],
-                'status' => 'active',
+                'publication_status' => 'published',
+                'activity_status' => 'active',
                 'category_name' => 'Marketing Digital'
             ],
             [
@@ -117,7 +121,8 @@ class ChallengeSeeder extends Seeder
                     'Dashboard de métricas ambientales',
                     'Integración con sensores IoT'
                 ],
-                'status' => 'pending',
+                'publication_status' => 'draft',
+                'activity_status' => 'active',
                 'category_name' => 'Sostenibilidad'
             ],
             [
@@ -132,7 +137,8 @@ class ChallengeSeeder extends Seeder
                     'Sistema de votación y evaluación',
                     'Gamificación y recompensas'
                 ],
-                'status' => 'completed',
+                'publication_status' => 'published',
+                'activity_status' => 'completed',
                 'category_name' => 'Innovación'
             ]
         ];
@@ -165,7 +171,8 @@ class ChallengeSeeder extends Seeder
                     'objective' => $challengeInfo['objective'],
                     'difficulty' => $challengeInfo['difficulty'],
                     'requirements' => $challengeInfo['requirements'],
-                    'status' => $challengeInfo['status'],
+                    'publication_status' => $challengeInfo['publication_status'],
+                    'activity_status' => $challengeInfo['activity_status'],
                     'start_date' => $startDate->format('Y-m-d'),
                     'end_date' => $endDate->format('Y-m-d'),
                     'link_video' => rand(0, 1) ? 'https://www.youtube.com/embed/dQw4w9WgXcQ' : null,

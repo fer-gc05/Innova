@@ -1,433 +1,204 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Link } from '@inertiajs/react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import MainLayout from '@/layouts/main-layout';
-import {
-  Target,
-  Users,
-  Clock,
-  CheckCircle,
-  ArrowLeft,
-  Edit,
-  AlertCircle,
-  Play,
-  FileText,
-  Award,
-} from 'lucide-react';
-
-interface Challenge {
-  id: number;
-  name: string;
-  description: string;
-  objective: string;
-  difficulty: string;
-  status: string;
-  start_date: string;
-  end_date: string;
-  requirements: string[];
-  link_video?: string;
-  category: {
-    id: number;
-    name: string;
-  };
-  company: {
-    id: number;
-    name: string;
-  };
-  created_at: string;
-}
-
-interface Participant {
-  id: number;
-  name: string;
-  email: string;
-  status: string;
-  registered_at: string;
-}
-
-interface Stats {
-  totalParticipants: number;
-  activeParticipants: number;
-  completedParticipants: number;
-  pendingParticipants: number;
-}
 
 interface Props {
-  challenge: Challenge;
-  stats: Stats;
-  participants: Participant[];
+  challenge: any;
+  stats: any;
+  participants: any[];
 }
 
 export default function ChallengeShow({ challenge, stats, participants }: Props) {
-  const [activeTab, setActiveTab] = useState<'overview' | 'participants'>('overview');
-
-  const getStatusBadge = (status: string) => {
-    switch (status) {
-      case 'active':
-        return <Badge variant="default" className="bg-green-100 text-green-800">Activo</Badge>;
-      case 'pending':
-        return <Badge variant="outline" className="text-yellow-600 border-yellow-600">Pendiente</Badge>;
-      case 'completed':
-        return <Badge variant="secondary" className="bg-blue-100 text-blue-800">Completado</Badge>;
-      default:
-        return <Badge variant="outline">{status}</Badge>;
-    }
-  };
-
-  const getDifficultyBadge = (difficulty: string) => {
-    switch (difficulty) {
-      case 'easy':
-        return <Badge variant="outline" className="text-green-600 border-green-600">Fácil</Badge>;
-      case 'medium':
-        return <Badge variant="outline" className="text-yellow-600 border-yellow-600">Medio</Badge>;
-      case 'hard':
-        return <Badge variant="outline" className="text-red-600 border-red-600">Difícil</Badge>;
-      default:
-        return <Badge variant="outline">{difficulty}</Badge>;
-    }
-  };
-
-  const getParticipantStatusBadge = (status: string) => {
-    switch (status) {
-      case 'active':
-        return <Badge variant="default" className="bg-green-100 text-green-800">Activo</Badge>;
-      case 'completed':
-        return <Badge variant="secondary" className="bg-blue-100 text-blue-800">Completado</Badge>;
-      case 'pending':
-        return <Badge variant="outline" className="text-yellow-600 border-yellow-600">Pendiente</Badge>;
-      default:
-        return <Badge variant="outline">{status}</Badge>;
-    }
-  };
-
-  const isChallengePending = challenge.status === 'pending';
+  console.log('ChallengeShow component rendered', { challenge, stats, participants });
 
   return (
-    <MainLayout title={`${challenge.name} - Detalles del Reto`} description={`Detalles y participantes del reto ${challenge.name}`}>
+    <MainLayout title={`${challenge?.name || 'Reto'} - Detalles`} description={`Detalles del reto ${challenge?.name || ''}`}>
       <div className="bg-gray-50 py-8">
-        {/* Header */}
-        <div className="bg-white shadow-sm border-b">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="flex justify-between items-center py-6">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          {/* Header */}
+          <div className="bg-white rounded-lg shadow-sm p-6 mb-8">
+            <div className="flex justify-between items-center">
               <div className="flex items-center space-x-4">
-                <Link href={route('businessman.challenges.index')}>
-                  <Button variant="outline" size="sm">
-                    <ArrowLeft className="h-4 w-4 mr-2" />
-                    Volver
-                  </Button>
+                <Link href="/businessman/challenges" className="text-blue-600 hover:text-blue-800">
+                  ← Volver a Retos
                 </Link>
                 <div>
-                  <h1 className="text-3xl font-bold text-gray-900">{challenge.name}</h1>
-                  <p className="mt-1 text-sm text-gray-500">
-                    Detalles del reto
-                  </p>
+                  <h1 className="text-3xl font-bold text-gray-900">
+                    {challenge?.name || 'Cargando...'}
+                  </h1>
+                  <p className="text-gray-500">Detalles del reto</p>
                 </div>
               </div>
-              <div className="flex items-center space-x-3">
-                {isChallengePending && (
-                  <Link href={route('businessman.challenges.edit', challenge.id)}>
-                    <Button variant="outline">
-                      <Edit className="h-4 w-4 mr-2" />
-                      Editar Reto
-                    </Button>
-                  </Link>
-                )}
-                {getStatusBadge(challenge.status)}
-                {getDifficultyBadge(challenge.difficulty)}
+              <div className="flex items-center space-x-2">
+                <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                  challenge?.status === 'draft' ? 'bg-gray-100 text-gray-800' :
+                  challenge?.status === 'active' ? 'bg-green-100 text-green-800' :
+                  challenge?.status === 'completed' ? 'bg-blue-100 text-blue-800' :
+                  challenge?.status === 'published' ? 'bg-purple-100 text-purple-800' :
+                  'bg-gray-100 text-gray-800'
+                }`}>
+                  {challenge?.status === 'draft' ? 'Borrador' :
+                   challenge?.status === 'active' ? 'Activo' :
+                   challenge?.status === 'completed' ? 'Completado' :
+                   challenge?.status === 'published' ? 'Publicado' : challenge?.status}
+                </span>
+                <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                  challenge?.difficulty === 'easy' ? 'bg-green-100 text-green-800' :
+                  challenge?.difficulty === 'medium' ? 'bg-yellow-100 text-yellow-800' :
+                  challenge?.difficulty === 'hard' ? 'bg-red-100 text-red-800' :
+                  'bg-gray-100 text-gray-800'
+                }`}>
+                  {challenge?.difficulty === 'easy' ? 'Fácil' :
+                   challenge?.difficulty === 'medium' ? 'Medio' :
+                   challenge?.difficulty === 'hard' ? 'Difícil' : challenge?.difficulty}
+                </span>
               </div>
             </div>
           </div>
-        </div>
 
-        {/* Main Content */}
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          {/* Stats Overview */}
+          {/* Stats */}
           <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Total Participantes</CardTitle>
-                <Users className="h-4 w-4 text-muted-foreground" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">{stats.totalParticipants}</div>
-                <p className="text-xs text-muted-foreground">
-                  Inscritos en total
-                </p>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Activos</CardTitle>
-                <CheckCircle className="h-4 w-4 text-muted-foreground" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold text-green-600">{stats.activeParticipants}</div>
-                <p className="text-xs text-muted-foreground">
-                  Participando actualmente
-                </p>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Completados</CardTitle>
-                <Award className="h-4 w-4 text-muted-foreground" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold text-blue-600">{stats.completedParticipants}</div>
-                <p className="text-xs text-muted-foreground">
-                  Reto finalizado
-                </p>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Pendientes</CardTitle>
-                <Clock className="h-4 w-4 text-muted-foreground" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold text-yellow-600">{stats.pendingParticipants}</div>
-                <p className="text-xs text-muted-foreground">
-                  En espera
-                </p>
-              </CardContent>
-            </Card>
-          </div>
-
-          {/* Tabs */}
-          <div className="bg-white rounded-lg shadow-sm border mb-6">
-            <div className="border-b">
-              <nav className="flex space-x-8 px-6">
-                <button
-                  onClick={() => setActiveTab('overview')}
-                  className={`py-4 px-1 border-b-2 font-medium text-sm ${
-                    activeTab === 'overview'
-                      ? 'border-blue-500 text-blue-600'
-                      : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                  }`}
-                >
-                  <Target className="h-4 w-4 inline mr-2" />
-                  Resumen
-                </button>
-                <button
-                  onClick={() => setActiveTab('participants')}
-                  className={`py-4 px-1 border-b-2 font-medium text-sm ${
-                    activeTab === 'participants'
-                      ? 'border-blue-500 text-blue-600'
-                      : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                  }`}
-                >
-                  <Users className="h-4 w-4 inline mr-2" />
-                  Participantes ({stats.totalParticipants})
-                </button>
-              </nav>
+            <div className="bg-white rounded-lg shadow-sm p-6">
+              <div className="text-center">
+                <div className="text-2xl font-bold text-gray-900">{stats?.totalParticipants || 0}</div>
+                <div className="text-sm text-gray-500">Total Participantes</div>
+              </div>
+            </div>
+            <div className="bg-white rounded-lg shadow-sm p-6">
+              <div className="text-center">
+                <div className="text-2xl font-bold text-green-600">{stats?.activeParticipants || 0}</div>
+                <div className="text-sm text-gray-500">Activos</div>
+              </div>
+            </div>
+            <div className="bg-white rounded-lg shadow-sm p-6">
+              <div className="text-center">
+                <div className="text-2xl font-bold text-blue-600">{stats?.completedParticipants || 0}</div>
+                <div className="text-sm text-gray-500">Completados</div>
+              </div>
+            </div>
+            <div className="bg-white rounded-lg shadow-sm p-6">
+              <div className="text-center">
+                <div className="text-2xl font-bold text-yellow-600">{stats?.pendingParticipants || 0}</div>
+                <div className="text-sm text-gray-500">Pendientes</div>
+              </div>
             </div>
           </div>
 
-          {/* Tab Content */}
-          {activeTab === 'overview' ? (
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-              {/* Challenge Details */}
-              <div className="lg:col-span-2 space-y-6">
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="flex items-center">
-                      <FileText className="h-5 w-5 mr-2" />
-                      Descripción del Reto
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-gray-700 leading-relaxed">
-                      {challenge.description}
-                    </p>
-                  </CardContent>
-                </Card>
+          {/* Content */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            {/* Main Content */}
+            <div className="lg:col-span-2 space-y-6">
+              <div className="bg-white rounded-lg shadow-sm p-6">
+                <h2 className="text-xl font-semibold text-gray-900 mb-4">Descripción</h2>
+                <p className="text-gray-700">{challenge?.description || 'No disponible'}</p>
+              </div>
 
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="flex items-center">
-                      <Target className="h-5 w-5 mr-2" />
-                      Objetivo
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-gray-700 leading-relaxed">
-                      {challenge.objective}
-                    </p>
-                  </CardContent>
-                </Card>
+              <div className="bg-white rounded-lg shadow-sm p-6">
+                <h2 className="text-xl font-semibold text-gray-900 mb-4">Objetivo</h2>
+                <p className="text-gray-700">{challenge?.objective || 'No disponible'}</p>
+              </div>
 
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="flex items-center">
-                      <AlertCircle className="h-5 w-5 mr-2" />
-                      Requisitos
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <ul className="space-y-2">
-                      {challenge.requirements.map((requirement, index) => (
-                        <li key={index} className="flex items-start">
-                          <span className="w-2 h-2 bg-blue-500 rounded-full mt-2 mr-3 flex-shrink-0"></span>
-                          <span className="text-gray-700">{requirement}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </CardContent>
-                </Card>
-
-                {challenge.link_video && (
-                  <Card>
-                    <CardHeader>
-                      <CardTitle className="flex items-center">
-                        <Play className="h-5 w-5 mr-2" />
-                        Video del Reto
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="aspect-video">
-                        <iframe
-                          src={challenge.link_video}
-                          className="w-full h-full rounded-lg"
-                          allowFullScreen
-                        />
-                      </div>
-                    </CardContent>
-                  </Card>
+              <div className="bg-white rounded-lg shadow-sm p-6">
+                <h2 className="text-xl font-semibold text-gray-900 mb-4">Requisitos</h2>
+                {challenge?.requirements && challenge.requirements.length > 0 ? (
+                  <ul className="space-y-2">
+                    {challenge.requirements.map((requirement: string, index: number) => (
+                      <li key={index} className="flex items-start">
+                        <span className="w-2 h-2 bg-blue-500 rounded-full mt-2 mr-3 flex-shrink-0"></span>
+                        <span className="text-gray-700">{requirement}</span>
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <p className="text-gray-500">No hay requisitos específicos</p>
                 )}
               </div>
 
-              {/* Sidebar */}
-              <div className="space-y-6">
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Información General</CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <div>
-                      <label className="text-sm font-medium text-gray-500">Empresa</label>
-                      <p className="text-gray-900">{challenge.company.name}</p>
+              {challenge?.reward_amount && (
+                <div className="bg-white rounded-lg shadow-sm p-6">
+                  <h2 className="text-xl font-semibold text-gray-900 mb-4">Recompensa</h2>
+                  <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+                    <div className="text-lg font-semibold text-green-900">
+                      ${parseFloat(challenge.reward_amount).toLocaleString()} {challenge.reward_currency}
                     </div>
-                    <div>
-                      <label className="text-sm font-medium text-gray-500">Categoría</label>
-                      <p className="text-gray-900">{challenge.category.name}</p>
-                    </div>
-                    <div>
-                      <label className="text-sm font-medium text-gray-500">Dificultad</label>
-                      <div className="mt-1">
-                        {getDifficultyBadge(challenge.difficulty)}
-                      </div>
-                    </div>
-                    <div>
-                      <label className="text-sm font-medium text-gray-500">Estado</label>
-                      <div className="mt-1">
-                        {getStatusBadge(challenge.status)}
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
+                    {challenge.reward_description && (
+                      <p className="text-green-700 mt-2">{challenge.reward_description}</p>
+                    )}
+                  </div>
+                </div>
+              )}
 
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Fechas</CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <div>
-                      <label className="text-sm font-medium text-gray-500">Fecha de Inicio</label>
-                      <p className="text-gray-900">
-                        {new Date(challenge.start_date).toLocaleDateString()}
-                      </p>
-                    </div>
-                    <div>
-                      <label className="text-sm font-medium text-gray-500">Fecha de Finalización</label>
-                      <p className="text-gray-900">
-                        {new Date(challenge.end_date).toLocaleDateString()}
-                      </p>
-                    </div>
-                    <div>
-                      <label className="text-sm font-medium text-gray-500">Creado</label>
-                      <p className="text-gray-900">
-                        {new Date(challenge.created_at).toLocaleDateString()}
-                      </p>
-                    </div>
-                  </CardContent>
-                </Card>
-              </div>
+              {challenge?.link_video && (
+                <div className="bg-white rounded-lg shadow-sm p-6">
+                  <h2 className="text-xl font-semibold text-gray-900 mb-4">Video del Reto</h2>
+                  <div className="aspect-video">
+                    <iframe
+                      src={challenge.link_video.replace('watch?v=', 'embed/')}
+                      className="w-full h-full rounded-lg"
+                      allowFullScreen
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    />
+                  </div>
+                </div>
+              )}
             </div>
-          ) : (
-            /* Participants Tab */
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center">
-                  <Users className="h-5 w-5 mr-2" />
-                  Participantes del Reto
-                </CardTitle>
-                <CardDescription>
-                  Lista de estudiantes registrados en este reto
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                {participants.length === 0 ? (
-                  <div className="text-center py-12">
-                    <Users className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                    <h3 className="text-lg font-medium text-gray-900 mb-2">
-                      No hay participantes aún
-                    </h3>
-                    <p className="text-gray-500">
-                      Los estudiantes se registrarán aquí cuando el reto esté activo.
+
+            {/* Sidebar */}
+            <div className="space-y-6">
+              <div className="bg-white rounded-lg shadow-sm p-6">
+                <h3 className="text-lg font-semibold text-gray-900 mb-4">Información General</h3>
+                <div className="space-y-4">
+                  <div>
+                    <label className="text-sm font-medium text-gray-500">Empresa</label>
+                    <p className="text-gray-900">{challenge?.company?.name || 'No disponible'}</p>
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium text-gray-500">Categoría</label>
+                    <p className="text-gray-900">{challenge?.category?.name || 'No disponible'}</p>
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium text-gray-500">Fecha de Inicio</label>
+                    <p className="text-gray-900">
+                      {challenge?.start_date ? new Date(challenge.start_date).toLocaleDateString() : 'No disponible'}
                     </p>
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium text-gray-500">Fecha de Fin</label>
+                    <p className="text-gray-900">
+                      {challenge?.end_date ? new Date(challenge.end_date).toLocaleDateString() : 'No disponible'}
+                    </p>
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium text-gray-500">Creado</label>
+                    <p className="text-gray-900">
+                      {challenge?.created_at ? new Date(challenge.created_at).toLocaleDateString() : 'No disponible'}
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-white rounded-lg shadow-sm p-6">
+                <h3 className="text-lg font-semibold text-gray-900 mb-4">Participantes ({participants?.length || 0})</h3>
+                {participants && participants.length > 0 ? (
+                  <div className="space-y-3">
+                    {participants.map((participant: any, index: number) => (
+                      <div key={participant.id || index} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                        <div>
+                          <div className="font-medium text-gray-900">{participant.name}</div>
+                          <div className="text-sm text-gray-500">{participant.email}</div>
+                        </div>
+                        <span className="text-xs text-gray-500">
+                          {participant.registered_at ? new Date(participant.registered_at).toLocaleDateString() : ''}
+                        </span>
+                      </div>
+                    ))}
                   </div>
                 ) : (
-                  <div className="overflow-x-auto">
-                    <table className="min-w-full divide-y divide-gray-200">
-                      <thead className="bg-gray-50">
-                        <tr>
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            Estudiante
-                          </th>
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            Email
-                          </th>
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            Estado
-                          </th>
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            Fecha de Registro
-                          </th>
-                        </tr>
-                      </thead>
-                      <tbody className="bg-white divide-y divide-gray-200">
-                        {participants.map((participant) => (
-                          <tr key={participant.id} className="hover:bg-gray-50">
-                            <td className="px-6 py-4 whitespace-nowrap">
-                              <div className="text-sm font-medium text-gray-900">
-                                {participant.name}
-                              </div>
-                            </td>
-                            <td className="px-6 py-4 whitespace-nowrap">
-                              <div className="text-sm text-gray-500">
-                                {participant.email}
-                              </div>
-                            </td>
-                            <td className="px-6 py-4 whitespace-nowrap">
-                              {getParticipantStatusBadge(participant.status)}
-                            </td>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                              {new Date(participant.registered_at).toLocaleDateString()}
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
+                  <p className="text-gray-500">No hay participantes registrados</p>
                 )}
-              </CardContent>
-            </Card>
-          )}
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </MainLayout>

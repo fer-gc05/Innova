@@ -32,17 +32,11 @@ export default function RetosActuales({ challenges, categories, filters }: Props
         // Agregar estilos CSS para line-clamp
         const style = document.createElement('style');
         style.textContent = `
-            .line-clamp-1 {
+            .line-clamp-3 {
                 overflow: hidden;
                 display: -webkit-box;
                 -webkit-box-orient: vertical;
-                -webkit-line-clamp: 1;
-            }
-            .line-clamp-2 {
-                overflow: hidden;
-                display: -webkit-box;
-                -webkit-box-orient: vertical;
-                -webkit-line-clamp: 2;
+                -webkit-line-clamp: 3;
             }
         `;
         document.head.appendChild(style);
@@ -51,6 +45,7 @@ export default function RetosActuales({ challenges, categories, filters }: Props
             document.head.removeChild(style);
         };
     }, []);
+
     const getDifficultyColor = (difficulty: string) => {
         switch (difficulty) {
             case 'easy': return 'bg-green-100 text-green-800';
@@ -73,7 +68,7 @@ export default function RetosActuales({ challenges, categories, filters }: Props
         if (!linkVideo) return null;
 
         // Extraer ID de YouTube
-        const youtubeRegex = /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/;
+        const youtubeRegex = /(?:youtube\.com\/(?:[^/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?/\s]{11})/;
         const match = linkVideo.match(youtubeRegex);
 
         if (match) {
@@ -92,8 +87,11 @@ export default function RetosActuales({ challenges, categories, filters }: Props
                         <h1 className="text-4xl font-bold text-gray-900 mb-4">
                             Retos Actuales
                         </h1>
-                        <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+                        <p className="text-xl text-gray-600 max-w-3xl mx-auto mb-2">
                             Descubre los desafíos empresariales que están transformando la industria
+                        </p>
+                        <p className="text-sm text-gray-500">
+                            Mostrando los retos más recientes primero
                         </p>
                     </div>
 
@@ -145,9 +143,9 @@ export default function RetosActuales({ challenges, categories, filters }: Props
 
                     {/* Retos Grid */}
                     {challenges.length > 0 ? (
-                        <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 items-start">
                             {challenges.map((challenge) => (
-                                <div key={challenge.id} className="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-shadow flex flex-col h-auto">
+                                <div key={challenge.id} className="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-all duration-300 flex flex-col min-h-0">
                                     {/* Video */}
                                     {challenge.link_video && (
                                         <div className="aspect-video bg-gray-200">
@@ -163,49 +161,53 @@ export default function RetosActuales({ challenges, categories, filters }: Props
                                     )}
 
                                     {/* Contenido */}
-                                    <div className="p-6">
-                                        <div className="flex items-start justify-between mb-4">
-                                            <div className="flex-1">
-                                                <h3 className="text-xl font-semibold text-gray-900 mb-2">
-                                                    {challenge.name}
-                                                </h3>
-                                                <div className="flex items-center gap-2 mb-3">
-                                                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${getDifficultyColor(challenge.difficulty)}`}>
-                                                        {getDifficultyLabel(challenge.difficulty)}
+                                    <div className="p-6 flex flex-col flex-grow">
+                                        {/* Header del reto */}
+                                        <div className="mb-4">
+                                            <h3 className="text-xl font-semibold text-gray-900 mb-3 leading-tight">
+                                                {challenge.name}
+                                            </h3>
+                                            <div className="flex items-center gap-2 mb-3">
+                                                <span className={`px-2 py-1 rounded-full text-xs font-medium ${getDifficultyColor(challenge.difficulty)}`}>
+                                                    {getDifficultyLabel(challenge.difficulty)}
+                                                </span>
+                                                {challenge.category && (
+                                                    <span className="text-sm text-gray-500">
+                                                        {challenge.category.name}
                                                     </span>
-                                                    {challenge.category && (
-                                                        <span className="text-sm text-gray-500">
-                                                            {challenge.category.name}
-                                                        </span>
-                                                    )}
-                                                </div>
+                                                )}
                                             </div>
                                         </div>
 
-                                        <p className="text-gray-600 mb-4 line-clamp-2 text-sm">
-                                            {challenge.description}
-                                        </p>
+                                        {/* Descripción */}
+                                        <div className="mb-4">
+                                            <p className="text-gray-600 text-sm leading-relaxed line-clamp-3">
+                                                {challenge.description}
+                                            </p>
+                                        </div>
 
-                                        <div className="space-y-2 mb-4">
-                                            <h4 className="font-medium text-gray-900 text-sm">Objetivo:</h4>
-                                            <p className="text-sm text-gray-600 line-clamp-2">
+                                        {/* Objetivo */}
+                                        <div className="mb-4">
+                                            <h4 className="font-medium text-gray-900 text-sm mb-2">Objetivo:</h4>
+                                            <p className="text-sm text-gray-600 leading-relaxed">
                                                 {challenge.objective}
                                             </p>
                                         </div>
 
+                                        {/* Requisitos */}
                                         {challenge.requirements && challenge.requirements.length > 0 && (
                                             <div className="mb-4">
                                                 <h4 className="font-medium text-gray-900 mb-2 text-sm">Requisitos:</h4>
                                                 <ul className="text-sm text-gray-600 space-y-1">
-                                                    {challenge.requirements.slice(0, 2).map((req, index) => (
-                                                        <li key={index} className="flex items-center">
-                                                            <span className="w-1.5 h-1.5 bg-blue-500 rounded-full mr-2 flex-shrink-0"></span>
-                                                            <span className="line-clamp-1">{req}</span>
+                                                    {challenge.requirements.slice(0, 3).map((req, index) => (
+                                                        <li key={index} className="flex items-start">
+                                                            <span className="w-1.5 h-1.5 bg-blue-500 rounded-full mr-2 mt-1.5 flex-shrink-0"></span>
+                                                            <span className="leading-relaxed">{req}</span>
                                                         </li>
                                                     ))}
-                                                    {challenge.requirements.length > 2 && (
-                                                        <li className="text-blue-600 text-xs">
-                                                            +{challenge.requirements.length - 2} más...
+                                                    {challenge.requirements.length > 3 && (
+                                                        <li className="text-blue-600 text-xs mt-1">
+                                                            +{challenge.requirements.length - 3} requisitos más...
                                                         </li>
                                                     )}
                                                 </ul>
@@ -227,18 +229,21 @@ export default function RetosActuales({ challenges, categories, filters }: Props
                                             </div>
                                         )}
 
-                                        <div className="flex items-center justify-between pt-4 border-t border-gray-200 mt-auto">
-                                            <div className="text-xs text-gray-500">
-                                                <span>Inicio: {new Date(challenge.start_date).toLocaleDateString()}</span>
-                                                <span className="mx-2">•</span>
-                                                <span>Fin: {new Date(challenge.end_date).toLocaleDateString()}</span>
+                                        {/* Footer con fechas y botón */}
+                                        <div className="mt-auto pt-4 border-t border-gray-200">
+                                            <div className="flex items-center justify-between">
+                                                <div className="text-xs text-gray-500">
+                                                    <span>Inicio: {new Date(challenge.start_date).toLocaleDateString()}</span>
+                                                    <span className="mx-2">•</span>
+                                                    <span>Fin: {new Date(challenge.end_date).toLocaleDateString()}</span>
+                                                </div>
+                                                <a
+                                                    href={`/retos-actuales/${challenge.id}`}
+                                                    className="bg-blue-600 text-white px-3 py-1.5 rounded-lg hover:bg-blue-700 transition-colors text-xs font-medium"
+                                                >
+                                                    Ver Detalles
+                                                </a>
                                             </div>
-                                            <a
-                                                href={`/retos-actuales/${challenge.id}`}
-                                                className="bg-blue-600 text-white px-3 py-1.5 rounded-lg hover:bg-blue-700 transition-colors text-xs font-medium"
-                                            >
-                                                Ver Detalles
-                                            </a>
                                         </div>
                                     </div>
                                 </div>

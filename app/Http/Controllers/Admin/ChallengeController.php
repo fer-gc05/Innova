@@ -32,8 +32,12 @@ class ChallengeController extends Controller
             $query->where('category_id', $request->category_id);
         }
 
-        if ($request->filled('status')) {
-            $query->where('status', $request->status);
+        if ($request->filled('publication_status')) {
+            $query->where('publication_status', $request->publication_status);
+        }
+
+        if ($request->filled('activity_status')) {
+            $query->where('activity_status', $request->activity_status);
         }
 
         if ($request->filled('difficulty')) {
@@ -46,7 +50,8 @@ class ChallengeController extends Controller
 
         $categories = Category::all();
         $companies = Company::all();
-        $statuses = ['draft', 'active', 'completed', 'cancelled'];
+        $publicationStatuses = ['draft', 'published'];
+        $activityStatuses = ['active', 'completed', 'inactive'];
         // Align with DB enum('easy','medium','hard')
         $difficulties = ['easy', 'medium', 'hard'];
 
@@ -54,9 +59,10 @@ class ChallengeController extends Controller
             'challenges' => $challenges,
             'categories' => $categories,
             'companies' => $companies,
-            'statuses' => $statuses,
+            'publicationStatuses' => $publicationStatuses,
+            'activityStatuses' => $activityStatuses,
             'difficulties' => $difficulties,
-            'filters' => $request->only(['search', 'category_id', 'status', 'difficulty']),
+            'filters' => $request->only(['search', 'category_id', 'publication_status', 'activity_status', 'difficulty']),
         ]);
     }
 
@@ -86,7 +92,8 @@ class ChallengeController extends Controller
             // Align with DB enum
             'difficulty' => 'required|in:easy,medium,hard',
             'requirements' => 'array',
-            'status' => 'required|in:draft,active,completed,cancelled',
+            'publication_status' => 'required|in:draft,published',
+            'activity_status' => 'required|in:active,completed,inactive',
             'start_date' => 'required|date',
             'end_date' => 'required|date|after:start_date',
             'link_video' => 'nullable|url',

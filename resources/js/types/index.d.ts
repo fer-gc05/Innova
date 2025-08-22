@@ -118,7 +118,8 @@ export interface Challenge {
     objective: string;
     difficulty: 'easy' | 'medium' | 'hard';
     requirements: string[];
-    status: 'draft' | 'active' | 'completed' | 'cancelled' | 'pending';
+    publication_status: 'draft' | 'published';
+    activity_status: 'active' | 'completed' | 'inactive';
     start_date: string;
     end_date: string;
     link_video?: string;

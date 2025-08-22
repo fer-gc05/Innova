@@ -8,11 +8,11 @@ use Illuminate\Support\Facades\Route;
 Route::middleware(['auth', 'verified', 'role:businessman'])->prefix('businessman')->name('businessman.')->group(function () {
 
     // Gestión de retos
+    Route::get('challenges/category-questions', [ChallengeController::class, 'getCategoryQuestions'])
+        ->name('challenges.category-questions');
     Route::resource('challenges', ChallengeController::class);
     Route::get('challenges/{challenge}/participants', [ChallengeController::class, 'participants'])
         ->name('challenges.participants');
-    Route::get('challenges/category-questions', [ChallengeController::class, 'getCategoryQuestions'])
-        ->name('challenges.category-questions');
 
     // Gestión de imágenes de empresa
     Route::resource('company-images', CompanyImageController::class);

@@ -30,22 +30,28 @@ class ChallengeController extends Controller
             ->get();
 
         // Agrupar por estado
-        $activeChallenges = $challenges->where('status', 'active');
-        $pendingChallenges = $challenges->where('status', 'pending');
-        $completedChallenges = $challenges->where('status', 'completed');
+        $draftChallenges = $challenges->where('publication_status', 'draft');
+        $publishedChallenges = $challenges->where('publication_status', 'published');
+        $activeChallenges = $challenges->where('activity_status', 'active');
+        $completedChallenges = $challenges->where('activity_status', 'completed');
+        $inactiveChallenges = $challenges->where('activity_status', 'inactive');
 
         return Inertia::render('businessman/challenges/index', [
             'challenges' => [
                 'all' => $challenges,
+                'draft' => $draftChallenges,
+                'published' => $publishedChallenges,
                 'active' => $activeChallenges,
-                'pending' => $pendingChallenges,
                 'completed' => $completedChallenges,
+                'inactive' => $inactiveChallenges,
             ],
             'stats' => [
                 'total' => $challenges->count(),
+                'draft' => $draftChallenges->count(),
+                'published' => $publishedChallenges->count(),
                 'active' => $activeChallenges->count(),
-                'pending' => $pendingChallenges->count(),
                 'completed' => $completedChallenges->count(),
+                'inactive' => $inactiveChallenges->count(),
                 'totalParticipants' => $challenges->sum(function($challenge) {
                     return $challenge->students->count();
                 }),
@@ -60,64 +66,116 @@ class ChallengeController extends Controller
         ]);
     }
 
+    /**
+     * Show the form for creating a new resource.
+     */
+    public function create()
+    {
+        $user = Auth::user();
+        $company = $user->company;
 
+        if (!$company) {
+            return redirect()->route('businessman.panel')
+                ->with('error', 'No tienes una empresa registrada.');
+        }
+
+        return Inertia::render('businessman/challenges/create', [
+            'categories' => \App\Models\Category::orderBy('name')->get(),
+            'forms' => \App\Models\Form::with('category')->get(),
+            'difficulties' => [
+                ['value' => 'easy', 'label' => 'Fácil'],
+                ['value' => 'medium', 'label' => 'Medio'],
+                ['value' => 'hard', 'label' => 'Difícil'],
+            ]
+        ]);
+    }
 
     /**
      * Store a newly created resource in storage.
      */
     public function store(Request $request)
     {
-        $user = Auth::user();
-        $company = $user->company;
+        try {
+            $user = Auth::user();
+            $company = $user->company;
 
-        if (!$company) {
-            return back()->withErrors(['error' => 'No tienes una empresa registrada.']);
-        }
+            if (!$company) {
+                return back()->withErrors(['error' => 'No tienes una empresa registrada.']);
+            }
 
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'description' => 'required|string|max:1000',
             'objective' => 'required|string|max:500',
             'difficulty' => 'required|in:easy,medium,hard',
-            'requirements' => 'required|array',
-            'start_date' => 'required|date|after:today',
+            'requirements.*nullable.*array',
+            'start_date' => 'required|date',
             'end_date' => 'required|date|after:start_date',
             'category_id' => 'required|exists:categories,id',
             'link_video' => 'nullable|url',
-            'reward_amount' => 'nullable|numeric|min:0',
+            'reward_amount' => 'nullable|numeric|min:0|max:99999999.99',
             'reward_currency' => 'nullable|string|max:3',
             'reward_description' => 'nullable|string',
             'reward_type' => 'nullable|in:fixed,variable,percentage',
             'category_questions' => 'nullable|array',
         ]);
 
-        // Obtener las preguntas específicas de la categoría
-        $categoryQuestions = $validated['category_questions'] ?? [];
+        \Log::info('Datos validados:', $validated);
 
-        // Agregar las respuestas de las preguntas específicas a los requisitos
-        $requirements = $validated['requirements'] ?? [];
+        // Crear el reto
+        $challenge = Challenge::create([
+            'name' => $validated['name'],
+            'description' => $validated['description'],
+            'objective' => $validated['objective'],
+            'difficulty' => $validated['difficulty'],
+            'requirements' => $validated['requirements'] ?? [],
+            'start_date' => $validated['start_date'],
+            'end_date' => $validated['end_date'],
+            'category_id' => $validated['category_id'],
+            'link_video' => $validated['link_video'],
+            'reward_amount' => $validated['reward_amount'],
+            'reward_currency' => $validated['reward_currency'],
+            'reward_description' => $validated['reward_description'],
+            'reward_type' => $validated['reward_type'],
+            'company_id' => $company->id,
+            'publication_status' => 'draft', // Por defecto en borrador
+            'activity_status' => 'active', // Por defecto activo
+        ]);
+
+        // Guardar las respuestas del formulario único en la tabla answers
+        $categoryQuestions = $validated['category_questions'] ?? [];
         if (!empty($categoryQuestions)) {
-            $requirements[] = 'Información específica de la categoría:';
-            foreach ($categoryQuestions as $question => $answer) {
-                if (!empty($answer)) {
-                    if (is_array($answer)) {
-                        $requirements[] = "- {$question}: " . implode(', ', $answer);
-                    } else {
-                        $requirements[] = "- {$question}: {$answer}";
-                    }
-                }
+            // Obtener el formulario de la categoría
+            $form = \App\Models\Form::where('category_id', $validated['category_id'])->first();
+
+            if ($form) {
+                \App\Models\Answer::create([
+                    'form_id' => $form->id,
+                    'company_id' => $company->id,
+                    'answers' => $categoryQuestions,
+                ]);
             }
         }
 
-        $challenge = Challenge::create([
-            ...$validated,
-            'requirements' => $requirements,
-            'company_id' => $company->id,
-            'status' => 'pending', // Por defecto pendiente de aprobación
-        ]);
-
         return redirect()->route('businessman.challenges.index')
-            ->with('success', 'Reto creado exitosamente. Está pendiente de aprobación.');
+            ->with('success', 'Reto creado exitosamente en estado borrador. Un administrador lo revisará y lo publicará.');
+        } catch (\Exception $e) {
+            \Log::error('Error al crear reto:', [
+                'message' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+                'data' => $request->all()
+            ]);
+
+            $errorMessage = 'Error al crear el reto. ';
+
+            if (str_contains($e->getMessage(), 'reward_amount')) {
+                $errorMessage .= 'El monto de la recompensa es demasiado alto. El valor máximo permitido es 99,999,999.99.';
+            } else {
+                $errorMessage .= $e->getMessage();
+            }
+
+            return back()->withErrors(['error' => $errorMessage]);
+        }
     }
 
     /**
@@ -125,100 +183,219 @@ class ChallengeController extends Controller
      */
     public function show(Challenge $challenge)
     {
-        $user = Auth::user();
-        $company = $user->company;
+        try {
+            $user = Auth::user();
+            $company = $user->company;
 
-        if (!$company || $challenge->company_id !== $company->id) {
-            abort(403, 'No tienes permisos para ver este reto.');
-        }
+            \Log::info('Accediendo a reto:', [
+                'challenge_id' => $challenge->id,
+                'challenge_name' => $challenge->name,
+                'user_id' => $user->id,
+                'user_name' => $user->name,
+                'company_id' => $company ? $company->id : null,
+                'challenge_company_id' => $challenge->company_id
+            ]);
 
-        $challenge->load([
-            'category',
-            'students.user',
-            'students' => function($query) {
-                $query->orderBy('created_at', 'desc');
+            if (!$company || $challenge->company_id !== $company->id) {
+                abort(403, 'No tienes permisos para ver este reto.');
             }
-        ]);
 
-        // Estadísticas del reto
-        $stats = [
-            'totalParticipants' => $challenge->students->count(),
-            'activeParticipants' => $challenge->students->where('status', 'active')->count(),
-            'completedParticipants' => $challenge->students->where('status', 'completed')->count(),
-            'pendingParticipants' => $challenge->students->where('status', 'pending')->count(),
-        ];
+            $challenge->load([
+                'category',
+                'students.user',
+                'students' => function($query) {
+                    $query->orderBy('created_at', 'desc');
+                }
+            ]);
 
-        return Inertia::render('businessman/challenges/show', [
-            'challenge' => $challenge,
-            'stats' => $stats,
-            'participants' => $challenge->students->map(function($student) {
-                return [
-                    'id' => $student->id,
-                    'name' => $student->user->name,
-                    'email' => $student->user->email,
-                    'status' => $student->pivot->status,
-                    'registered_at' => $student->pivot->created_at,
-                ];
-            })
-        ]);
+            // Estadísticas del reto
+            $stats = [
+                'totalParticipants' => $challenge->students->count(),
+                'activeParticipants' => 0, // Por ahora, no hay estado específico
+                'completedParticipants' => 0, // Por ahora, no hay estado específico
+                'pendingParticipants' => 0, // Por ahora, no hay estado específico
+            ];
+
+            \Log::info('Datos del reto cargados:', [
+                'challenge' => $challenge->toArray(),
+                'stats' => $stats,
+                'participants_count' => $challenge->students->count()
+            ]);
+
+            return Inertia::render('businessman/challenges/show', [
+                'challenge' => $challenge,
+                'stats' => $stats,
+                'participants' => $challenge->students->map(function($student) {
+                    return [
+                        'id' => $student->id,
+                        'name' => $student->user->name,
+                        'email' => $student->user->email,
+                        'status' => 'active', // Por defecto
+                        'registered_at' => $student->created_at,
+                    ];
+                })
+            ]);
+        } catch (\Exception $e) {
+            \Log::error('Error al mostrar reto:', [
+                'message' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+                'challenge_id' => $challenge->id ?? null
+            ]);
+
+            return back()->withErrors(['error' => 'Error al cargar el reto.']);
+        }
     }
 
+    /**
+     * Show the form for editing the specified resource.
+     */
+    public function edit(Challenge $challenge)
+    {
+        try {
+            $user = Auth::user();
+            $company = $user->company;
 
+            if (!$company || $challenge->company_id !== $company->id) {
+                abort(403, 'No tienes permisos para editar este reto.');
+            }
+
+            $challenge->load('category');
+
+            // Cargar las respuestas del formulario específico si existen
+            $categoryAnswers = null;
+            if ($challenge->category) {
+                $form = \App\Models\Form::where('category_id', $challenge->category->id)->first();
+                if ($form) {
+                    $answer = \App\Models\Answer::where('form_id', $form->id)
+                        ->where('company_id', $company->id)
+                        ->first();
+                    if ($answer) {
+                        $categoryAnswers = $answer->answers;
+                    }
+                }
+            }
+
+            return Inertia::render('businessman/challenges/edit', [
+                'challenge' => $challenge,
+                'categoryAnswers' => $categoryAnswers,
+                'categories' => \App\Models\Category::orderBy('name')->get(),
+                'forms' => \App\Models\Form::with('category')->get(),
+                'difficulties' => [
+                    ['value' => 'easy', 'label' => 'Fácil'],
+                    ['value' => 'medium', 'label' => 'Medio'],
+                    ['value' => 'hard', 'label' => 'Difícil'],
+                ]
+            ]);
+        } catch (\Exception $e) {
+            \Log::error('Error al cargar formulario de edición:', [
+                'message' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+
+            return back()->withErrors(['error' => 'Error al cargar el formulario de edición.']);
+        }
+    }
 
     /**
      * Update the specified resource in storage.
      */
     public function update(Request $request, Challenge $challenge)
     {
-        $user = Auth::user();
-        $company = $user->company;
+        try {
+            $user = Auth::user();
+            $company = $user->company;
 
-        if (!$company || $challenge->company_id !== $company->id) {
-            abort(403, 'No tienes permisos para editar este reto.');
-        }
+            if (!$company || $challenge->company_id !== $company->id) {
+                abort(403, 'No tienes permisos para editar este reto.');
+            }
 
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'description' => 'required|string|max:1000',
             'objective' => 'required|string|max:500',
             'difficulty' => 'required|in:easy,medium,hard',
-            'requirements' => 'required|array',
+            'requirements.*nullable.*array',
             'start_date' => 'required|date',
             'end_date' => 'required|date|after:start_date',
             'category_id' => 'required|exists:categories,id',
             'link_video' => 'nullable|url',
-            'reward_amount' => 'nullable|numeric|min:0',
+            'reward_amount' => 'nullable|numeric|min:0|max:99999999.99',
             'reward_currency' => 'nullable|string|max:3',
             'reward_description' => 'nullable|string',
             'reward_type' => 'nullable|in:fixed,variable,percentage',
             'category_questions' => 'nullable|array',
         ]);
 
-        // Obtener las preguntas específicas de la categoría
+        // Actualizar el reto
+        $challenge->update([
+            'name' => $validated['name'],
+            'description' => $validated['description'],
+            'objective' => $validated['objective'],
+            'difficulty' => $validated['difficulty'],
+            'requirements' => $validated['requirements'] ?? [],
+            'start_date' => $validated['start_date'],
+            'end_date' => $validated['end_date'],
+            'category_id' => $validated['category_id'],
+            'link_video' => $validated['link_video'],
+            'reward_amount' => $validated['reward_amount'],
+            'reward_currency' => $validated['reward_currency'],
+            'reward_description' => $validated['reward_description'],
+            'reward_type' => $validated['reward_type'],
+        ]);
+
+        // Manejar las respuestas del formulario único
         $categoryQuestions = $validated['category_questions'] ?? [];
 
-        // Agregar las respuestas de las preguntas específicas a los requisitos
-        $requirements = $validated['requirements'] ?? [];
+        // Verificar si cambió la categoría
+        $categoryChanged = $challenge->category_id != $validated['category_id'];
+
+        if ($categoryChanged) {
+            // Si cambió la categoría, eliminar todas las respuestas anteriores de esta empresa
+            \App\Models\Answer::where('company_id', $company->id)
+                ->whereHas('form', function($query) use ($challenge) {
+                    $query->where('category_id', $challenge->category_id);
+                })
+                ->delete();
+        }
+
+        // Guardar las nuevas respuestas si existen
         if (!empty($categoryQuestions)) {
-            $requirements[] = 'Información específica de la categoría:';
-            foreach ($categoryQuestions as $question => $answer) {
-                if (!empty($answer)) {
-                    if (is_array($answer)) {
-                        $requirements[] = "- {$question}: " . implode(', ', $answer);
-                    } else {
-                        $requirements[] = "- {$question}: {$answer}";
-                    }
-                }
+            $form = \App\Models\Form::where('category_id', $validated['category_id'])->first();
+
+            if ($form) {
+                // Eliminar respuestas anteriores de la nueva categoría si existen
+                \App\Models\Answer::where('form_id', $form->id)
+                    ->where('company_id', $company->id)
+                    ->delete();
+
+                // Crear nueva respuesta
+                \App\Models\Answer::create([
+                    'form_id' => $form->id,
+                    'company_id' => $company->id,
+                    'answers' => $categoryQuestions,
+                ]);
             }
         }
 
-        $challenge->update([
-            ...$validated,
-            'requirements' => $requirements,
-        ]);
-
         return redirect()->route('businessman.challenges.index')
             ->with('success', 'Reto actualizado exitosamente.');
+        } catch (\Exception $e) {
+            \Log::error('Error al actualizar reto:', [
+                'message' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+                'data' => $request->all()
+            ]);
+
+            $errorMessage = 'Error al actualizar el reto. ';
+
+            if (str_contains($e->getMessage(), 'reward_amount')) {
+                $errorMessage .= 'El monto de la recompensa es demasiado alto. El valor máximo permitido es 99,999,999.99.';
+            } else {
+                $errorMessage .= $e->getMessage();
+            }
+
+            return back()->withErrors(['error' => $errorMessage]);
+        }
     }
 
     /**

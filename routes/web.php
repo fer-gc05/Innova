@@ -25,7 +25,47 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Panel de empresario
     Route::middleware(['role:businessman'])->prefix('businessman')->group(function () {
         Route::get('/panel', function () {
-            return Inertia::render('businessman/panel');
+            $user = auth()->user();
+            $company = $user->company;
+
+            if (!$company) {
+                return redirect()->route('businessman.challenges.index')
+                    ->with('error', 'No tienes una empresa registrada.');
+            }
+
+            $challenges = \App\Models\Challenge::where('company_id', $company->id)
+                ->with(['category', 'students'])
+                ->orderBy('created_at', 'desc')
+                ->get();
+
+            $stats = [
+                'total' => $challenges->count(),
+                'draft' => $challenges->where('publication_status', 'draft')->count(),
+                'published' => $challenges->where('publication_status', 'published')->count(),
+                'active' => $challenges->where('activity_status', 'active')->count(),
+                'completed' => $challenges->where('activity_status', 'completed')->count(),
+                'inactive' => $challenges->where('activity_status', 'inactive')->count(),
+                'totalParticipants' => $challenges->sum(function($challenge) {
+                    return $challenge->students->count();
+                }),
+            ];
+
+            $recentChallenges = $challenges->take(3)->map(function($challenge) {
+                return [
+                    'id' => $challenge->id,
+                    'name' => $challenge->name,
+                    'description' => $challenge->description,
+                    'publication_status' => $challenge->publication_status,
+                    'activity_status' => $challenge->activity_status,
+                    'students_count' => $challenge->students->count(),
+                    'end_date' => $challenge->end_date,
+                ];
+            });
+
+            return Inertia::render('businessman/panel', [
+                'stats' => $stats,
+                'recentChallenges' => $recentChallenges,
+            ]);
         })->name('businessman.panel');
     });
 
