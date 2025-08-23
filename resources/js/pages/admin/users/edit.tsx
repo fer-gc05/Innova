@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import { Link, useForm } from '@inertiajs/react';
 import MainLayout from '@/layouts/main-layout';
 import { Card } from '@/components/ui/card';
@@ -11,25 +10,32 @@ interface Role {
     name: string;
 }
 
-interface Props {
-    roles: Role[];
+interface User {
+    id: number;
+    name: string;
+    email: string;
+    username: string | null;
+    role: string;
 }
 
-export default function CreateUser({ roles }: Props) {
-    const { data, setData, post, processing, errors, reset } = useForm({
-        name: '',
-        email: '',
-        username: '',
+interface Props {
+    roles: Role[];
+    user: User;
+}
+
+export default function EditUser({ roles, user }: Props) {
+    const { data, setData, put, processing, errors } = useForm({
+        name: user.name || '',
+        email: user.email || '',
+        username: user.username || '',
+        role: user.role || '',
         password: '',
         password_confirmation: '',
-        role: '',
     });
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        post('/admin/users', {
-            onSuccess: () => reset(),
-        });
+        put(`/admin/users/${user.id}`);
     };
 
     const getRoleLabel = (name: string) => {
@@ -46,20 +52,20 @@ export default function CreateUser({ roles }: Props) {
     };
 
     return (
-        <MainLayout title="Crear Usuario">
-            <div className="flex items-center justify-between mb-6 mt-15">
-                <div className="ml-15">
-                    <h1 className="text-2xl font-semibold text-gray-900">Crear Usuario</h1>
+        <MainLayout title="Editar Usuario">
+            <div className="flex items-center justify-between mb-10 mt-15">
+                <div className="ml-20">
+                    <h1 className="text-2xl font-semibold text-gray-900">Editar Usuario</h1>
                     <p className="mt-1 text-sm text-gray-500">
-                        Agrega un nuevo usuario a la plataforma
+                        Modifica los datos del usuario seleccionado
                     </p>
                 </div>
-                <Button className="mr-15"variant="outline" asChild>
+                <Button variant="outline" asChild className="mr-15">
                     <Link href="/admin/users">Volver</Link>
                 </Button>
             </div>
-            <Card className="max-w-2xl mx-auto p-6 mb-10">
-                
+
+            <Card className="max-w-2xl mx-auto p-6 mb-20">
                 <form onSubmit={handleSubmit} className="space-y-6">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
@@ -97,7 +103,7 @@ export default function CreateUser({ roles }: Props) {
                             <Input
                                 id="username"
                                 type="text"
-                                value={data.username}
+                                value={data.username ?? ''}
                                 onChange={(e) => setData('username', e.target.value)}
                                 error={errors.username}
                                 placeholder="Opcional"
@@ -129,14 +135,14 @@ export default function CreateUser({ roles }: Props) {
                         </div>
 
                         <div>
-                            <Label htmlFor="password">Contraseña *</Label>
+                            <Label htmlFor="password">Nueva contraseña</Label>
                             <Input
                                 id="password"
                                 type="password"
                                 value={data.password}
                                 onChange={(e) => setData('password', e.target.value)}
                                 error={errors.password}
-                                required
+                                placeholder="Déjalo vacío si no deseas cambiarla"
                             />
                             {errors.password && (
                                 <p className="mt-1 text-sm text-red-600">{errors.password}</p>
@@ -144,14 +150,14 @@ export default function CreateUser({ roles }: Props) {
                         </div>
 
                         <div>
-                            <Label htmlFor="password_confirmation">Confirmar contraseña *</Label>
+                            <Label htmlFor="password_confirmation">Confirmar contraseña</Label>
                             <Input
                                 id="password_confirmation"
                                 type="password"
                                 value={data.password_confirmation}
                                 onChange={(e) => setData('password_confirmation', e.target.value)}
                                 error={errors.password_confirmation}
-                                required
+                                placeholder="Déjalo vacío si no deseas cambiarla"
                             />
                             {errors.password_confirmation && (
                                 <p className="mt-1 text-sm text-red-600">{errors.password_confirmation}</p>
@@ -165,7 +171,7 @@ export default function CreateUser({ roles }: Props) {
                                 <Link href="/admin/users">Cancelar</Link>
                             </Button>
                             <Button type="submit" disabled={processing}>
-                                {processing ? 'Creando...' : 'Crear Usuario'}
+                                {processing ? 'Guardando...' : 'Guardar cambios'}
                             </Button>
                         </div>
                     </div>

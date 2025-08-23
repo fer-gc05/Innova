@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link, router } from '@inertiajs/react';
 import MainLayout from '@/layouts/main-layout';
+import React from 'react';
 
 interface User {
     id: number;
@@ -43,6 +44,8 @@ interface Props {
 export default function UsersIndex({ users, filters }: Props) {
     const [searchTerm, setSearchTerm] = useState(filters.search || '');
     const [selectedRole, setSelectedRole] = useState(filters.role || '');
+    const [showModal, setShowModal] = useState(false);
+    const [selectedUser, setSelectedUser] = useState<User | null>(null);
 
     const handleSearch = () => {
         router.get('/admin/users', {
@@ -75,6 +78,11 @@ export default function UsersIndex({ users, filters }: Props) {
         return <span className={`px-2 py-1 rounded-full text-xs font-medium ${config.className}`}>
             {config.label}
         </span>;
+    };
+
+    const handleViewUser = (user: User) => {
+        setSelectedUser(user);
+        setShowModal(true);
     };
 
     return (
@@ -224,12 +232,12 @@ export default function UsersIndex({ users, filters }: Props) {
                                                 </td>
                                                 <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                                                     <div className="flex space-x-2">
-                                                        <Link
-                                                            href={`/admin/users/${user.id}`}
+                                                        <button
+                                                            onClick={() => handleViewUser(user)}
                                                             className="text-blue-600 hover:text-blue-900"
                                                         >
                                                             Ver
-                                                        </Link>
+                                                        </button>
                                                         <Link
                                                             href={`/admin/users/${user.id}/edit`}
                                                             className="text-indigo-600 hover:text-indigo-900"
@@ -281,6 +289,82 @@ export default function UsersIndex({ users, filters }: Props) {
                     </div>
                 </div>
             </div>
+            {/* Modal Ver Usuario */}
+{showModal && selectedUser && (
+  <div className="fixed inset-0 z-50 flex items-center justify-center">
+    {/* Fondo oscuro */}
+    <div
+      className="absolute inset-0 bg-black/50"
+      onClick={() => setShowModal(false)}
+    />
+    <div className="relative bg-white rounded-lg shadow-xl w-full max-w-3xl mx-4">
+      {/* Header */}
+      <div className="px-6 py-4 border-b flex items-center justify-between">
+        <h2 className="text-xl font-semibold">Información del Usuario</h2>
+        <button
+          onClick={() => setShowModal(false)}
+          className="text-gray-500 hover:text-gray-700"
+        >
+          ✕
+        </button>
+      </div>
+
+      {/* Contenido scrollable */}
+      <div className="p-6 space-y-4 max-h-[70vh] overflow-auto">
+        <div>
+          <h3 className="text-lg font-bold text-gray-900">{selectedUser.name}</h3>
+          <p className="text-gray-600 mt-1">{selectedUser.email}</p>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {selectedUser.username && (
+            <div>
+              <div className="text-sm text-gray-500">Usuario</div>
+              <div className="text-sm text-gray-900">@{selectedUser.username}</div>
+            </div>
+          )}
+          <div>
+            <div className="text-sm text-gray-500">Fecha de Registro</div>
+            <div className="text-sm text-gray-900">
+              {new Date(selectedUser.created_at).toLocaleDateString()}
+            </div>
+          </div>
+          <div>
+            <div className="text-sm text-gray-500">Roles</div>
+            <div className="text-sm text-gray-900">
+              {selectedUser.roles.map((r) => r.name).join(", ")}
+            </div>
+          </div>
+          {selectedUser.companies && selectedUser.companies.length > 0 && (
+            <div>
+              <div className="text-sm text-gray-500">Empresa</div>
+              <div className="text-sm text-gray-900">
+                {selectedUser.companies[0].name}
+              </div>
+            </div>
+          )}
+          {selectedUser.students && selectedUser.students.length > 0 && (
+            <div>
+              <div className="text-sm text-gray-500">Estudiante</div>
+              <div className="text-sm text-gray-900">Sí</div>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Footer */}
+      <div className="px-6 py-4 border-t flex justify-end gap-2">
+        <button
+          onClick={() => setShowModal(false)}
+          className="px-4 py-2 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50"
+        >
+          Cerrar
+        </button>
+      </div>
+    </div>
+  </div>
+)}
+
         </MainLayout>
     );
 }
