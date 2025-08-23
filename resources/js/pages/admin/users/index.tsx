@@ -1,6 +1,7 @@
-import { useState } from 'react';
-import { Link, router } from '@inertiajs/react';
+import { useState, useEffect } from 'react';
+import { Link, router, usePage } from '@inertiajs/react';
 import MainLayout from '@/layouts/main-layout';
+import Alert from '@/components/Alert';
 import React from 'react';
 
 interface User {
@@ -46,6 +47,24 @@ export default function UsersIndex({ users, filters }: Props) {
     const [selectedRole, setSelectedRole] = useState(filters.role || '');
     const [showModal, setShowModal] = useState(false);
     const [selectedUser, setSelectedUser] = useState<User | null>(null);
+    const [alert, setAlert] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
+
+    const { props } = usePage<any>();
+
+    // Manejar flash messages
+    useEffect(() => {
+        if (props.flash?.success) {
+            setAlert({ type: 'success', message: props.flash.success });
+        } else if (props.flash?.error) {
+            setAlert({ type: 'error', message: props.flash.error });
+        } else if (props.errors?.error) {
+            setAlert({ type: 'error', message: props.errors.error });
+        }
+    }, [props.flash, props.errors]);
+
+    const closeAlert = () => {
+        setAlert(null);
+    };
 
     const handleSearch = () => {
         router.get('/admin/users', {
@@ -89,6 +108,17 @@ export default function UsersIndex({ users, filters }: Props) {
         <MainLayout title="Gestión de Usuarios - Panel Administrativo" description="Administra todos los usuarios del sistema">
             <div className="bg-gray-50 py-8">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    {/* Alertas */}
+                    {alert && (
+                        <div className="mb-6">
+                            <Alert
+                                type={alert.type}
+                                message={alert.message}
+                                onClose={closeAlert}
+                            />
+                        </div>
+                    )}
+
                     {/* Header */}
                     <div className="bg-white rounded-lg shadow-sm p-6 mb-8">
                         <div className="flex justify-between items-center">
