@@ -62,4 +62,9 @@ class Challenge extends Model
             'challenge_id',
             'company_id');
     }
+
+    public function formAnswers(): \Illuminate\Database\Eloquent\Relations\HasOne
+    {
+        return $this->hasOne(Answer::class, 'challenge_id', 'id');
+    }
 }

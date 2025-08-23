@@ -318,6 +318,37 @@
             </div>
         </div>
 
+        <!-- Respuestas del Formulario de Categoría -->
+        @if($formAnswers && $formQuestions && count($formAnswers) > 0)
+        <div class="section">
+            <div class="section-title">Respuestas del Formulario de Categoría</div>
+            <div class="info-grid">
+                @foreach($formQuestions as $question)
+                    @if(isset($formAnswers[$question['text']]))
+                        <div class="info-row">
+                            <div class="info-label">{{ $question['text'] }}</div>
+                            <div class="info-value">
+                                @if(is_array($formAnswers[$question['text']]))
+                                    @if($question['type'] === 'checkbox')
+                                        <ul class="requirements-list">
+                                            @foreach($formAnswers[$question['text']] as $option)
+                                                <li>{{ $option }}</li>
+                                            @endforeach
+                                        </ul>
+                                    @else
+                                        {{ implode(', ', $formAnswers[$question['text']]) }}
+                                    @endif
+                                @else
+                                    {{ $formAnswers[$question['text']] }}
+                                @endif
+                            </div>
+                        </div>
+                    @endif
+                @endforeach
+            </div>
+        </div>
+        @endif
+
         <!-- Información del Sistema -->
         <div class="section">
             <div class="section-title">Información del Sistema</div>

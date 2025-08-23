@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('form_id')->constrained('forms'); // El formulario al que pertenece la respuesta.
             $table->foreignId('company_id')->constrained('companies'); // La empresa que responde el formulario para crear un reto.
+            $table->foreignId('challenge_id')->nullable()->constrained('challenges'); // El reto al que pertenece la respuesta.
             $table->jsonb('answers'); // Respuestas del formulario.
             $table->timestamps();
         });

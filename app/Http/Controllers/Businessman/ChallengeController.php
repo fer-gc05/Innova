@@ -152,6 +152,7 @@ class ChallengeController extends Controller
                 \App\Models\Answer::create([
                     'form_id' => $form->id,
                     'company_id' => $company->id,
+                    'challenge_id' => $challenge->id,
                     'answers' => $categoryQuestions,
                 ]);
             }
@@ -264,14 +265,9 @@ class ChallengeController extends Controller
             // Cargar las respuestas del formulario específico si existen
             $categoryAnswers = null;
             if ($challenge->category) {
-                $form = \App\Models\Form::where('category_id', $challenge->category->id)->first();
-                if ($form) {
-                    $answer = \App\Models\Answer::where('form_id', $form->id)
-                        ->where('company_id', $company->id)
-                        ->first();
-                    if ($answer) {
-                        $categoryAnswers = $answer->answers;
-                    }
+                $answer = \App\Models\Answer::where('challenge_id', $challenge->id)->first();
+                if ($answer) {
+                    $categoryAnswers = $answer->answers;
                 }
             }
 
@@ -350,12 +346,8 @@ class ChallengeController extends Controller
         $categoryChanged = $challenge->category_id != $validated['category_id'];
 
         if ($categoryChanged) {
-            // Si cambió la categoría, eliminar todas las respuestas anteriores de esta empresa
-            \App\Models\Answer::where('company_id', $company->id)
-                ->whereHas('form', function($query) use ($challenge) {
-                    $query->where('category_id', $challenge->category_id);
-                })
-                ->delete();
+            // Si cambió la categoría, eliminar todas las respuestas anteriores de este reto
+            \App\Models\Answer::where('challenge_id', $challenge->id)->delete();
         }
 
         // Guardar las nuevas respuestas si existen
@@ -363,15 +355,14 @@ class ChallengeController extends Controller
             $form = \App\Models\Form::where('category_id', $validated['category_id'])->first();
 
             if ($form) {
-                // Eliminar respuestas anteriores de la nueva categoría si existen
-                \App\Models\Answer::where('form_id', $form->id)
-                    ->where('company_id', $company->id)
-                    ->delete();
+                // Eliminar respuestas anteriores de este reto si existen
+                \App\Models\Answer::where('challenge_id', $challenge->id)->delete();
 
                 // Crear nueva respuesta
                 \App\Models\Answer::create([
                     'form_id' => $form->id,
                     'company_id' => $company->id,
+                    'challenge_id' => $challenge->id,
                     'answers' => $categoryQuestions,
                 ]);
             }
