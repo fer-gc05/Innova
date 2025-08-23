@@ -95,7 +95,7 @@ class RegisteredUserController extends Controller
             'responsible_phone' => 'required|string|max:50',
             'responsible_position' => 'required|string|max:255',
             'address' => 'required|string|max:255',
-            'logo' => 'nullable|image|max:2048',
+            'logo' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
         ]);
 
         $user = User::create([
