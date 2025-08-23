@@ -3,6 +3,7 @@ import { Link, useForm } from '@inertiajs/react';
 import MainLayout from '@/layouts/main-layout';
 import { Category, Form, FormQuestion } from '@/types';
 import { getYouTubeId, getYouTubeThumbnail } from '@/utils/video';
+import { formatCurrency, parseCurrency } from '@/utils/number';
 
 interface Challenge {
   id: number;
@@ -91,17 +92,21 @@ export default function EditChallenge({ challenge, categoryAnswers, categories, 
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    put(`/businessman/challenges/${challenge.id}`, {
-      onSuccess: () => {
-        // Mostrar alerta de éxito
-        alert('¡Reto actualizado exitosamente!');
-        // Redirigir al índice después de editar
-      },
-      onError: () => {
-        // Mostrar alerta de error
-        alert('Error al actualizar el reto. Por favor, verifica los datos e intenta nuevamente.');
-      },
-    });
+    const payload: any = {
+      ...data,
+      reward_amount: (() => {
+        const raw = parseCurrency((data as any).reward_amount, (data as any).reward_currency as any);
+        return raw === '' ? null : Number(raw);
+      })(),
+    };
+    if ((window as any).Inertia?.put) {
+      (window as any).Inertia.put(`/businessman/challenges/${challenge.id}`, payload, {
+        onSuccess: () => alert('¡Reto actualizado exitosamente!'),
+        onError: () => alert('Error al actualizar el reto. Por favor, verifica los datos e intenta nuevamente.'),
+      });
+    } else {
+      put(`/businessman/challenges/${challenge.id}`, payload as any);
+    }
   };
 
   const renderQuestion = (question: FormQuestion, index: number) => {
@@ -239,6 +244,8 @@ export default function EditChallenge({ challenge, categoryAnswers, categories, 
                   {getStatusBadge(challenge.status)}
                 </div>
               </div>
+
+              {/* Vista previa de video y formateo de monto */}
               <div className="flex space-x-3">
                 <Link
                   href="/businessman/challenges"
@@ -501,13 +508,14 @@ export default function EditChallenge({ challenge, categoryAnswers, categories, 
                       Monto de la Recompensa
                     </label>
                     <input
-                      type="number"
-                      value={data.reward_amount}
-                      onChange={(e) => setData('reward_amount', e.target.value)}
+                      type="text"
+                      inputMode="decimal"
+                      value={formatCurrency((data as any).reward_amount, (data as any).reward_currency as any)}
+                      onChange={(e) => {
+                        const parsed = parseCurrency(e.target.value, (data as any).reward_currency as any);
+                        setData('reward_amount', parsed);
+                      }}
                       placeholder="500000"
-                      min="0"
-                      max="99999999.99"
-                      step="0.01"
                       className="w-full px-4 py-3 text-sm border border-gray-300 rounded-lg bg-white shadow-sm transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400"
                     />
                     {errors.reward_amount && <p className="mt-1 text-sm text-red-600">{errors.reward_amount}</p>}

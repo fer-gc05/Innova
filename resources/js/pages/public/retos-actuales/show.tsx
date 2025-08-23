@@ -3,6 +3,7 @@ import { Challenge } from '@/types';
 import { Link, usePage } from '@inertiajs/react';
 import ChallengeRegistrationForm from '@/components/challenge-registration-form';
 import getVideoEmbedUrl, { getYouTubeId } from '@/utils/video';
+import { formatCurrency } from '@/utils/number';
 
 interface Props {
     challenge: Challenge;
@@ -224,7 +225,7 @@ export default function RetoDetalle({ challenge, isRegistered, userGroupCode, is
                                     <div className="space-y-4">
                                         <div className="text-center p-4 bg-green-50 border border-green-200 rounded-lg">
                                             <div className="text-3xl font-bold text-green-900 mb-1">
-                                                ${challenge.reward_amount?.toLocaleString()} {challenge.reward_currency}
+                                                ${formatCurrency(Number(challenge.reward_amount), (challenge as any).reward_currency as any)} {challenge.reward_currency}
                                             </div>
                                             <div className="text-sm text-green-700 capitalize">
                                                 {challenge.reward_type === 'fixed' ? 'Recompensa Fija' :

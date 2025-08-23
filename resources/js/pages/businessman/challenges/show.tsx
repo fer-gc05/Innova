@@ -2,6 +2,7 @@ import React from 'react';
 import { Link } from '@inertiajs/react';
 import MainLayout from '@/layouts/main-layout';
 import getVideoEmbedUrl, { getYouTubeId } from '@/utils/video';
+import { formatCurrency } from '@/utils/number';
 
 interface Props {
   challenge: any;
@@ -115,16 +116,20 @@ export default function ChallengeShow({ challenge, stats, participants }: Props)
                 )}
               </div>
 
-              {challenge?.reward_amount && (
+              {challenge.reward_amount && (
                 <div className="bg-white rounded-lg shadow-sm p-6">
-                  <h2 className="text-xl font-semibold text-gray-900 mb-4">Recompensa</h2>
-                  <div className="bg-green-50 border border-green-200 rounded-lg p-4">
-                    <div className="text-lg font-semibold text-green-900">
-                      ${parseFloat(challenge.reward_amount).toLocaleString()} {challenge.reward_currency}
+                  <h2 className="text-xl font-semibold text-gray-900 mb-4">💰 Recompensa</h2>
+                  <div className="space-y-4">
+                    <div className="text-center p-4 bg-green-50 border border-green-200 rounded-lg">
+                      <div className="text-3xl font-bold text-green-900 mb-1">
+                        ${formatCurrency(Number(challenge.reward_amount), (challenge as any).reward_currency as any)} {challenge.reward_currency}
+                      </div>
+                      <div className="text-sm text-green-700 capitalize">
+                        {challenge.reward_type === 'fixed' ? 'Recompensa Fija' :
+                         challenge.reward_type === 'variable' ? 'Recompensa Variable' :
+                         'Recompensa por Porcentaje'}
+                      </div>
                     </div>
-                    {challenge.reward_description && (
-                      <p className="text-green-700 mt-2">{challenge.reward_description}</p>
-                    )}
                   </div>
                 </div>
               )}

@@ -3,13 +3,16 @@ import { Link } from '@inertiajs/react';
 import MainLayout from '@/layouts/main-layout';
 import { Challenge } from '@/types';
 import getVideoEmbedUrl, { getYouTubeId } from '@/utils/video';
+import { formatCurrency } from '@/utils/number';
 
 interface Props {
   challenge: Challenge;
 }
 
 export default function AdminChallengesShow({ challenge }: Props) {
-  const money = challenge.reward_amount ? `$${Number(challenge.reward_amount).toLocaleString()} ${challenge.reward_currency || ''}` : '—';
+  const money = challenge.reward_amount
+    ? `$${formatCurrency(Number(challenge.reward_amount), (challenge as any).reward_currency as any)} ${challenge.reward_currency || ''}`
+    : '—';
   return (
     <MainLayout title={`Reto: ${challenge.name}`} description="Detalle del reto">
       <div className="bg-gray-50 py-8">

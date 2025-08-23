@@ -3,6 +3,7 @@ import { Link, useForm } from '@inertiajs/react';
 import MainLayout from '@/layouts/main-layout';
 import { Category, Challenge, Company } from '@/types';
 import { getYouTubeId, getYouTubeThumbnail } from '@/utils/video';
+import { formatCurrency, parseCurrency } from '@/utils/number';
 
 interface Props {
   challenge: Challenge;
@@ -36,7 +37,18 @@ export default function AdminChallengesEdit({ challenge, categories, companies, 
 
   const onSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    put(`/admin/challenges/${challenge.id}`);
+    const payload: any = {
+      ...data,
+      reward_amount: (() => {
+        const raw = parseCurrency((data as any).reward_amount, (data as any).reward_currency as any);
+        return raw === '' ? null : Number(raw);
+      })(),
+    };
+    if ((window as any).Inertia?.put) {
+      (window as any).Inertia.put(`/admin/challenges/${challenge.id}`, payload);
+    } else {
+      put(`/admin/challenges/${challenge.id}`, payload as any);
+    }
   };
 
   return (
@@ -166,7 +178,17 @@ export default function AdminChallengesEdit({ challenge, categories, companies, 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div>
                   <label className="block text-sm font-medium mb-1">Monto</label>
-                  <input type="number" className="w-full border rounded-lg px-3 py-2" value={data.reward_amount as any} onChange={e=>setData('reward_amount', e.target.value)} min={0} step="0.01" />
+                  <input
+                    type="text"
+                    inputMode="decimal"
+                    className="w-full border rounded-lg px-3 py-2"
+                    value={formatCurrency((data as any).reward_amount, (data as any).reward_currency as any)}
+                    onChange={e=>{
+                      const parsed = parseCurrency(e.target.value, (data as any).reward_currency as any);
+                      setData('reward_amount' as any, parsed);
+                    }}
+                    placeholder="0"
+                  />
                 </div>
                 <div>
                   <label className="block text-sm font-medium mb-1">Moneda</label>

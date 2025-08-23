@@ -2,6 +2,7 @@ import MainLayout from '@/layouts/main-layout';
 import { Challenge, Category, Company } from '@/types';
 import { Link, router, useForm } from '@inertiajs/react';
 import { useState } from 'react';
+import { formatCurrency } from '@/utils/number';
 
 interface Props {
     challenges: {
@@ -286,7 +287,7 @@ export default function AdminChallenges({ challenges, categories, companies, sta
                                             <div>
                                                 <div className="text-sm text-gray-500">Recompensa</div>
                                                 <div className="text-sm text-green-700">
-                                                    {viewChallenge.reward_amount ? `$${Number(viewChallenge.reward_amount).toLocaleString()} ${viewChallenge.reward_currency}` : '—'}
+                                                    {viewChallenge.reward_amount ? `$${formatCurrency(Number(viewChallenge.reward_amount), (viewChallenge as any).reward_currency as any)} ${viewChallenge.reward_currency}` : '—'}
                                                 </div>
                                             </div>
                                             <div>
@@ -573,7 +574,7 @@ export default function AdminChallenges({ challenges, categories, companies, sta
                                                 <div className="text-sm text-gray-900">
                                                     {challenge.reward_amount ? (
                                                         <span className="font-medium text-green-600">
-                                                            ${challenge.reward_amount.toLocaleString()} {challenge.reward_currency}
+                                                            ${formatCurrency(Number(challenge.reward_amount), (challenge as any).reward_currency as any)} {challenge.reward_currency}
                                                         </span>
                                                     ) : (
                                                         <span className="text-gray-500">Sin recompensa</span>

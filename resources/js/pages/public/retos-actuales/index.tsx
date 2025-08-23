@@ -2,6 +2,7 @@ import MainLayout from '@/layouts/main-layout';
 import { Challenge, Category } from '@/types';
 import { useEffect, useState } from 'react';
 import { router } from '@inertiajs/react';
+import { formatCurrency } from '@/utils/number';
 
 interface Props {
     challenges: Challenge[];
@@ -221,7 +222,7 @@ export default function RetosActuales({ challenges, categories, filters }: Props
                                                     <div>
                                                         <span className="text-xs font-medium text-green-800">Recompensa</span>
                                                         <p className="text-lg font-bold text-green-900">
-                                                            ${challenge.reward_amount?.toLocaleString()} {challenge.reward_currency}
+                                                            ${formatCurrency(Number(challenge.reward_amount), (challenge as any).reward_currency as any)} {challenge.reward_currency}
                                                         </p>
                                                     </div>
                                                     <div className="text-green-600 text-2xl">💰</div>

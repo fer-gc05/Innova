@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link, useForm, router } from '@inertiajs/react';
 import MainLayout from '@/layouts/main-layout';
 import { Challenge, Category, Form, FormQuestion } from '@/types';
+import { formatCurrency } from '@/utils/number';
 
 interface BusinessmanChallenge extends Omit<Challenge, 'students'> {
   students: Array<{
@@ -553,7 +554,7 @@ export default function ChallengesIndex({ challenges, stats, categories = [], di
                           <div className="text-sm text-gray-900">
                             {challenge.reward_amount ? (
                               <span className="font-medium text-green-600">
-                                ${challenge.reward_amount.toLocaleString()} {challenge.reward_currency}
+                                ${formatCurrency(Number(challenge.reward_amount), (challenge as any).reward_currency as any)} {challenge.reward_currency}
                               </span>
                             ) : (
                               <span className="text-gray-500">Sin recompensa</span>
