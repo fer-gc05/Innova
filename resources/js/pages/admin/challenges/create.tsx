@@ -2,6 +2,7 @@ import React from 'react';
 import { Link, useForm } from '@inertiajs/react';
 import MainLayout from '@/layouts/main-layout';
 import { Category, Company } from '@/types';
+import { getYouTubeId, getYouTubeThumbnail } from '@/utils/video';
 
 interface Props {
   categories: Category[];
@@ -150,6 +151,30 @@ export default function AdminChallengesCreate({ categories, companies, publicati
                   <input className="w-full border rounded-lg px-3 py-2" value={data.video_id} onChange={e=>setData('video_id', e.target.value)} />
                 </div>
               </div>
+
+              {data.link_video && (
+                <div className="-mt-4">
+                  {getYouTubeId(data.link_video) ? (
+                    <div className="bg-white rounded-lg border p-4">
+                      <div className="text-sm text-gray-600 mb-2">Vista previa (miniatura)</div>
+                      <div className="flex items-center gap-4">
+                        <img
+                          src={getYouTubeThumbnail(data.link_video, 'hq') || ''}
+                          alt="Miniatura del video"
+                          className="w-64 aspect-video object-cover rounded border"
+                        />
+                        <div className="text-sm text-gray-500">
+                          Detectado enlace de YouTube. Se mostrará el video en la vista de detalle.
+                        </div>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="bg-amber-50 border border-amber-200 text-amber-800 text-sm p-3 rounded">
+                      No se puede mostrar la vista previa del video. Verifica que el enlace sea válido (ej. YouTube: youtu.be/VIDEO o youtube.com/watch?v=VIDEO).
+                    </div>
+                  )}
+                </div>
+              )}
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div>

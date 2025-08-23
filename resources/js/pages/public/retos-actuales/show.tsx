@@ -2,6 +2,7 @@ import MainLayout from '@/layouts/main-layout';
 import { Challenge } from '@/types';
 import { Link, usePage } from '@inertiajs/react';
 import ChallengeRegistrationForm from '@/components/challenge-registration-form';
+import getVideoEmbedUrl, { getYouTubeId } from '@/utils/video';
 
 interface Props {
     challenge: Challenge;
@@ -37,20 +38,7 @@ export default function RetoDetalle({ challenge, isRegistered, userGroupCode, is
         }
     };
 
-    const getVideoEmbedUrl = (linkVideo: string | null) => {
-        if (!linkVideo) return null;
-
-        // Extraer ID de YouTube
-        const youtubeRegex = /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/;
-        const match = linkVideo.match(youtubeRegex);
-
-        if (match) {
-            // Usar youtube-nocookie.com para reducir tracking
-            return `https://www.youtube-nocookie.com/embed/${match[1]}?rel=0&modestbranding=1`;
-        }
-
-        return linkVideo;
-    };
+    // usar helpers centralizados de utils/video
 
     return (
         <MainLayout title={`${challenge.name} - IN-NOVA`} description={challenge.description}>
@@ -109,16 +97,23 @@ export default function RetoDetalle({ challenge, isRegistered, userGroupCode, is
                             {/* Video */}
                             {challenge.link_video && (
                                 <div className="bg-white rounded-lg shadow-sm overflow-hidden">
-                                    <div className="aspect-video bg-gray-200">
-                                        <iframe
-                                            src={getVideoEmbedUrl(challenge.link_video) || ''}
-                                            title={challenge.name}
-                                            className="w-full h-full"
-                                            frameBorder="0"
-                                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                                            allowFullScreen
-                                        />
-                                    </div>
+                                    {getYouTubeId(challenge.link_video) ? (
+                                        <div className="aspect-video bg-gray-200">
+                                            <iframe
+                                                src={getVideoEmbedUrl(challenge.link_video) || ''}
+                                                title={challenge.name}
+                                                className="w-full h-full"
+                                                frameBorder={0}
+                                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                                allowFullScreen
+                                            />
+                                        </div>
+                                    ) : (
+                                        <div className="bg-amber-50 border border-amber-200 text-amber-800 text-sm p-3 rounded">
+                                            No se puede mostrar el video embebido. Verifica que el enlace sea compatible (por ejemplo, YouTube).
+                                            <a href={challenge.link_video} target="_blank" rel="noreferrer" className="underline ml-1">Abrir enlace</a>.
+                                        </div>
+                                    )}
                                 </div>
                             )}
 
@@ -166,7 +161,7 @@ export default function RetoDetalle({ challenge, isRegistered, userGroupCode, is
                                 <div className="space-y-4">
                                     <div>
                                         <span className="text-sm font-medium text-gray-500">Estado</span>
-                                        <p className="text-sm text-gray-900 capitalize">{challenge.status}</p>
+                                        <p className="text-sm text-gray-900 capitalize">{challenge.activity_status}</p>
                                     </div>
                                     <div>
                                         <span className="text-sm font-medium text-gray-500">Fecha de Inicio</span>

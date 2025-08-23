@@ -2,6 +2,7 @@ import React from 'react';
 import { Link } from '@inertiajs/react';
 import MainLayout from '@/layouts/main-layout';
 import { Challenge } from '@/types';
+import getVideoEmbedUrl, { getYouTubeId } from '@/utils/video';
 
 interface Props {
   challenge: Challenge;
@@ -74,8 +75,24 @@ export default function AdminChallengesShow({ challenge }: Props) {
 
             {challenge.link_video && (
               <div>
-                <h2 className="font-semibold text-gray-900">Video</h2>
-                <a href={challenge.link_video} target="_blank" rel="noreferrer" className="text-blue-600 hover:underline">Ver video</a>
+                <h2 className="font-semibold text-gray-900 mb-2">Video</h2>
+                {getYouTubeId(challenge.link_video) ? (
+                  <div className="aspect-video bg-gray-200 rounded overflow-hidden">
+                    <iframe
+                      src={getVideoEmbedUrl(challenge.link_video) || ''}
+                      title={challenge.name}
+                      className="w-full h-full"
+                      frameBorder={0}
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                      allowFullScreen
+                    />
+                  </div>
+                ) : (
+                  <div className="bg-amber-50 border border-amber-200 text-amber-800 text-sm p-3 rounded">
+                    No se puede mostrar el video embebido. Verifica que el enlace sea compatible (por ejemplo, YouTube). 
+                    <a href={challenge.link_video} target="_blank" rel="noreferrer" className="underline ml-1">Abrir enlace en una nueva pestaña</a>.
+                  </div>
+                )}
               </div>
             )}
           </div>

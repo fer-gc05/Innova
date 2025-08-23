@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link, useForm } from '@inertiajs/react';
 import MainLayout from '@/layouts/main-layout';
 import { Category, Form, FormQuestion } from '@/types';
+import { getYouTubeId, getYouTubeThumbnail } from '@/utils/video';
 
 interface Challenge {
   id: number;
@@ -37,7 +38,7 @@ export default function EditChallenge({ challenge, categoryAnswers, categories, 
   const [selectedCategory, setSelectedCategory] = useState<Category | null>(challenge.category);
   const [categoryQuestions, setCategoryQuestions] = useState<FormQuestion[]>([]);
 
-  const { data, setData, put, processing, errors } = useForm({
+  const { data, setData, put, processing, errors } = useForm<any>({
     name: challenge.name,
     description: challenge.description,
     objective: challenge.objective,
@@ -51,7 +52,7 @@ export default function EditChallenge({ challenge, categoryAnswers, categories, 
     reward_currency: challenge.reward_currency || 'COP',
     reward_description: challenge.reward_description || '',
     reward_type: challenge.reward_type || 'fixed',
-    category_questions: categoryAnswers || {},
+    category_questions: (categoryAnswers as Record<string, string | string[]>) || {},
   });
 
   // Cargar preguntas cuando se selecciona una categoría
@@ -425,6 +426,30 @@ export default function EditChallenge({ challenge, categoryAnswers, categories, 
                   {errors.link_video && <p className="mt-1 text-sm text-red-600">{errors.link_video}</p>}
                 </div>
               </div>
+
+              {data.link_video && (
+                <div className="-mt-4">
+                  {getYouTubeId(data.link_video) ? (
+                    <div className="bg-white rounded-lg border p-4">
+                      <div className="text-sm text-gray-600 mb-2">Vista previa (miniatura)</div>
+                      <div className="flex items-center gap-4">
+                        <img
+                          src={getYouTubeThumbnail(data.link_video, 'hq') || ''}
+                          alt="Miniatura del video"
+                          className="w-64 aspect-video object-cover rounded border"
+                        />
+                        <div className="text-sm text-gray-500">
+                          Detectado enlace de YouTube. Se mostrará el video en la vista de detalle.
+                        </div>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="bg-amber-50 border border-amber-200 text-amber-800 text-sm p-3 rounded">
+                      No se puede mostrar la vista previa del video. Verifica que el enlace sea válido (ej. YouTube: youtu.be/VIDEO o youtube.com/watch?v=VIDEO).
+                    </div>
+                  )}
+                </div>
+              )}
 
               {/* Preguntas Específicas de Categoría */}
               {selectedCategory && (

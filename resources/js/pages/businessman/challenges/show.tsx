@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link } from '@inertiajs/react';
 import MainLayout from '@/layouts/main-layout';
+import getVideoEmbedUrl, { getYouTubeId } from '@/utils/video';
 
 interface Props {
   challenge: any;
@@ -131,14 +132,21 @@ export default function ChallengeShow({ challenge, stats, participants }: Props)
               {challenge?.link_video && (
                 <div className="bg-white rounded-lg shadow-sm p-6">
                   <h2 className="text-xl font-semibold text-gray-900 mb-4">Video del Reto</h2>
-                  <div className="aspect-video">
-                    <iframe
-                      src={challenge.link_video.replace('watch?v=', 'embed/')}
-                      className="w-full h-full rounded-lg"
-                      allowFullScreen
-                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                    />
-                  </div>
+                  {getYouTubeId(challenge.link_video) ? (
+                    <div className="aspect-video">
+                      <iframe
+                        src={getVideoEmbedUrl(challenge.link_video) || ''}
+                        className="w-full h-full rounded-lg"
+                        allowFullScreen
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                      />
+                    </div>
+                  ) : (
+                    <div className="bg-amber-50 border border-amber-200 text-amber-800 text-sm p-3 rounded">
+                      No se puede mostrar el video embebido. Verifica que el enlace sea compatible (por ejemplo, YouTube).
+                      <a href={challenge.link_video} target="_blank" rel="noreferrer" className="underline ml-1">Abrir enlace</a>.
+                    </div>
+                  )}
                 </div>
               )}
             </div>
