@@ -56,6 +56,9 @@ export default function EditChallenge({ challenge, categoryAnswers, categories, 
     category_questions: (categoryAnswers as Record<string, string | string[]>) || {},
   });
 
+  // Helper to avoid heavy generic inference from Inertia's setData overloads
+  const setField = (key: string, value: any) => (setData as any)(key, value);
+
   // Cargar preguntas cuando se selecciona una categoría
   useEffect(() => {
     if (selectedCategory) {
@@ -76,18 +79,24 @@ export default function EditChallenge({ challenge, categoryAnswers, categories, 
   const handleCategoryChange = (categoryId: string) => {
     const category = categories.find(cat => cat.id.toString() === categoryId);
     setSelectedCategory(category || null);
-    setData('category_id', categoryId);
-    setData('category_questions', {});
+    (setData as any)((prev: any) => ({
+      ...prev,
+      category_id: categoryId,
+      category_questions: {},
+    }));
   };
 
   const handleQuestionChange = (questionIndex: number, value: string | string[]) => {
     const question = categoryQuestions[questionIndex];
     if (!question) return;
 
-    setData('category_questions', {
-      ...data.category_questions,
-      [question.text]: value
-    });
+    (setData as any)((prev: any) => ({
+      ...prev,
+      category_questions: {
+        ...(prev.category_questions || {}),
+        [question.text]: value,
+      },
+    }));
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -310,7 +319,7 @@ export default function EditChallenge({ challenge, categoryAnswers, categories, 
                     <input
                       type="text"
                       value={data.name}
-                      onChange={(e) => setData('name', e.target.value)}
+                      onChange={(e) => setField('name', e.target.value)}
                       className="w-full px-4 py-3 text-sm border border-gray-300 rounded-lg bg-white shadow-sm transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400"
                       placeholder="Ej: Desarrollo de app innovadora"
                       required
@@ -345,7 +354,7 @@ export default function EditChallenge({ challenge, categoryAnswers, categories, 
                   </label>
                   <textarea
                     value={data.description}
-                    onChange={(e) => setData('description', e.target.value)}
+                    onChange={(e) => setField('description', e.target.value)}
                     rows={4}
                     className="w-full px-4 py-3 text-sm border border-gray-300 rounded-lg bg-white shadow-sm resize-none transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400"
                     placeholder="Describe detalladamente en qué consiste tu reto..."
@@ -360,7 +369,7 @@ export default function EditChallenge({ challenge, categoryAnswers, categories, 
                   </label>
                   <textarea
                     value={data.objective}
-                    onChange={(e) => setData('objective', e.target.value)}
+                    onChange={(e) => setField('objective', e.target.value)}
                     rows={3}
                     className="w-full px-4 py-3 text-sm border border-gray-300 rounded-lg bg-white shadow-sm resize-none transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400"
                     placeholder="¿Qué objetivo específico quieres lograr con este reto?"
@@ -376,7 +385,7 @@ export default function EditChallenge({ challenge, categoryAnswers, categories, 
                     </label>
                     <select
                       value={data.difficulty}
-                      onChange={(e) => setData('difficulty', e.target.value)}
+                      onChange={(e) => setField('difficulty', e.target.value)}
                       className="w-full px-4 py-3 text-sm border border-gray-300 rounded-lg bg-white shadow-sm transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400"
                       required
                     >
@@ -397,7 +406,7 @@ export default function EditChallenge({ challenge, categoryAnswers, categories, 
                     <input
                       type="date"
                       value={data.start_date}
-                      onChange={(e) => setData('start_date', e.target.value)}
+                      onChange={(e) => setField('start_date', e.target.value)}
                       className="w-full px-4 py-3 text-sm border border-gray-300 rounded-lg bg-white shadow-sm transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400"
                       required
                     />
@@ -411,7 +420,7 @@ export default function EditChallenge({ challenge, categoryAnswers, categories, 
                     <input
                       type="date"
                       value={data.end_date}
-                      onChange={(e) => setData('end_date', e.target.value)}
+                      onChange={(e) => setField('end_date', e.target.value)}
                       className="w-full px-4 py-3 text-sm border border-gray-300 rounded-lg bg-white shadow-sm transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400"
                       required
                     />
@@ -426,7 +435,7 @@ export default function EditChallenge({ challenge, categoryAnswers, categories, 
                   <input
                     type="url"
                     value={data.link_video}
-                    onChange={(e) => setData('link_video', e.target.value)}
+                    onChange={(e) => setField('link_video', e.target.value)}
                     className="w-full px-4 py-3 text-sm border border-gray-300 rounded-lg bg-white shadow-sm transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400"
                     placeholder="https://www.youtube.com/watch?v=..."
                   />
@@ -513,7 +522,7 @@ export default function EditChallenge({ challenge, categoryAnswers, categories, 
                       value={formatCurrency((data as any).reward_amount, (data as any).reward_currency as any)}
                       onChange={(e) => {
                         const parsed = parseCurrency(e.target.value, (data as any).reward_currency as any);
-                        setData('reward_amount', parsed);
+                        setField('reward_amount', parsed);
                       }}
                       placeholder="500000"
                       className="w-full px-4 py-3 text-sm border border-gray-300 rounded-lg bg-white shadow-sm transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400"
@@ -527,7 +536,7 @@ export default function EditChallenge({ challenge, categoryAnswers, categories, 
                     </label>
                     <select
                       value={data.reward_currency}
-                      onChange={(e) => setData('reward_currency', e.target.value)}
+                      onChange={(e) => setField('reward_currency', e.target.value)}
                       className="w-full px-4 py-3 text-sm border border-gray-300 rounded-lg bg-white shadow-sm transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400"
                     >
                       <option value="COP">COP (Pesos Colombianos)</option>
@@ -543,7 +552,7 @@ export default function EditChallenge({ challenge, categoryAnswers, categories, 
                   </label>
                   <textarea
                     value={data.reward_description}
-                    onChange={(e) => setData('reward_description', e.target.value)}
+                    onChange={(e) => setField('reward_description', e.target.value)}
                     rows={3}
                     placeholder="Describe cómo se entregará la recompensa y los criterios para ganarla..."
                     className="w-full px-4 py-3 text-sm border border-gray-300 rounded-lg bg-white shadow-sm resize-none transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400"
@@ -557,7 +566,7 @@ export default function EditChallenge({ challenge, categoryAnswers, categories, 
                   </label>
                   <select
                     value={data.reward_type}
-                    onChange={(e) => setData('reward_type', e.target.value)}
+                    onChange={(e) => setField('reward_type', e.target.value)}
                     className="w-full px-4 py-3 text-sm border border-gray-300 rounded-lg bg-white shadow-sm transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400"
                   >
                     <option value="fixed">Monto Fijo</option>
