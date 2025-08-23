@@ -118,6 +118,20 @@ function SortableQuestion({
           )}
         </div>
 
+        <div className="md:col-span-2">
+          <label className="block text-sm font-medium text-gray-700 mb-1">Descripción (Opcional)</label>
+          <textarea
+            className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            rows={2}
+            value={question.description}
+            onChange={(e) => updateQuestion(index, 'description', e.target.value)}
+            placeholder="Ej. Proporciona el nombre legal de tu empresa tal como aparece en los documentos oficiales"
+          />
+          {errors[`questions.${index}.description`] && (
+            <p className="mt-1 text-sm text-red-600">{errors[`questions.${index}.description`]}</p>
+          )}
+        </div>
+
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">Tipo</label>
           <select
@@ -136,7 +150,7 @@ function SortableQuestion({
           )}
         </div>
 
-        <div className="flex items-center mt-6">
+        <div className="flex items-center">
           <input
             id={`q-${index}-required`}
             type="checkbox"
@@ -229,6 +243,7 @@ export default function EditForm({ form, categories }: Props) {
       questions: (form.questions || []).map((q) => ({
         id: Date.now() + Math.random(),
         text: q.text,
+        description: q.description || '',
         type: q.type,
         required: q.required,
         options: q.options,
@@ -243,6 +258,7 @@ export default function EditForm({ form, categories }: Props) {
     e.preventDefault();
     const cleaned = (data.questions as any[]).map((q: any) => ({
       text: q.text,
+      description: q.description,
       type: q.type,
       required: q.required,
       options:
@@ -281,14 +297,14 @@ export default function EditForm({ form, categories }: Props) {
   };
 
   const addQuestion = () => {
-    const newQuestion = { id: Date.now() + Math.random(), text: '', type: 'text', required: false };
+    const newQuestion = { id: Date.now() + Math.random(), text: '', description: '', type: 'text', required: false };
     const updatedQuestions = [newQuestion, ...data.questions];
     setData('questions', updatedQuestions);
   };
 
   const removeQuestion = (idx: number) => {
     const next = (data.questions as any[]).filter((_: any, i: number) => i !== idx);
-    setData('questions', next.length ? next : [{ id: Date.now(), text: '', type: 'text', required: false }]);
+    setData('questions', next.length ? next : [{ id: Date.now(), text: '', description: '', type: 'text', required: false }]);
   };
 
   const addOption = (qIdx: number) => {
