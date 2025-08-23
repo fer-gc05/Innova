@@ -32,6 +32,7 @@ export default function EditForm({ form, categories }: Props) {
       description: form.description,
       category_id: form.category_id,
       questions: (form.questions || []).map((q) => ({
+        id: Date.now() + Math.random(),
         text: q.text,
         type: q.type,
         required: q.required,
@@ -46,7 +47,9 @@ export default function EditForm({ form, categories }: Props) {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const cleaned = (data.questions as any[]).map((q: any) => ({
-      ...q,
+      text: q.text,
+      type: q.type,
+      required: q.required,
       options:
         q.type === 'select' || q.type === 'radio' || q.type === 'checkbox'
           ? (((q.options as string[] | undefined) || []).filter((o) => typeof o === 'string' && (o as string).trim() !== ''))
@@ -83,15 +86,14 @@ export default function EditForm({ form, categories }: Props) {
   };
 
   const addQuestion = () => {
-    setData('questions', [
-      ...data.questions,
-      { text: '', type: 'text', required: false },
-    ]);
+    const newQuestion = { id: Date.now() + Math.random(), text: '', type: 'text', required: false };
+    const updatedQuestions = [newQuestion, ...data.questions];
+    setData('questions', updatedQuestions);
   };
 
   const removeQuestion = (idx: number) => {
     const next = (data.questions as any[]).filter((_: any, i: number) => i !== idx);
-    setData('questions', next.length ? next : [{ text: '', type: 'text', required: false }]);
+    setData('questions', next.length ? next : [{ id: Date.now(), text: '', type: 'text', required: false }]);
   };
 
   const addOption = (qIdx: number) => {
@@ -186,7 +188,7 @@ export default function EditForm({ form, categories }: Props) {
                   {data.questions.map((q: any, idx: number) => {
                     const requiresOptions = q.type === 'select' || q.type === 'radio' || q.type === 'checkbox';
                     return (
-                      <div key={idx} className="border border-gray-200 rounded-lg p-4 bg-gray-50">
+                      <div key={q.id || idx} className="border border-gray-200 rounded-lg p-4 bg-gray-50">
                         <div className="flex items-start justify-between">
                           <h4 className="font-medium text-gray-900">Pregunta #{idx + 1}</h4>
                           <button
