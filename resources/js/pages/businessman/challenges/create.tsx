@@ -26,10 +26,14 @@ export default function CreateChallenge({ categories, difficulties, forms }: Pro
     end_date: '',
     category_id: '',
     link_video: '',
+    acquisition_type: 'license',
+    acquisition_details: '',
+    acquisition_terms: '',
     reward_amount: '',
     reward_currency: 'COP',
     reward_description: '',
-    reward_type: 'fixed',
+    reward_delivery_type: 'final_software',
+    reward_delivery_details: '',
     category_questions: {},
   });
 
@@ -213,6 +217,9 @@ export default function CreateChallenge({ categories, difficulties, forms }: Pro
                     <label className="block text-sm font-medium text-gray-700 mb-2">
                       Nombre del Reto *
                     </label>
+                    <p className="text-xs text-gray-500 mb-2">
+                      Elige un nombre atractivo y descriptivo que capture la esencia de tu reto
+                    </p>
                     <input
                       type="text"
                       value={data.name}
@@ -228,6 +235,9 @@ export default function CreateChallenge({ categories, difficulties, forms }: Pro
                     <label className="block text-sm font-medium text-gray-700 mb-2">
                       Categoría *
                     </label>
+                    <p className="text-xs text-gray-500 mb-2">
+                      Selecciona la categoría que mejor describe el tipo de reto que quieres crear
+                    </p>
                     <select
                       value={data.category_id}
                       onChange={(e) => handleCategoryChange(e.target.value)}
@@ -245,10 +255,47 @@ export default function CreateChallenge({ categories, difficulties, forms }: Pro
                   </div>
                 </div>
 
+                {/* Preguntas Específicas de Categoría - Movido aquí */}
+                {selectedCategory && (
+                  <>
+                    {categoryQuestions.length > 0 ? (
+                      <div className="space-y-6">
+                        <h3 className="text-lg font-semibold text-gray-900 border-b border-gray-200 pb-2">
+                          Formulario Específico - {selectedCategory.name}
+                        </h3>
+                        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                          <p className="text-blue-700 text-sm">
+                            <strong>Formulario único de la categoría:</strong> Estas preguntas son específicas para la categoría "{selectedCategory.name}" y ayudarán a definir mejor los criterios de tu reto.
+                          </p>
+                        </div>
+                        <div className="space-y-6">
+                          {categoryQuestions.map((question, index) => (
+                            <div key={index} className="border border-gray-200 rounded-lg p-4">
+                              <label className="block text-sm font-medium text-gray-700 mb-2">
+                                {question.text} {question.required && <span className="text-red-500">*</span>}
+                              </label>
+                              {renderQuestion(question, index)}
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                        <p className="text-yellow-700 text-sm">
+                          <strong>Nota:</strong> La categoría "{selectedCategory.name}" no tiene un formulario específico configurado. Puedes continuar con la creación del reto sin preguntas adicionales.
+                        </p>
+                      </div>
+                    )}
+                  </>
+                )}
+
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     Descripción *
                   </label>
+                  <p className="text-xs text-gray-500 mb-2">
+                    Explica detalladamente en qué consiste tu reto, qué problema resuelve y qué se espera de los participantes
+                  </p>
                   <textarea
                     value={data.description}
                     onChange={(e) => setData('description', e.target.value)}
@@ -264,6 +311,9 @@ export default function CreateChallenge({ categories, difficulties, forms }: Pro
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     Objetivo *
                   </label>
+                  <p className="text-xs text-gray-500 mb-2">
+                    Define claramente qué quieres lograr con este reto y cuál es el resultado esperado
+                  </p>
                   <textarea
                     value={data.objective}
                     onChange={(e) => setData('objective', e.target.value)}
@@ -280,6 +330,9 @@ export default function CreateChallenge({ categories, difficulties, forms }: Pro
                     <label className="block text-sm font-medium text-gray-700 mb-2">
                       Dificultad *
                     </label>
+                    <p className="text-xs text-gray-500 mb-2">
+                      Define el nivel de complejidad que tendrá el reto para los participantes
+                    </p>
                     <select
                       value={data.difficulty}
                       onChange={(e) => setData('difficulty', e.target.value)}
@@ -300,6 +353,9 @@ export default function CreateChallenge({ categories, difficulties, forms }: Pro
                     <label className="block text-sm font-medium text-gray-700 mb-2">
                       Fecha de Inicio *
                     </label>
+                    <p className="text-xs text-gray-500 mb-2">
+                      Fecha en la que los estudiantes podrán comenzar a participar en el reto
+                    </p>
                     <input
                       type="date"
                       value={data.start_date}
@@ -314,6 +370,9 @@ export default function CreateChallenge({ categories, difficulties, forms }: Pro
                     <label className="block text-sm font-medium text-gray-700 mb-2">
                       Fecha de Fin *
                     </label>
+                    <p className="text-xs text-gray-500 mb-2">
+                      Fecha límite para que los estudiantes entreguen sus propuestas
+                    </p>
                     <input
                       type="date"
                       value={data.end_date}
@@ -329,6 +388,9 @@ export default function CreateChallenge({ categories, difficulties, forms }: Pro
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     Link del Video (Opcional)
                   </label>
+                  <p className="text-xs text-gray-500 mb-2">
+                    Agrega un video explicativo o promocional para que los estudiantes entiendan mejor tu reto
+                  </p>
                   <input
                     type="url"
                     value={data.link_video}
@@ -340,39 +402,95 @@ export default function CreateChallenge({ categories, difficulties, forms }: Pro
                 </div>
               </div>
 
-                            {/* Preguntas Específicas de Categoría */}
-              {selectedCategory && (
-                <>
-                  {categoryQuestions.length > 0 ? (
-                    <div className="space-y-6">
-                      <h3 className="text-lg font-semibold text-gray-900 border-b border-gray-200 pb-2">
-                        Formulario Específico - {selectedCategory.name}
-                      </h3>
-                      <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                        <p className="text-blue-700 text-sm">
-                          <strong>Formulario único de la categoría:</strong> Estas preguntas son específicas para la categoría "{selectedCategory.name}" y ayudarán a definir mejor los criterios de tu reto.
-                        </p>
+              {/* Adquisición del Software */}
+              <div className="space-y-6">
+                <h3 className="text-lg font-semibold text-gray-900 border-b border-gray-200 pb-2">
+                  Adquisición del Software
+                </h3>
+                <div className="bg-purple-50 border border-purple-200 rounded-lg p-4">
+                  <p className="text-purple-700 text-sm">
+                    <strong>Importante:</strong> Especifica cómo deseas obtener el software desarrollado por los estudiantes.
+                  </p>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Tipo de Adquisición *
+                  </label>
+                  <p className="text-xs text-gray-500 mb-3">
+                    Define cómo deseas obtener el software desarrollado por los estudiantes
+                  </p>
+                  <div className="space-y-3">
+                    <label className="flex items-center p-4 border border-gray-200 rounded-lg cursor-pointer transition-colors duration-200 hover:bg-gray-50 hover:border-gray-300">
+                      <input
+                        type="radio"
+                        name="acquisition_type"
+                        value="license"
+                        checked={data.acquisition_type === 'license'}
+                        onChange={(e) => setData('acquisition_type', e.target.value)}
+                        className="w-4 h-4 text-blue-600 border-gray-300 focus:ring-blue-500 focus:ring-2"
+                        required
+                      />
+                      <div className="ml-3">
+                        <span className="text-sm font-medium text-gray-700">Licencia de Software</span>
+                        <p className="text-xs text-gray-500 mt-1">Obtener el software mediante una licencia de uso</p>
                       </div>
-                      <div className="space-y-6">
-                        {categoryQuestions.map((question, index) => (
-                          <div key={index} className="border border-gray-200 rounded-lg p-4">
-                            <label className="block text-sm font-medium text-gray-700 mb-2">
-                              {question.text} {question.required && <span className="text-red-500">*</span>}
-                            </label>
-                            {renderQuestion(question, index)}
-                          </div>
-                        ))}
+                    </label>
+                    <label className="flex items-center p-4 border border-gray-200 rounded-lg cursor-pointer transition-colors duration-200 hover:bg-gray-50 hover:border-gray-300">
+                      <input
+                        type="radio"
+                        name="acquisition_type"
+                        value="purchase"
+                        checked={data.acquisition_type === 'purchase'}
+                        onChange={(e) => setData('acquisition_type', e.target.value)}
+                        className="w-4 h-4 text-blue-600 border-gray-300 focus:ring-blue-500 focus:ring-2"
+                        required
+                      />
+                      <div className="ml-3">
+                        <span className="text-sm font-medium text-gray-700">Compra del Software</span>
+                        <p className="text-xs text-gray-500 mt-1">Adquirir la propiedad completa del software desarrollado</p>
                       </div>
-                    </div>
-                  ) : (
-                    <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-                      <p className="text-yellow-700 text-sm">
-                        <strong>Nota:</strong> La categoría "{selectedCategory.name}" no tiene un formulario específico configurado. Puedes continuar con la creación del reto sin preguntas adicionales.
-                      </p>
-                    </div>
-                  )}
-                                 </>
-               )}
+                    </label>
+                  </div>
+                  {errors.acquisition_type && <p className="mt-1 text-sm text-red-600">{errors.acquisition_type}</p>}
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Detalles de la Adquisición
+                  </label>
+                  <p className="text-xs text-gray-500 mb-2">
+                    Especifica los detalles del proceso de adquisición, plazos, entregables y cualquier consideración especial
+                  </p>
+                  <textarea
+                    value={data.acquisition_details}
+                    onChange={(e) => setData('acquisition_details', e.target.value)}
+                    rows={3}
+                    className="w-full px-4 py-3 text-sm border border-gray-300 rounded-lg bg-white shadow-sm resize-none transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400"
+                    placeholder="Describe los detalles específicos de cómo se realizará la adquisición del software..."
+                  />
+                  {errors.acquisition_details && <p className="mt-1 text-sm text-red-600">{errors.acquisition_details}</p>}
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Términos y Condiciones de Adquisición
+                  </label>
+                  <p className="text-xs text-gray-500 mb-2">
+                    Define los términos legales y condiciones que regirán la adquisición del software
+                  </p>
+                  <textarea
+                    value={data.acquisition_terms}
+                    onChange={(e) => setData('acquisition_terms', e.target.value)}
+                    rows={4}
+                    className="w-full px-4 py-3 text-sm border border-gray-300 rounded-lg bg-white shadow-sm resize-none transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400"
+                    placeholder="Especifica los términos y condiciones que aplicarán para la adquisición del software..."
+                  />
+                  {errors.acquisition_terms && <p className="mt-1 text-sm text-red-600">{errors.acquisition_terms}</p>}
+                </div>
+              </div>
+
+
 
               {/* Recompensa */}
               <div className="space-y-6">
@@ -389,6 +507,9 @@ export default function CreateChallenge({ categories, difficulties, forms }: Pro
                     <label className="block text-sm font-medium text-gray-700 mb-2">
                       Monto de la Recompensa
                     </label>
+                    <p className="text-xs text-gray-500 mb-2">
+                      Establece el valor económico que recibirá el ganador del reto
+                    </p>
                     <input
                       type="number"
                       value={data.reward_amount}
@@ -406,6 +527,9 @@ export default function CreateChallenge({ categories, difficulties, forms }: Pro
                     <label className="block text-sm font-medium text-gray-700 mb-2">
                       Moneda
                     </label>
+                    <p className="text-xs text-gray-500 mb-2">
+                      Selecciona la moneda en la que se entregará la recompensa
+                    </p>
                     <select
                       value={data.reward_currency}
                       onChange={(e) => setData('reward_currency', e.target.value)}
@@ -422,6 +546,9 @@ export default function CreateChallenge({ categories, difficulties, forms }: Pro
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     Descripción de la Recompensa
                   </label>
+                  <p className="text-xs text-gray-500 mb-2">
+                    Explica cómo se entregará la recompensa, cuándo y qué criterios se usarán para seleccionar al ganador
+                  </p>
                   <textarea
                     value={data.reward_description}
                     onChange={(e) => setData('reward_description', e.target.value)}
@@ -432,19 +559,65 @@ export default function CreateChallenge({ categories, difficulties, forms }: Pro
                   {errors.reward_description && <p className="mt-1 text-sm text-red-600">{errors.reward_description}</p>}
                 </div>
 
+
+
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Tipo de Recompensa
+                    Entrega de Recompensa *
                   </label>
-                  <select
-                    value={data.reward_type}
-                    onChange={(e) => setData('reward_type', e.target.value)}
-                    className="w-full px-4 py-3 text-sm border border-gray-300 rounded-lg bg-white shadow-sm transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400"
-                  >
-                    <option value="fixed">Monto Fijo</option>
-                    <option value="variable">Monto Variable</option>
-                    <option value="percentage">Porcentaje</option>
-                  </select>
+                  <p className="text-xs text-gray-500 mb-3">
+                    Especifica cuándo se entregará la recompensa al ganador
+                  </p>
+                  <div className="space-y-3">
+                    <label className="flex items-center p-4 border border-gray-200 rounded-lg cursor-pointer transition-colors duration-200 hover:bg-gray-50 hover:border-gray-300">
+                      <input
+                        type="radio"
+                        name="reward_delivery_type"
+                        value="prototype"
+                        checked={data.reward_delivery_type === 'prototype'}
+                        onChange={(e) => setData('reward_delivery_type', e.target.value)}
+                        className="w-4 h-4 text-blue-600 border-gray-300 focus:ring-blue-500 focus:ring-2"
+                        required
+                      />
+                      <div className="ml-3">
+                        <span className="text-sm font-medium text-gray-700">Por Prototipo</span>
+                        <p className="text-xs text-gray-500 mt-1">La recompensa se entregará cuando el estudiante presente el prototipo inicial</p>
+                      </div>
+                    </label>
+                    <label className="flex items-center p-4 border border-gray-200 rounded-lg cursor-pointer transition-colors duration-200 hover:bg-gray-50 hover:border-gray-300">
+                      <input
+                        type="radio"
+                        name="reward_delivery_type"
+                        value="final_software"
+                        checked={data.reward_delivery_type === 'final_software'}
+                        onChange={(e) => setData('reward_delivery_type', e.target.value)}
+                        className="w-4 h-4 text-blue-600 border-gray-300 focus:ring-blue-500 focus:ring-2"
+                        required
+                      />
+                      <div className="ml-3">
+                        <span className="text-sm font-medium text-gray-700">Por Software Final</span>
+                        <p className="text-xs text-gray-500 mt-1">La recompensa se entregará cuando se complete y entregue el software final</p>
+                      </div>
+                    </label>
+                  </div>
+                  {errors.reward_delivery_type && <p className="mt-1 text-sm text-red-600">{errors.reward_delivery_type}</p>}
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Detalles de Entrega de Recompensa
+                  </label>
+                  <p className="text-xs text-gray-500 mb-2">
+                    Especifica los detalles del proceso de entrega, plazos, criterios de evaluación y cualquier consideración especial
+                  </p>
+                  <textarea
+                    value={data.reward_delivery_details}
+                    onChange={(e) => setData('reward_delivery_details', e.target.value)}
+                    rows={3}
+                    className="w-full px-4 py-3 text-sm border border-gray-300 rounded-lg bg-white shadow-sm resize-none transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400"
+                    placeholder="Describe los detalles específicos de cómo se entregará la recompensa..."
+                  />
+                  {errors.reward_delivery_details && <p className="mt-1 text-sm text-red-600">{errors.reward_delivery_details}</p>}
                 </div>
               </div>
 

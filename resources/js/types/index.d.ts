@@ -124,10 +124,14 @@ export interface Challenge {
     end_date: string;
     link_video?: string;
     video_id?: string;
+    acquisition_type: 'license' | 'purchase';
+    acquisition_details?: string;
+    acquisition_terms?: string;
     reward_amount?: number;
     reward_currency?: string;
     reward_description?: string;
-    reward_type?: 'fixed' | 'variable' | 'percentage';
+    reward_delivery_type?: 'prototype' | 'final_software';
+    reward_delivery_details?: string;
     category_id: number;
     company_id: number;
     created_at: string;

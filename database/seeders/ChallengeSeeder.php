@@ -179,7 +179,6 @@ class ChallengeSeeder extends Seeder
                     'reward_amount' => rand(500000, 5000000), // Entre 500k y 5M COP
                     'reward_currency' => 'COP',
                     'reward_description' => 'Recompensa económica por el desarrollo exitoso del proyecto. El monto se pagará al equipo ganador una vez se complete la validación del proyecto.',
-                    'reward_type' => 'fixed',
                     'category_id' => $category->id,
                     'company_id' => $company->id,
                 ]);

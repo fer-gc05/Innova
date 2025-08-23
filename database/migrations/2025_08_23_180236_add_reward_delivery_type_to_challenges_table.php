@@ -12,9 +12,11 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('challenges', function (Blueprint $table) {
-            $table->decimal('reward_amount', 10, 2)->nullable()->after('video_id')->comment('Monto de la recompensa económica');
-            $table->string('reward_currency', 3)->default('COP')->after('reward_amount')->comment('Moneda de la recompensa (COP, USD, EUR)');
-            $table->text('reward_description')->nullable()->after('reward_currency')->comment('Descripción detallada de la recompensa');
+            // Tipo de entrega de recompensa
+            $table->enum('reward_delivery_type', ['prototype', 'final_software'])->default('final_software')->after('reward_description');
+
+            // Detalles adicionales sobre la entrega de recompensa
+            $table->text('reward_delivery_details')->nullable()->after('reward_delivery_type');
         });
     }
 
@@ -24,7 +26,7 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('challenges', function (Blueprint $table) {
-            $table->dropColumn(['reward_amount', 'reward_currency', 'reward_description']);
+            $table->dropColumn(['reward_delivery_type', 'reward_delivery_details']);
         });
     }
 };

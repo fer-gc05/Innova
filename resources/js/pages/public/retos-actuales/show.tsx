@@ -2,6 +2,8 @@ import MainLayout from '@/layouts/main-layout';
 import { Challenge } from '@/types';
 import { Link, usePage } from '@inertiajs/react';
 import ChallengeRegistrationForm from '@/components/challenge-registration-form';
+import AcquisitionInfo from '@/components/AcquisitionInfo';
+import RewardDeliveryInfo from '@/components/RewardDeliveryInfo';
 import getVideoEmbedUrl, { getYouTubeId } from '@/utils/video';
 import { formatCurrency } from '@/utils/number';
 
@@ -140,6 +142,28 @@ export default function RetoDetalle({ challenge, isRegistered, userGroupCode, is
                                     </ul>
                                 </div>
                             )}
+
+                            {/* Adquisición del Software */}
+                            <div className="bg-white rounded-lg shadow-sm p-6 mb-4">
+                                <h2 className="text-xl font-semibold text-gray-900 mb-4">Adquisición del Software</h2>
+                                <AcquisitionInfo
+                                    acquisitionType={challenge.acquisition_type}
+                                    acquisitionDetails={challenge.acquisition_details}
+                                    acquisitionTerms={challenge.acquisition_terms}
+                                />
+                            </div>
+
+                            {/* Entrega de Recompensa */}
+                            {challenge.reward_amount && (
+                                <div className="bg-white rounded-lg shadow-sm p-6 mb-4">
+                                    <h2 className="text-xl font-semibold text-gray-900 mb-4">Entrega de Recompensa</h2>
+                                    <RewardDeliveryInfo
+                                        rewardDeliveryType={challenge.reward_delivery_type}
+                                        rewardDeliveryDetails={challenge.reward_delivery_details}
+                                    />
+                                </div>
+                            )}
+
                             {/* Botón para descargar ficha técnica */}
                             <div className="bg-white rounded-lg shadow-sm p-6 mb-4 flex justify-end">
                                 <button
@@ -151,7 +175,7 @@ export default function RetoDetalle({ challenge, isRegistered, userGroupCode, is
                             </div>
 
                         </div>
-                       
+
 
 
                         {/* Sidebar */}
@@ -228,9 +252,7 @@ export default function RetoDetalle({ challenge, isRegistered, userGroupCode, is
                                                 ${formatCurrency(Number(challenge.reward_amount), (challenge as any).reward_currency as any)} {challenge.reward_currency}
                                             </div>
                                             <div className="text-sm text-green-700 capitalize">
-                                                {challenge.reward_type === 'fixed' ? 'Recompensa Fija' :
-                                                 challenge.reward_type === 'variable' ? 'Recompensa Variable' :
-                                                 'Recompensa por Porcentaje'}
+                                                Recompensa
                                             </div>
                                         </div>
 
@@ -246,15 +268,15 @@ export default function RetoDetalle({ challenge, isRegistered, userGroupCode, is
                                 </div>
                             )}
 
-                            
+
                         </div>
                     </div>
 
                     {/* Formulario de Inscripción - Sección Completa */}
                     {auth?.user && auth.user.roles?.some((role: any) => role.name === 'student') ? (
                         <div className="mt-12">
-                            <ChallengeRegistrationForm 
-                                challenge={challenge} 
+                            <ChallengeRegistrationForm
+                                challenge={challenge}
                                 isRegistered={isRegistered}
                                 userGroupCode={userGroupCode}
                                 isGroupLeader={isGroupLeader}
@@ -273,14 +295,14 @@ export default function RetoDetalle({ challenge, isRegistered, userGroupCode, is
                                                 Para participar en este reto, necesitas tener una cuenta de estudiante en nuestra plataforma.
                                             </p>
                                             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                                                <Link 
-                                                    href="/login" 
+                                                <Link
+                                                    href="/login"
                                                     className="bg-blue-600 text-white py-3 px-8 rounded-lg hover:bg-blue-700 transition-colors font-medium text-center"
                                                 >
                                                     Iniciar Sesión
                                                 </Link>
-                                                <Link 
-                                                    href="/register/student" 
+                                                <Link
+                                                    href="/register/student"
                                                     className="border border-blue-600 text-blue-600 py-3 px-8 rounded-lg hover:bg-blue-50 transition-colors font-medium text-center"
                                                 >
                                                     Registrarse como Estudiante

@@ -272,12 +272,7 @@
                     <div class="info-value">{{ $challenge->reward_description }}</div>
                 </div>
                 @endif
-                @if($challenge->reward_type)
-                <div class="info-row">
-                    <div class="info-label">Tipo de Recompensa</div>
-                    <div class="info-value">{{ ucfirst($challenge->reward_type) }}</div>
-                </div>
-                @endif
+
             </div>
         </div>
         @endif

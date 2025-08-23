@@ -2,6 +2,8 @@ import React from 'react';
 import { Link } from '@inertiajs/react';
 import MainLayout from '@/layouts/main-layout';
 import { Challenge } from '@/types';
+import AcquisitionInfo from '@/components/AcquisitionInfo';
+import RewardDeliveryInfo from '@/components/RewardDeliveryInfo';
 import getVideoEmbedUrl, { getYouTubeId } from '@/utils/video';
 import { formatCurrency } from '@/utils/number';
 
@@ -76,6 +78,27 @@ export default function AdminChallengesShow({ challenge }: Props) {
               </div>
             )}
 
+            {/* Adquisición del Software */}
+            <div>
+              <h2 className="font-semibold text-gray-900 mb-4">Adquisición del Software</h2>
+              <AcquisitionInfo
+                acquisitionType={challenge.acquisition_type}
+                acquisitionDetails={challenge.acquisition_details}
+                acquisitionTerms={challenge.acquisition_terms}
+              />
+            </div>
+
+            {/* Entrega de Recompensa */}
+            {challenge.reward_amount && (
+              <div>
+                <h2 className="font-semibold text-gray-900 mb-4">Entrega de Recompensa</h2>
+                <RewardDeliveryInfo
+                  rewardDeliveryType={challenge.reward_delivery_type}
+                  rewardDeliveryDetails={challenge.reward_delivery_details}
+                />
+              </div>
+            )}
+
             {challenge.link_video && (
               <div>
                 <h2 className="font-semibold text-gray-900 mb-2">Video</h2>
@@ -92,7 +115,7 @@ export default function AdminChallengesShow({ challenge }: Props) {
                   </div>
                 ) : (
                   <div className="bg-amber-50 border border-amber-200 text-amber-800 text-sm p-3 rounded">
-                    No se puede mostrar el video embebido. Verifica que el enlace sea compatible (por ejemplo, YouTube). 
+                    No se puede mostrar el video embebido. Verifica que el enlace sea compatible (por ejemplo, YouTube).
                     <a href={challenge.link_video} target="_blank" rel="noreferrer" className="underline ml-1">Abrir enlace en una nueva pestaña</a>.
                   </div>
                 )}

@@ -113,10 +113,14 @@ class ChallengeController extends Controller
             'end_date' => 'required|date|after:start_date',
             'category_id' => 'required|exists:categories,id',
             'link_video' => 'nullable|url',
+            'acquisition_type' => 'required|in:license,purchase',
+            'acquisition_details' => 'nullable|string|max:2000',
+            'acquisition_terms' => 'nullable|string|max:2000',
             'reward_amount' => 'nullable|numeric|min:0|max:99999999.99',
             'reward_currency' => 'nullable|string|max:3',
             'reward_description' => 'nullable|string',
-            'reward_type' => 'nullable|in:fixed,variable,percentage',
+            'reward_delivery_type' => 'required|in:prototype,final_software',
+            'reward_delivery_details' => 'nullable|string|max:2000',
             'category_questions' => 'nullable|array',
         ]);
 
@@ -133,10 +137,14 @@ class ChallengeController extends Controller
             'end_date' => $validated['end_date'],
             'category_id' => $validated['category_id'],
             'link_video' => $validated['link_video'],
+            'acquisition_type' => $validated['acquisition_type'],
+            'acquisition_details' => $validated['acquisition_details'],
+            'acquisition_terms' => $validated['acquisition_terms'],
             'reward_amount' => $validated['reward_amount'],
             'reward_currency' => $validated['reward_currency'],
             'reward_description' => $validated['reward_description'],
-            'reward_type' => $validated['reward_type'],
+            'reward_delivery_type' => $validated['reward_delivery_type'],
+            'reward_delivery_details' => $validated['reward_delivery_details'],
             'company_id' => $company->id,
             'publication_status' => 'draft', // Por defecto en borrador
             'activity_status' => 'active', // Por defecto activo

@@ -1,6 +1,8 @@
 import React from 'react';
 import { Link } from '@inertiajs/react';
 import MainLayout from '@/layouts/main-layout';
+import AcquisitionInfo from '@/components/AcquisitionInfo';
+import RewardDeliveryInfo from '@/components/RewardDeliveryInfo';
 import getVideoEmbedUrl, { getYouTubeId } from '@/utils/video';
 import { formatCurrency } from '@/utils/number';
 
@@ -116,6 +118,27 @@ export default function ChallengeShow({ challenge, stats, participants }: Props)
                 )}
               </div>
 
+              {/* Adquisición del Software */}
+              <div className="bg-white rounded-lg shadow-sm p-6">
+                <h2 className="text-xl font-semibold text-gray-900 mb-4">Adquisición del Software</h2>
+                <AcquisitionInfo
+                  acquisitionType={challenge.acquisition_type}
+                  acquisitionDetails={challenge.acquisition_details}
+                  acquisitionTerms={challenge.acquisition_terms}
+                />
+              </div>
+
+              {/* Entrega de Recompensa */}
+              {challenge.reward_amount && (
+                <div className="bg-white rounded-lg shadow-sm p-6">
+                  <h2 className="text-xl font-semibold text-gray-900 mb-4">Entrega de Recompensa</h2>
+                  <RewardDeliveryInfo
+                    rewardDeliveryType={challenge.reward_delivery_type}
+                    rewardDeliveryDetails={challenge.reward_delivery_details}
+                  />
+                </div>
+              )}
+
               {challenge.reward_amount && (
                 <div className="bg-white rounded-lg shadow-sm p-6">
                   <h2 className="text-xl font-semibold text-gray-900 mb-4">💰 Recompensa</h2>
@@ -125,9 +148,7 @@ export default function ChallengeShow({ challenge, stats, participants }: Props)
                         ${formatCurrency(Number(challenge.reward_amount), (challenge as any).reward_currency as any)} {challenge.reward_currency}
                       </div>
                       <div className="text-sm text-green-700 capitalize">
-                        {challenge.reward_type === 'fixed' ? 'Recompensa Fija' :
-                         challenge.reward_type === 'variable' ? 'Recompensa Variable' :
-                         'Recompensa por Porcentaje'}
+                        Recompensa
                       </div>
                     </div>
                   </div>
