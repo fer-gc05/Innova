@@ -5,7 +5,6 @@ import { LoaderCircle, GraduationCap } from 'lucide-react';
 import MainLayout from '@/layouts/main-layout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 
 import InputError from '@/components/input-error';
@@ -35,32 +34,47 @@ export default function RegisterStudent() {
                     <>
                       <div className="space-y-4">
                         <div>
-                          <Label htmlFor="name" className="text-gray-700">Nombre completo</Label>
-                          <Input id="name" name="name" type="text" autoComplete="name" autoFocus placeholder="Tu nombre" className="mt-1" aria-invalid={!!errors.name} />
+                          <Label htmlFor="name" className="text-gray-700">Nombre completo *</Label>
+                          <p className="text-xs text-gray-500 mb-2">
+                            Ingresa tu nombre completo como aparecerá en la plataforma
+                          </p>
+                          <input id="name" name="name" type="text" autoComplete="name" autoFocus placeholder="Tu nombre" className="w-full px-4 py-3 text-sm border border-gray-300 rounded-lg bg-white shadow-sm transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" aria-invalid={!!errors.name} />
                           <InputError message={errors.name} />
                         </div>
 
                         <div>
                           <Label htmlFor="username" className="text-gray-700">Nombre de usuario</Label>
-                          <Input id="username" name="username" type="text" autoComplete="username" placeholder="usuario123" className="mt-1" aria-invalid={!!errors.username} />
+                          <p className="text-xs text-gray-500 mb-2">
+                            Crea un nombre de usuario único para acceder a la plataforma
+                          </p>
+                          <input id="username" name="username" type="text" autoComplete="username" placeholder="usuario123" className="w-full px-4 py-3 text-sm border border-gray-300 rounded-lg bg-white shadow-sm transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" aria-invalid={!!errors.username} />
                           <InputError message={errors.username} />
                         </div>
 
                         <div>
-                          <Label htmlFor="email" className="text-gray-700">Correo electrónico</Label>
-                          <Input id="email" name="email" type="email" autoComplete="email" placeholder="tu-email@ejemplo.com" className="mt-1" aria-invalid={!!errors.email} />
+                          <Label htmlFor="email" className="text-gray-700">Correo electrónico *</Label>
+                          <p className="text-xs text-gray-500 mb-2">
+                            Usa un correo electrónico válido para recibir notificaciones
+                          </p>
+                          <input id="email" name="email" type="email" autoComplete="email" placeholder="tu-email@ejemplo.com" className="w-full px-4 py-3 text-sm border border-gray-300 rounded-lg bg-white shadow-sm transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" aria-invalid={!!errors.email} />
                           <InputError message={errors.email} />
                         </div>
 
                         <div>
-                          <Label htmlFor="password" className="text-gray-700">Contraseña</Label>
-                          <Input id="password" name="password" type="password" autoComplete="new-password" placeholder="Crea una contraseña" className="mt-1" aria-invalid={!!errors.password} />
+                          <Label htmlFor="password" className="text-gray-700">Contraseña *</Label>
+                          <p className="text-xs text-gray-500 mb-2">
+                            Crea una contraseña segura con al menos 8 caracteres
+                          </p>
+                          <input id="password" name="password" type="password" autoComplete="new-password" placeholder="Crea una contraseña" className="w-full px-4 py-3 text-sm border border-gray-300 rounded-lg bg-white shadow-sm transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" aria-invalid={!!errors.password} />
                           <InputError message={errors.password} />
                         </div>
 
                         <div>
-                          <Label htmlFor="password_confirmation" className="text-gray-700">Confirmar contraseña</Label>
-                          <Input id="password_confirmation" name="password_confirmation" type="password" autoComplete="new-password" placeholder="Repite tu contraseña" className="mt-1" aria-invalid={!!errors.password_confirmation} />
+                          <Label htmlFor="password_confirmation" className="text-gray-700">Confirmar contraseña *</Label>
+                          <p className="text-xs text-gray-500 mb-2">
+                            Repite la contraseña para confirmar que la escribiste correctamente
+                          </p>
+                          <input id="password_confirmation" name="password_confirmation" type="password" autoComplete="new-password" placeholder="Repite tu contraseña" className="w-full px-4 py-3 text-sm border border-gray-300 rounded-lg bg-white shadow-sm transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" aria-invalid={!!errors.password_confirmation} />
                           <InputError message={errors.password_confirmation} />
                         </div>
 

@@ -1,29 +1,34 @@
 import MainLayout from '@/layouts/main-layout';
 import { Link, useForm } from '@inertiajs/react';
 
-export default function CreateCategory() {
-  const { data, setData, post, processing, errors, reset } = useForm({
-    name: '',
-    description: '',
+interface Category {
+  id: number;
+  name: string;
+  description: string;
+}
+
+interface Props {
+  category: Category;
+}
+
+export default function EditCategory({ category }: Props) {
+  const { data, setData, put, processing, errors } = useForm({
+    name: category.name || '',
+    description: category.description || '',
   });
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    post('/admin/categories', {
-      preserveScroll: true,
-      onSuccess: () => {
-        reset();
-      },
-    });
+    put(`/admin/categories/${category.id}`);
   };
 
   return (
-    <MainLayout title="Crear Categoría - Panel Administrativo" description="Crea una nueva categoría para el sistema">
+    <MainLayout title="Editar Categoría - Panel Administrativo" description="Modifica una categoría existente en el sistema">
       <div className="bg-gray-50 py-8">
         <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="mb-6">
-            <h1 className="text-3xl font-bold text-gray-900">Crear Categoría</h1>
-            <p className="mt-1 text-sm text-gray-500">Completa el formulario para registrar una nueva categoría.</p>
+            <h1 className="text-3xl font-bold text-gray-900">Editar Categoría</h1>
+            <p className="mt-1 text-sm text-gray-500">Modifica los datos de la categoría seleccionada.</p>
           </div>
 
           <div className="bg-white rounded-lg shadow-sm p-6">
@@ -31,7 +36,7 @@ export default function CreateCategory() {
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Nombre *</label>
                 <p className="text-xs text-gray-500 mb-2">
-                  Elige un nombre claro y descriptivo que identifique el tipo de retos de esta categoría
+                  Modifica el nombre claro y descriptivo que identifique el tipo de retos de esta categoría
                 </p>
                 <input
                   type="text"
@@ -48,7 +53,7 @@ export default function CreateCategory() {
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Descripción *</label>
                 <p className="text-xs text-gray-500 mb-2">
-                  Explica detalladamente qué tipos de retos incluye esta categoría y qué habilidades se requieren
+                  Actualiza la explicación detallada de qué tipos de retos incluye esta categoría y qué habilidades se requieren
                 </p>
                 <textarea
                   className="w-full px-4 py-3 text-sm border border-gray-300 rounded-lg bg-white shadow-sm resize-none transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400"
@@ -68,7 +73,7 @@ export default function CreateCategory() {
                   disabled={processing}
                   className="px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50"
                 >
-                  {processing ? 'Guardando...' : 'Crear categoría'}
+                  {processing ? 'Guardando...' : 'Actualizar categoría'}
                 </button>
               </div>
             </form>

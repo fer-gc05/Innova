@@ -344,22 +344,29 @@ export default function EditForm({ form, categories }: Props) {
             <form onSubmit={handleSubmit} className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Nombre</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Nombre *</label>
+                  <p className="text-xs text-gray-500 mb-2">
+                    Modifica el nombre descriptivo que identifique el propósito del formulario
+                  </p>
                   <input
                     type="text"
-                    className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-4 py-3 text-sm border border-gray-300 rounded-lg bg-white shadow-sm transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400"
                     value={data.name}
                     onChange={(e) => setData('name', e.target.value)}
                     maxLength={255}
                     required
+                    placeholder="Ej. Formulario de registro actualizado"
                   />
                   {errors.name && <p className="mt-1 text-sm text-red-600">{errors.name}</p>}
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Categoría</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Categoría *</label>
+                  <p className="text-xs text-gray-500 mb-2">
+                    Cambia la categoría a la que pertenecerá este formulario si es necesario
+                  </p>
                   <select
-                    className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-4 py-3 text-sm border border-gray-300 rounded-lg bg-white shadow-sm transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400"
                     value={data.category_id}
                     onChange={(e) => setData('category_id', e.target.value ? Number(e.target.value) : ('' as any))}
                     required
@@ -376,13 +383,17 @@ export default function EditForm({ form, categories }: Props) {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Descripción</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Descripción *</label>
+                <p className="text-xs text-gray-500 mb-2">
+                  Actualiza la descripción del propósito del formulario y qué información se recopilará
+                </p>
                 <textarea
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-4 py-3 text-sm border border-gray-300 rounded-lg bg-white shadow-sm resize-none transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400"
                   rows={3}
                   value={data.description}
                   onChange={(e) => setData('description', e.target.value)}
                   required
+                  placeholder="Describe el propósito del formulario y qué información se recopilará..."
                 />
                 {errors.description && <p className="mt-1 text-sm text-red-600">{errors.description}</p>}
               </div>

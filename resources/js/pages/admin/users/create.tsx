@@ -1,9 +1,7 @@
-import { useState } from 'react';
 import { Link, useForm } from '@inertiajs/react';
 import MainLayout from '@/layouts/main-layout';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 
 interface Role {
@@ -59,17 +57,20 @@ export default function CreateUser({ roles }: Props) {
                 </Button>
             </div>
             <Card className="max-w-2xl mx-auto p-6 mb-10">
-                
+
                 <form onSubmit={handleSubmit} className="space-y-6">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
                             <Label htmlFor="name">Nombre completo *</Label>
-                            <Input
+                            <p className="text-xs text-gray-500 mb-2">
+                                Ingresa el nombre completo del usuario como aparecerá en la plataforma
+                            </p>
+                            <input
                                 id="name"
                                 type="text"
                                 value={data.name}
                                 onChange={(e) => setData('name', e.target.value)}
-                                error={errors.name}
+                                className="w-full px-4 py-3 text-sm border border-gray-300 rounded-lg bg-white shadow-sm transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400"
                                 required
                             />
                             {errors.name && (
@@ -79,12 +80,15 @@ export default function CreateUser({ roles }: Props) {
 
                         <div>
                             <Label htmlFor="email">Email *</Label>
-                            <Input
+                            <p className="text-xs text-gray-500 mb-2">
+                                Usa un correo electrónico válido para que el usuario pueda acceder
+                            </p>
+                            <input
                                 id="email"
                                 type="email"
                                 value={data.email}
                                 onChange={(e) => setData('email', e.target.value)}
-                                error={errors.email}
+                                className="w-full px-4 py-3 text-sm border border-gray-300 rounded-lg bg-white shadow-sm transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400"
                                 required
                             />
                             {errors.email && (
@@ -94,12 +98,15 @@ export default function CreateUser({ roles }: Props) {
 
                         <div>
                             <Label htmlFor="username">Nombre de usuario</Label>
-                            <Input
+                            <p className="text-xs text-gray-500 mb-2">
+                                Crea un nombre de usuario único para que acceda a la plataforma
+                            </p>
+                            <input
                                 id="username"
                                 type="text"
                                 value={data.username}
                                 onChange={(e) => setData('username', e.target.value)}
-                                error={errors.username}
+                                className="w-full px-4 py-3 text-sm border border-gray-300 rounded-lg bg-white shadow-sm transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400"
                                 placeholder="Opcional"
                             />
                             {errors.username && (
@@ -109,9 +116,12 @@ export default function CreateUser({ roles }: Props) {
 
                         <div>
                             <Label htmlFor="role">Rol *</Label>
+                            <p className="text-xs text-gray-500 mb-2">
+                                Selecciona el rol que determinará los permisos del usuario
+                            </p>
                             <select
                                 id="role"
-                                className="block w-full border-gray-300 rounded-md"
+                                className="w-full px-4 py-3 text-sm border border-gray-300 rounded-lg bg-white shadow-sm transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400"
                                 value={data.role}
                                 onChange={(e) => setData('role', e.target.value)}
                                 required
@@ -130,12 +140,15 @@ export default function CreateUser({ roles }: Props) {
 
                         <div>
                             <Label htmlFor="password">Contraseña *</Label>
-                            <Input
+                            <p className="text-xs text-gray-500 mb-2">
+                                Crea una contraseña segura con al menos 8 caracteres
+                            </p>
+                            <input
                                 id="password"
                                 type="password"
                                 value={data.password}
                                 onChange={(e) => setData('password', e.target.value)}
-                                error={errors.password}
+                                className="w-full px-4 py-3 text-sm border border-gray-300 rounded-lg bg-white shadow-sm transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400"
                                 required
                             />
                             {errors.password && (
@@ -145,12 +158,15 @@ export default function CreateUser({ roles }: Props) {
 
                         <div>
                             <Label htmlFor="password_confirmation">Confirmar contraseña *</Label>
-                            <Input
+                            <p className="text-xs text-gray-500 mb-2">
+                                Repite la contraseña para confirmar que la escribiste correctamente
+                            </p>
+                            <input
                                 id="password_confirmation"
                                 type="password"
                                 value={data.password_confirmation}
                                 onChange={(e) => setData('password_confirmation', e.target.value)}
-                                error={errors.password_confirmation}
+                                className="w-full px-4 py-3 text-sm border border-gray-300 rounded-lg bg-white shadow-sm transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400"
                                 required
                             />
                             {errors.password_confirmation && (

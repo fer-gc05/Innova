@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Models\Challenge;
 use App\Models\Category;
 use App\Models\Company;
+use App\Models\Form;
+use App\Models\Answer;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
@@ -73,14 +75,20 @@ class ChallengeController extends Controller
     {
         $categories = Category::all();
         $companies = Company::all();
+        $forms = Form::with('category')->get();
 
         $publicationStatuses = ['draft', 'published'];
         $activityStatuses = ['active', 'completed', 'inactive'];
-        $difficulties = ['easy', 'medium', 'hard'];
+        $difficulties = [
+            ['value' => 'easy', 'label' => 'Fácil'],
+            ['value' => 'medium', 'label' => 'Medio'],
+            ['value' => 'hard', 'label' => 'Difícil'],
+        ];
 
         return Inertia::render('admin/challenges/create', [
             'categories' => $categories,
             'companies' => $companies,
+            'forms' => $forms,
             'publicationStatuses' => $publicationStatuses,
             'activityStatuses' => $activityStatuses,
             'difficulties' => $difficulties,
@@ -92,35 +100,84 @@ class ChallengeController extends Controller
      */
     public function store(Request $request)
     {
-        $request->validate([
-            'name' => 'required|string|max:255',
-            'description' => 'required|string',
-            'objective' => 'required|string',
-            // Align with DB enum
-            'difficulty' => 'required|in:easy,medium,hard',
-            'requirements' => 'array',
-            'publication_status' => 'required|in:draft,published',
-            'activity_status' => 'required|in:active,completed,inactive',
-            'start_date' => 'required|date',
-            'end_date' => 'required|date|after:start_date',
-            'link_video' => 'nullable|url',
-            'video_id' => 'nullable|string',
-            'acquisition_type' => 'required|in:license,purchase',
-            'acquisition_details' => 'nullable|string|max:2000',
-            'acquisition_terms' => 'nullable|string|max:2000',
-            'reward_amount' => 'nullable|numeric|min:0',
-            'reward_currency' => 'nullable|string|max:3',
-            'reward_description' => 'nullable|string',
-            'reward_delivery_type' => 'required|in:prototype,final_software',
-            'reward_delivery_details' => 'nullable|string|max:2000',
-            'category_id' => 'required|exists:categories,id',
-            'company_id' => 'required|exists:companies,id',
-        ]);
+        try {
+            $validated = $request->validate([
+                'name' => 'required|string|max:255',
+                'description' => 'required|string|max:1000',
+                'objective' => 'required|string|max:500',
+                'difficulty' => 'required|in:easy,medium,hard',
+                'requirements' => 'nullable|array',
+                'publication_status' => 'required|in:draft,published',
+                'activity_status' => 'required|in:active,completed,inactive',
+                'start_date' => 'required|date',
+                'end_date' => 'required|date|after:start_date',
+                'category_id' => 'required|exists:categories,id',
+                'company_id' => 'required|exists:companies,id',
+                'link_video' => 'nullable|url',
+                'acquisition_type' => 'nullable|in:license,purchase',
+                'acquisition_details' => 'nullable|string|max:2000',
+                'acquisition_terms' => 'nullable|string|max:2000',
+                'reward_amount' => 'nullable|numeric|min:0|max:99999999.99',
+                'reward_currency' => 'nullable|string|max:3',
+                'reward_description' => 'nullable|string',
+                'reward_delivery_type' => 'nullable|in:prototype,final_software',
+                'reward_delivery_details' => 'nullable|string|max:2000',
+                'category_questions' => 'nullable|array',
+            ]);
 
-        Challenge::create($request->all());
+            \Log::info('Datos validados:', $validated);
 
-        return redirect()->route('admin.challenges.index')
-            ->with('success', 'Reto creado exitosamente.');
+            // Crear el reto
+            $challenge = Challenge::create([
+                'name' => $validated['name'],
+                'description' => $validated['description'],
+                'objective' => $validated['objective'],
+                'difficulty' => $validated['difficulty'],
+                'requirements' => $validated['requirements'] ?? [],
+                'start_date' => $validated['start_date'],
+                'end_date' => $validated['end_date'],
+                'category_id' => $validated['category_id'],
+                'link_video' => $validated['link_video'] ?? null,
+                'acquisition_type' => $validated['acquisition_type'] ?? 'license',
+                'acquisition_details' => $validated['acquisition_details'] ?? null,
+                'acquisition_terms' => $validated['acquisition_terms'] ?? null,
+                'reward_amount' => $validated['reward_amount'] ?? null,
+                'reward_currency' => $validated['reward_currency'] ?? 'COP',
+                'reward_description' => $validated['reward_description'] ?? null,
+                'reward_delivery_type' => $validated['reward_delivery_type'] ?? 'final_software',
+                'reward_delivery_details' => $validated['reward_delivery_details'] ?? null,
+                'company_id' => $validated['company_id'],
+                'publication_status' => $validated['publication_status'],
+                'activity_status' => $validated['activity_status'],
+            ]);
+
+            // Guardar las respuestas del formulario único en la tabla answers
+            $categoryQuestions = $validated['category_questions'] ?? [];
+            if (!empty($categoryQuestions)) {
+                // Obtener el formulario de la categoría
+                $form = Form::where('category_id', $validated['category_id'])->first();
+
+                if ($form) {
+                    Answer::create([
+                        'form_id' => $form->id,
+                        'company_id' => $validated['company_id'],
+                        'challenge_id' => $challenge->id,
+                        'answers' => $categoryQuestions,
+                    ]);
+                }
+            }
+
+            return redirect()->route('admin.challenges.index')
+                ->with('success', 'Reto creado exitosamente.');
+        } catch (\Exception $e) {
+            \Log::error('Error al crear reto:', [
+                'message' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+                'data' => $request->all()
+            ]);
+
+            return back()->withErrors(['error' => 'Error al crear el reto. Por favor, verifica los datos e intenta nuevamente.']);
+        }
     }
 
     /**
@@ -142,11 +199,31 @@ class ChallengeController extends Controller
     {
         $categories = Category::all();
         $companies = Company::all();
+        $forms = Form::with('category')->get();
+
+        // Cargar las respuestas del formulario si existen
+        $formAnswers = null;
+        if ($challenge->formAnswers) {
+            $formAnswers = $challenge->formAnswers->answers;
+        }
+
+        $publicationStatuses = ['draft', 'published'];
+        $activityStatuses = ['active', 'completed', 'inactive'];
+        $difficulties = [
+            ['value' => 'easy', 'label' => 'Fácil'],
+            ['value' => 'medium', 'label' => 'Medio'],
+            ['value' => 'hard', 'label' => 'Difícil'],
+        ];
 
         return Inertia::render('admin/challenges/edit', [
             'challenge' => $challenge,
             'categories' => $categories,
             'companies' => $companies,
+            'forms' => $forms,
+            'formAnswers' => $formAnswers,
+            'publicationStatuses' => $publicationStatuses,
+            'activityStatuses' => $activityStatuses,
+            'difficulties' => $difficulties,
         ]);
     }
 
@@ -155,36 +232,93 @@ class ChallengeController extends Controller
      */
     public function update(Request $request, Challenge $challenge)
     {
-        $request->validate([
-            'name' => 'required|string|max:255',
-            'description' => 'required|string',
-            'objective' => 'required|string',
-            // Align with DB enum
-            'difficulty' => 'required|in:easy,medium,hard',
-            'requirements' => 'array',
-            // Use the same fields as store()
-            'publication_status' => 'required|in:draft,published',
-            'activity_status' => 'required|in:active,completed,inactive',
-            'start_date' => 'required|date',
-            'end_date' => 'required|date|after:start_date',
-            'link_video' => 'nullable|url',
-            'video_id' => 'nullable|string',
-            'acquisition_type' => 'required|in:license,purchase',
-            'acquisition_details' => 'nullable|string|max:2000',
-            'acquisition_terms' => 'nullable|string|max:2000',
-            'reward_amount' => 'nullable|numeric|min:0',
-            'reward_currency' => 'nullable|string|max:3',
-            'reward_description' => 'nullable|string',
-            'reward_delivery_type' => 'required|in:prototype,final_software',
-            'reward_delivery_details' => 'nullable|string|max:2000',
-            'category_id' => 'required|exists:categories,id',
-            'company_id' => 'required|exists:companies,id',
-        ]);
+        try {
+            $validated = $request->validate([
+                'name' => 'required|string|max:255',
+                'description' => 'required|string|max:1000',
+                'objective' => 'required|string|max:500',
+                'difficulty' => 'required|in:easy,medium,hard',
+                'requirements' => 'nullable|array',
+                'publication_status' => 'required|in:draft,published',
+                'activity_status' => 'required|in:active,completed,inactive',
+                'start_date' => 'required|date',
+                'end_date' => 'required|date|after:start_date',
+                'category_id' => 'required|exists:categories,id',
+                'company_id' => 'required|exists:companies,id',
+                'link_video' => 'nullable|url',
+                'acquisition_type' => 'nullable|in:license,purchase',
+                'acquisition_details' => 'nullable|string|max:2000',
+                'acquisition_terms' => 'nullable|string|max:2000',
+                'reward_amount' => 'nullable|numeric|min:0|max:99999999.99',
+                'reward_currency' => 'nullable|string|max:3',
+                'reward_description' => 'nullable|string',
+                'reward_delivery_type' => 'nullable|in:prototype,final_software',
+                'reward_delivery_details' => 'nullable|string|max:2000',
+                'category_questions' => 'nullable|array',
+            ]);
 
-        $challenge->update($request->all());
+            // Actualizar el reto
+            $challenge->update([
+                'name' => $validated['name'],
+                'description' => $validated['description'],
+                'objective' => $validated['objective'],
+                'difficulty' => $validated['difficulty'],
+                'requirements' => $validated['requirements'] ?? [],
+                'start_date' => $validated['start_date'],
+                'end_date' => $validated['end_date'],
+                'category_id' => $validated['category_id'],
+                'link_video' => $validated['link_video'] ?? null,
+                'acquisition_type' => $validated['acquisition_type'] ?? $challenge->acquisition_type ?? 'license',
+                'acquisition_details' => $validated['acquisition_details'] ?? null,
+                'acquisition_terms' => $validated['acquisition_terms'] ?? null,
+                'reward_amount' => $validated['reward_amount'] ?? null,
+                'reward_currency' => $validated['reward_currency'] ?? $challenge->reward_currency ?? 'COP',
+                'reward_description' => $validated['reward_description'] ?? null,
+                'reward_delivery_type' => $validated['reward_delivery_type'] ?? $challenge->reward_delivery_type ?? 'final_software',
+                'reward_delivery_details' => $validated['reward_delivery_details'] ?? null,
+                'company_id' => $validated['company_id'],
+                'publication_status' => $validated['publication_status'],
+                'activity_status' => $validated['activity_status'],
+            ]);
 
-        return redirect()->route('admin.challenges.index')
-            ->with('success', 'Reto actualizado exitosamente.');
+            // Actualizar las respuestas del formulario único en la tabla answers
+            $categoryQuestions = $validated['category_questions'] ?? [];
+            if (!empty($categoryQuestions)) {
+                // Obtener el formulario de la categoría
+                $form = Form::where('category_id', $validated['category_id'])->first();
+
+                if ($form) {
+                    // Buscar si ya existe una respuesta para este reto
+                    $existingAnswer = Answer::where('challenge_id', $challenge->id)->first();
+
+                    if ($existingAnswer) {
+                        $existingAnswer->update([
+                            'form_id' => $form->id,
+                            'company_id' => $validated['company_id'],
+                            'answers' => $categoryQuestions,
+                        ]);
+                    } else {
+                        Answer::create([
+                            'form_id' => $form->id,
+                            'company_id' => $validated['company_id'],
+                            'challenge_id' => $challenge->id,
+                            'answers' => $categoryQuestions,
+                        ]);
+                    }
+                }
+            }
+
+            return redirect()->route('admin.challenges.index')
+                ->with('success', 'Reto actualizado exitosamente.');
+        } catch (\Exception $e) {
+            \Log::error('Error al actualizar reto:', [
+                'message' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+                'data' => $request->all()
+            ]);
+
+            return back()->withErrors(['error' => 'Error al actualizar el reto. Por favor, verifica los datos e intenta nuevamente.']);
+        }
     }
 
     /**

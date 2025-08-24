@@ -6,7 +6,6 @@ import DeleteUser from '@/components/delete-user';
 import HeadingSmall from '@/components/heading-small';
 import InputError from '@/components/input-error';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import MainLayout from '@/layouts/main-layout';
 import SettingsLayout from '@/layouts/settings/layout';
@@ -40,33 +39,39 @@ export default function Profile({ mustVerifyEmail, status }: { mustVerifyEmail: 
                         {({ processing, recentlySuccessful, errors }) => (
                             <>
                                 <div className="grid gap-2">
-                                    <Label htmlFor="name">Name</Label>
+                                    <Label htmlFor="name">Nombre completo *</Label>
+                                    <p className="text-xs text-gray-500 mb-2">
+                                        Actualiza tu nombre completo como aparecerá en la plataforma
+                                    </p>
 
-                                    <Input
+                                    <input
                                         id="name"
-                                        className="mt-1 block w-full"
+                                        className="w-full px-4 py-3 text-sm border border-gray-300 rounded-lg bg-white shadow-sm transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400"
                                         defaultValue={auth.user.name}
                                         name="name"
                                         required
                                         autoComplete="name"
-                                        placeholder="Full name"
+                                        placeholder="Tu nombre completo"
                                     />
 
                                     <InputError className="mt-2" message={errors.name} />
                                 </div>
 
                                 <div className="grid gap-2">
-                                    <Label htmlFor="email">Email address</Label>
+                                    <Label htmlFor="email">Correo electrónico *</Label>
+                                    <p className="text-xs text-gray-500 mb-2">
+                                        Usa un correo electrónico válido para recibir notificaciones
+                                    </p>
 
-                                    <Input
+                                    <input
                                         id="email"
                                         type="email"
-                                        className="mt-1 block w-full"
+                                        className="w-full px-4 py-3 text-sm border border-gray-300 rounded-lg bg-white shadow-sm transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400"
                                         defaultValue={auth.user.email}
                                         name="email"
                                         required
                                         autoComplete="username"
-                                        placeholder="Email address"
+                                        placeholder="tu-email@ejemplo.com"
                                     />
 
                                     <InputError className="mt-2" message={errors.email} />

@@ -52,7 +52,6 @@ export default function AdminChallenges({ challenges, categories, companies, sta
         reward_amount: '' as unknown as number | string,
         reward_currency: 'COP',
         reward_description: '',
-        reward_type: 'fixed',
     });
 
     // Normaliza una fecha a YYYY-MM-DD para inputs date
@@ -131,7 +130,6 @@ export default function AdminChallenges({ challenges, categories, companies, sta
             reward_amount: (challenge as any).reward_amount ?? '',
             reward_currency: (challenge as any).reward_currency || 'COP',
             reward_description: (challenge as any).reward_description || '',
-            reward_type: (challenge as any).reward_type || 'fixed',
         });
         setShowEditModal(true);
     };
@@ -400,15 +398,7 @@ export default function AdminChallenges({ challenges, categories, companies, sta
                                             <input value={data.reward_description} onChange={e => setData('reward_description', e.target.value)} className="mt-1 w-full border rounded-md px-3 py-2" />
                                             {errors.reward_description && <p className="text-red-600 text-sm mt-1">{errors.reward_description}</p>}
                                         </div>
-                                        <div>
-                                            <label className="text-sm text-gray-600">Tipo de recompensa</label>
-                                            <select value={data.reward_type} onChange={e => setData('reward_type', e.target.value)} className="mt-1 w-full border rounded-md px-3 py-2">
-                                                <option value="fixed">fixed</option>
-                                                <option value="variable">variable</option>
-                                                <option value="percentage">percentage</option>
-                                            </select>
-                                            {errors.reward_type && <p className="text-red-600 text-sm mt-1">{errors.reward_type}</p>}
-                                        </div>
+
                                         <div>
                                             <label className="text-sm text-gray-600">Video (URL)</label>
                                             <input value={data.link_video} onChange={e => setData('link_video', e.target.value)} className="mt-1 w-full border rounded-md px-3 py-2" />

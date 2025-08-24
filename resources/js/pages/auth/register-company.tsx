@@ -5,7 +5,6 @@ import { LoaderCircle, Building2 } from 'lucide-react';
 import MainLayout from '@/layouts/main-layout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import InputError from '@/components/input-error';
 import TextLink from '@/components/text-link';
@@ -37,28 +36,43 @@ export default function RegisterCompany() {
                         <h3 className="text-sm font-semibold text-gray-700 mb-3">Datos del usuario</h3>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                           <div>
-                            <Label htmlFor="name" className="text-gray-700">Nombre completo</Label>
-                            <Input id="name" name="name" type="text" autoComplete="name" placeholder="Tu nombre" className="mt-1" />
+                            <Label htmlFor="name" className="text-gray-700">Nombre completo *</Label>
+                            <p className="text-xs text-gray-500 mb-2">
+                              Ingresa tu nombre completo como aparecerá en la plataforma
+                            </p>
+                            <input id="name" name="name" type="text" autoComplete="name" placeholder="Tu nombre" className="w-full px-4 py-3 text-sm border border-gray-300 rounded-lg bg-white shadow-sm transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" />
                             <InputError message={errors.name} />
                           </div>
                           <div>
                             <Label htmlFor="username" className="text-gray-700">Nombre de usuario</Label>
-                            <Input id="username" name="username" type="text" autoComplete="username" placeholder="empresa_admin" className="mt-1" />
+                            <p className="text-xs text-gray-500 mb-2">
+                              Crea un nombre de usuario único para acceder a la plataforma
+                            </p>
+                            <input id="username" name="username" type="text" autoComplete="username" placeholder="empresa_admin" className="w-full px-4 py-3 text-sm border border-gray-300 rounded-lg bg-white shadow-sm transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" />
                             <InputError message={errors.username} />
                           </div>
                           <div>
-                            <Label htmlFor="email" className="text-gray-700">Correo electrónico</Label>
-                            <Input id="email" name="email" type="email" autoComplete="email" placeholder="correo@empresa.com" className="mt-1" />
+                            <Label htmlFor="email" className="text-gray-700">Correo electrónico *</Label>
+                            <p className="text-xs text-gray-500 mb-2">
+                              Usa un correo electrónico válido para recibir notificaciones
+                            </p>
+                            <input id="email" name="email" type="email" autoComplete="email" placeholder="correo@empresa.com" className="w-full px-4 py-3 text-sm border border-gray-300 rounded-lg bg-white shadow-sm transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" />
                             <InputError message={errors.email} />
                           </div>
                           <div>
-                            <Label htmlFor="password" className="text-gray-700">Contraseña</Label>
-                            <Input id="password" name="password" type="password" autoComplete="new-password" placeholder="Crea una contraseña" className="mt-1" />
+                            <Label htmlFor="password" className="text-gray-700">Contraseña *</Label>
+                            <p className="text-xs text-gray-500 mb-2">
+                              Crea una contraseña segura con al menos 8 caracteres
+                            </p>
+                            <input id="password" name="password" type="password" autoComplete="new-password" placeholder="Crea una contraseña" className="w-full px-4 py-3 text-sm border border-gray-300 rounded-lg bg-white shadow-sm transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" />
                             <InputError message={errors.password} />
                           </div>
                           <div className="md:col-span-2">
-                            <Label htmlFor="password_confirmation" className="text-gray-700">Confirmar contraseña</Label>
-                            <Input id="password_confirmation" name="password_confirmation" type="password" autoComplete="new-password" placeholder="Repite tu contraseña" className="mt-1" />
+                            <Label htmlFor="password_confirmation" className="text-gray-700">Confirmar contraseña *</Label>
+                            <p className="text-xs text-gray-500 mb-2">
+                              Repite la contraseña para confirmar que la escribiste correctamente
+                            </p>
+                            <input id="password_confirmation" name="password_confirmation" type="password" autoComplete="new-password" placeholder="Repite tu contraseña" className="w-full px-4 py-3 text-sm border border-gray-300 rounded-lg bg-white shadow-sm transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" />
                             <InputError message={errors.password_confirmation} />
                           </div>
                         </div>
@@ -69,43 +83,67 @@ export default function RegisterCompany() {
                         <h3 className="text-sm font-semibold text-gray-700 mb-3">Datos de la empresa</h3>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                           <div className="md:col-span-2">
-                            <Label htmlFor="company_name" className="text-gray-700">Nombre de la empresa</Label>
-                            <Input id="company_name" name="company_name" type="text" placeholder="Nombre legal de la empresa" className="mt-1" />
+                            <Label htmlFor="company_name" className="text-gray-700">Nombre de la empresa *</Label>
+                            <p className="text-xs text-gray-500 mb-2">
+                              Ingresa el nombre legal de la empresa tal como aparece en los documentos oficiales
+                            </p>
+                            <input id="company_name" name="company_name" type="text" placeholder="Nombre legal de la empresa" className="w-full px-4 py-3 text-sm border border-gray-300 rounded-lg bg-white shadow-sm transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" />
                             <InputError message={errors.company_name} />
                           </div>
                           <div>
-                            <Label htmlFor="nit" className="text-gray-700">NIT</Label>
-                            <Input id="nit" name="nit" type="text" placeholder="123456789-0" className="mt-1" />
+                            <Label htmlFor="nit" className="text-gray-700">NIT *</Label>
+                            <p className="text-xs text-gray-500 mb-2">
+                              Ingresa el Número de Identificación Tributaria de la empresa
+                            </p>
+                            <input id="nit" name="nit" type="text" placeholder="123456789-0" className="w-full px-4 py-3 text-sm border border-gray-300 rounded-lg bg-white shadow-sm transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" />
                             <InputError message={errors.nit} />
                           </div>
                           <div>
-                            <Label htmlFor="address" className="text-gray-700">Dirección</Label>
-                            <Input id="address" name="address" type="text" placeholder="Dirección de la empresa" className="mt-1" />
+                            <Label htmlFor="address" className="text-gray-700">Dirección *</Label>
+                            <p className="text-xs text-gray-500 mb-2">
+                              Dirección física principal de la empresa
+                            </p>
+                            <input id="address" name="address" type="text" placeholder="Dirección de la empresa" className="w-full px-4 py-3 text-sm border border-gray-300 rounded-lg bg-white shadow-sm transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" />
                             <InputError message={errors.address} />
                           </div>
                           <div>
-                            <Label htmlFor="responsible_name" className="text-gray-700">Nombre del responsable</Label>
-                            <Input id="responsible_name" name="responsible_name" type="text" placeholder="Nombre del responsable" className="mt-1" />
+                            <Label htmlFor="responsible_name" className="text-gray-700">Nombre del responsable *</Label>
+                            <p className="text-xs text-gray-500 mb-2">
+                              Nombre completo de la persona responsable de la cuenta
+                            </p>
+                            <input id="responsible_name" name="responsible_name" type="text" placeholder="Nombre del responsable" className="w-full px-4 py-3 text-sm border border-gray-300 rounded-lg bg-white shadow-sm transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" />
                             <InputError message={errors.responsible_name} />
                           </div>
                           <div>
-                            <Label htmlFor="responsible_email" className="text-gray-700">Correo del responsable</Label>
-                            <Input id="responsible_email" name="responsible_email" type="email" placeholder="responsable@empresa.com" className="mt-1" />
+                            <Label htmlFor="responsible_email" className="text-gray-700">Correo del responsable *</Label>
+                            <p className="text-xs text-gray-500 mb-2">
+                              Correo electrónico del responsable para comunicaciones oficiales
+                            </p>
+                            <input id="responsible_email" name="responsible_email" type="email" placeholder="responsable@empresa.com" className="w-full px-4 py-3 text-sm border border-gray-300 rounded-lg bg-white shadow-sm transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" />
                             <InputError message={errors.responsible_email} />
                           </div>
                           <div>
-                            <Label htmlFor="responsible_phone" className="text-gray-700">Teléfono del responsable</Label>
-                            <Input id="responsible_phone" name="responsible_phone" type="text" placeholder="3001234567" className="mt-1" />
+                            <Label htmlFor="responsible_phone" className="text-gray-700">Teléfono del responsable *</Label>
+                            <p className="text-xs text-gray-500 mb-2">
+                              Número de teléfono para contactar al responsable
+                            </p>
+                            <input id="responsible_phone" name="responsible_phone" type="text" placeholder="3001234567" className="w-full px-4 py-3 text-sm border border-gray-300 rounded-lg bg-white shadow-sm transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" />
                             <InputError message={errors.responsible_phone} />
                           </div>
                           <div>
-                            <Label htmlFor="responsible_position" className="text-gray-700">Cargo del responsable</Label>
-                            <Input id="responsible_position" name="responsible_position" type="text" placeholder="Cargo" className="mt-1" />
+                            <Label htmlFor="responsible_position" className="text-gray-700">Cargo del responsable *</Label>
+                            <p className="text-xs text-gray-500 mb-2">
+                              Cargo o posición del responsable dentro de la empresa
+                            </p>
+                            <input id="responsible_position" name="responsible_position" type="text" placeholder="Cargo" className="w-full px-4 py-3 text-sm border border-gray-300 rounded-lg bg-white shadow-sm transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" />
                             <InputError message={errors.responsible_position} />
                           </div>
                           <div className="md:col-span-2">
                             <Label htmlFor="logo" className="text-gray-700">Logo (opcional)</Label>
-                            <Input id="logo" name="logo" type="file" className="mt-1" />
+                            <p className="text-xs text-gray-500 mb-2">
+                              Sube el logo de tu empresa en formato PNG, JPG o SVG (máximo 2MB)
+                            </p>
+                            <input id="logo" name="logo" type="file" className="w-full px-4 py-3 text-sm border border-gray-300 rounded-lg bg-white shadow-sm transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400" />
                             <InputError message={errors.logo} />
                           </div>
                         </div>

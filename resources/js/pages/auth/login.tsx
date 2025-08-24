@@ -2,7 +2,6 @@ import InputError from '@/components/input-error';
 import TextLink from '@/components/text-link';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import MainLayout from '@/layouts/main-layout';
@@ -45,9 +44,12 @@ export default function Login({ status, canResetPassword }: LoginProps) {
                                             <div className="space-y-4">
                                                 <div>
                                                     <Label htmlFor="email" className="text-gray-700">
-                                                        Correo Electrónico
+                                                        Correo Electrónico *
                                                     </Label>
-                                                    <Input
+                                                    <p className="text-xs text-gray-500 mb-2">
+                                                        Ingresa el correo electrónico con el que te registraste
+                                                    </p>
+                                                    <input
                                                         id="email"
                                                         type="email"
                                                         name="email"
@@ -56,7 +58,7 @@ export default function Login({ status, canResetPassword }: LoginProps) {
                                                         tabIndex={1}
                                                         autoComplete="email"
                                                         placeholder="tu-email@ejemplo.com"
-                                                        className="mt-1"
+                                                        className="w-full px-4 py-3 text-sm border border-gray-300 rounded-lg bg-white shadow-sm transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400"
                                                     />
                                                     <InputError message={errors.email} />
                                                 </div>
@@ -64,7 +66,7 @@ export default function Login({ status, canResetPassword }: LoginProps) {
                                                 <div>
                                                     <div className="flex items-center justify-between">
                                                         <Label htmlFor="password" className="text-gray-700">
-                                                            Contraseña
+                                                            Contraseña *
                                                         </Label>
                                                         {canResetPassword && (
                                                             <TextLink
@@ -76,7 +78,10 @@ export default function Login({ status, canResetPassword }: LoginProps) {
                                                             </TextLink>
                                                         )}
                                                     </div>
-                                                    <Input
+                                                    <p className="text-xs text-gray-500 mb-2">
+                                                        Ingresa la contraseña de tu cuenta
+                                                    </p>
+                                                    <input
                                                         id="password"
                                                         type="password"
                                                         name="password"
@@ -84,7 +89,7 @@ export default function Login({ status, canResetPassword }: LoginProps) {
                                                         tabIndex={2}
                                                         autoComplete="current-password"
                                                         placeholder="Tu contraseña"
-                                                        className="mt-1"
+                                                        className="w-full px-4 py-3 text-sm border border-gray-300 rounded-lg bg-white shadow-sm transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400"
                                                     />
                                                     <InputError message={errors.password} />
                                                 </div>
