@@ -419,6 +419,20 @@ export default function CreateChallenge({ categories, difficulties, forms }: Pro
                   <p className="text-xs text-gray-500 mb-2">
                     Agrega un video explicativo o promocional para que los estudiantes entiendan mejor tu reto
                   </p>
+                  {/* Campo URL */}
+                  <div className="bg-purple-50 border border-purple-200 rounded-lg p-4 mb-5 mt-2">
+                    <p className="text-purple-700 text-sm ">
+                      <strong>Recomendación:</strong> Usa esta plataforma para grabar tu video 👉{" "}
+                      <a
+                        href="https://studio.snipclip.app/record"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="underline text-purple-800 hover:text-purple-900"
+                      >
+                        https://studio.snipclip.app/record
+                      </a>
+                    </p>
+                  </div>
                   
                   {/* Selector de tipo de video */}
                   <div className="mb-4">
@@ -456,7 +470,9 @@ export default function CreateChallenge({ categories, difficulties, forms }: Pro
                     </div>
                   </div>
 
-                  {/* Campo URL */}
+                  
+
+
                   {videoType === 'url' && (
                     <div>
                       <input
