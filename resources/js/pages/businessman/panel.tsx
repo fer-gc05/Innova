@@ -23,10 +23,19 @@ interface Props {
 
 export default function BusinessmanPanel({ stats, recentChallenges }: Props) {
   const getStatusBadge = (publicationStatus: string, activityStatus: string) => {
-    // Primero mostrar el estado de publicación
-    if (publicationStatus === 'draft') {
+    // Mostrar "Pendiente" cuando está en borrador e inactivo
+    if (publicationStatus === 'draft' && activityStatus === 'inactive') {
       return (
         <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+          Pendiente
+        </span>
+      );
+    }
+
+    // Mostrar "Borrador" cuando está en borrador pero activo (caso especial)
+    if (publicationStatus === 'draft' && activityStatus === 'active') {
+      return (
+        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-orange-100 text-orange-800">
           Borrador
         </span>
       );

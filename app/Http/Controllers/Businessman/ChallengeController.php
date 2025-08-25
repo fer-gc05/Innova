@@ -31,28 +31,22 @@ class ChallengeController extends Controller
             ->get();
 
         // Agrupar por estado
-        $draftChallenges = $challenges->where('publication_status', 'draft');
-        $publishedChallenges = $challenges->where('publication_status', 'published');
-        $activeChallenges = $challenges->where('activity_status', 'active');
+        $activeChallenges = $challenges->where('publication_status', 'published')->where('activity_status', 'active');
         $completedChallenges = $challenges->where('activity_status', 'completed');
-        $inactiveChallenges = $challenges->where('activity_status', 'inactive');
+        $pendingChallenges = $challenges->where('publication_status', 'draft'); // Todos los borradores están pendientes de verificación
 
         return Inertia::render('businessman/challenges/index', [
             'challenges' => [
                 'all' => $challenges,
-                'draft' => $draftChallenges,
-                'published' => $publishedChallenges,
+                'pending' => $pendingChallenges,
                 'active' => $activeChallenges,
                 'completed' => $completedChallenges,
-                'inactive' => $inactiveChallenges,
             ],
             'stats' => [
                 'total' => $challenges->count(),
-                'draft' => $draftChallenges->count(),
-                'published' => $publishedChallenges->count(),
+                'pending' => $pendingChallenges->count(),
                 'active' => $activeChallenges->count(),
                 'completed' => $completedChallenges->count(),
-                'inactive' => $inactiveChallenges->count(),
                 'totalParticipants' => $challenges->sum(function($challenge) {
                     return $challenge->students->count();
                 }),
@@ -164,7 +158,7 @@ class ChallengeController extends Controller
             'reward_delivery_details' => $validated['reward_delivery_details'],
             'company_id' => $company->id,
             'publication_status' => 'draft', // Por defecto en borrador
-            'activity_status' => 'active', // Por defecto activo
+            'activity_status' => 'inactive', // Por defecto pendiente (inactivo)
         ]);
 
         // Guardar las respuestas del formulario único en la tabla answers

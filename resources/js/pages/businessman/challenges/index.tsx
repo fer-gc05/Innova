@@ -274,9 +274,14 @@ export default function ChallengesIndex({ challenges, stats, categories = [], di
   };
 
   const getStatusBadge = (publicationStatus: string, activityStatus: string) => {
-    // Primero mostrar el estado de publicación
-    if (publicationStatus === 'draft') {
-      return <span className="px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">Borrador</span>;
+    // Mostrar "Pendiente" cuando está en borrador e inactivo
+    if (publicationStatus === 'draft' && activityStatus === 'inactive') {
+      return <span className="px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">Pendiente</span>;
+    }
+
+    // Mostrar "Borrador" cuando está en borrador pero activo (caso especial)
+    if (publicationStatus === 'draft' && activityStatus === 'active') {
+      return <span className="px-2 py-1 rounded-full text-xs font-medium bg-orange-100 text-orange-800">Borrador</span>;
     }
 
     // Si está publicado, mostrar el estado de actividad
