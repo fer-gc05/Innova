@@ -26,6 +26,7 @@ export default function CreateChallenge({ categories, difficulties, forms }: Pro
     end_date: '',
     category_id: '',
     link_video: '',
+    video_file: null as File | null,
     acquisition_type: 'license',
     acquisition_details: '',
     acquisition_terms: '',
@@ -36,6 +37,8 @@ export default function CreateChallenge({ categories, difficulties, forms }: Pro
     reward_delivery_details: '',
     category_questions: {},
   });
+
+  const [videoType, setVideoType] = useState<'url' | 'file' | null>(null);
 
   // Cargar preguntas cuando se selecciona una categoría
   useEffect(() => {
@@ -73,7 +76,32 @@ export default function CreateChallenge({ categories, difficulties, forms }: Pro
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Validación del video
+    if (videoType === 'url' && !data.link_video.trim()) {
+      alert('Por favor, ingresa una URL de video válida o selecciona otra opción.');
+      return;
+    }
+    
+    if (videoType === 'file' && !data.video_file) {
+      alert('Por favor, selecciona un archivo de video o selecciona otra opción.');
+      return;
+    }
+    
+    // Limpiar campos de video no utilizados
+    const formData = { ...data };
+    if (videoType === 'url') {
+      formData.video_file = null;
+    } else if (videoType === 'file') {
+      formData.link_video = '';
+    } else {
+      formData.link_video = '';
+      formData.video_file = null;
+    }
+    
     post('/businessman/challenges', {
+      data: formData,
+      forceFormData: true, // Forzar el uso de FormData para archivos
       onSuccess: () => {
         // Mostrar alerta de éxito
         alert('¡Reto creado exitosamente en estado borrador! Un administrador lo revisará y lo publicará.');
@@ -386,19 +414,87 @@ export default function CreateChallenge({ categories, difficulties, forms }: Pro
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Link del Video (Opcional)
+                    Video del Reto (Opcional)
                   </label>
                   <p className="text-xs text-gray-500 mb-2">
                     Agrega un video explicativo o promocional para que los estudiantes entiendan mejor tu reto
                   </p>
-                  <input
-                    type="url"
-                    value={data.link_video}
-                    onChange={(e) => setData('link_video', e.target.value)}
-                    className="w-full px-4 py-3 text-sm border border-gray-300 rounded-lg bg-white shadow-sm transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400"
-                    placeholder="https://www.youtube.com/watch?v=..."
-                  />
-                  {errors.link_video && <p className="mt-1 text-sm text-red-600">{errors.link_video}</p>}
+                  
+                  {/* Selector de tipo de video */}
+                  <div className="mb-4">
+                    <div className="flex space-x-4">
+                      <label className="flex items-center">
+                        <input
+                          type="radio"
+                          name="video_type"
+                          value="url"
+                          checked={videoType === 'url'}
+                          onChange={() => {
+                            setVideoType('url');
+                            setData('link_video', '');
+                            setData('video_file', null);
+                          }}
+                          className="w-4 h-4 text-blue-600 border-gray-300 focus:ring-blue-500 focus:ring-2"
+                        />
+                        <span className="ml-2 text-sm text-gray-700">URL de Video</span>
+                      </label>
+                      <label className="flex items-center">
+                        <input
+                          type="radio"
+                          name="video_type"
+                          value="file"
+                          checked={videoType === 'file'}
+                          onChange={() => {
+                            setVideoType('file');
+                            setData('link_video', '');
+                            setData('video_file', null);
+                          }}
+                          className="w-4 h-4 text-blue-600 border-gray-300 focus:ring-blue-500 focus:ring-2"
+                        />
+                        <span className="ml-2 text-sm text-gray-700">Subir Archivo</span>
+                      </label>
+                    </div>
+                  </div>
+
+                  {/* Campo URL */}
+                  {videoType === 'url' && (
+                    <div>
+                      <input
+                        type="url"
+                        value={data.link_video}
+                        onChange={(e) => setData('link_video', e.target.value)}
+                        className="w-full px-4 py-3 text-sm border border-gray-300 rounded-lg bg-white shadow-sm transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400"
+                        placeholder="https://www.youtube.com/watch?v=..."
+                      />
+                      {errors.link_video && <p className="mt-1 text-sm text-red-600">{errors.link_video}</p>}
+                    </div>
+                  )}
+
+                  {/* Campo archivo */}
+                  {videoType === 'file' && (
+                    <div>
+                      <input
+                        type="file"
+                        accept="video/*"
+                        onChange={(e) => {
+                          const file = e.target.files?.[0] || null;
+                          setData('video_file', file);
+                        }}
+                        className="w-full px-4 py-3 text-sm border border-gray-300 rounded-lg bg-white shadow-sm transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400"
+                      />
+                      <p className="text-xs text-gray-500 mt-1">
+                        Formatos permitidos: MP4, AVI, MOV, WMV. Tamaño máximo: 100MB
+                      </p>
+                      {errors.video_file && <p className="mt-1 text-sm text-red-600">{errors.video_file}</p>}
+                    </div>
+                  )}
+
+                  {/* Validación de tipo de video */}
+                  {videoType === null && (
+                    <p className="text-sm text-gray-500 italic">
+                      Selecciona una opción para agregar un video (opcional)
+                    </p>
+                  )}
                 </div>
               </div>
 

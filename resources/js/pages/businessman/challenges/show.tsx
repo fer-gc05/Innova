@@ -155,24 +155,42 @@ export default function ChallengeShow({ challenge, stats, participants }: Props)
                 </div>
               )}
 
-              {challenge?.link_video && (
+              {(challenge?.link_video || challenge?.video_id) && (
                 <div className="bg-white rounded-lg shadow-sm p-6">
                   <h2 className="text-xl font-semibold text-gray-900 mb-4">Video del Reto</h2>
-                  {getYouTubeId(challenge.link_video) ? (
+                  {challenge?.link_video ? (
+                    // Video de URL (YouTube, etc.)
+                    getYouTubeId(challenge.link_video) ? (
+                      <div className="aspect-video">
+                        <iframe
+                          src={getVideoEmbedUrl(challenge.link_video) || ''}
+                          className="w-full h-full rounded-lg"
+                          allowFullScreen
+                          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                        />
+                      </div>
+                    ) : (
+                      <div className="bg-amber-50 border border-amber-200 text-amber-800 text-sm p-3 rounded">
+                        No se puede mostrar el video embebido. Verifica que el enlace sea compatible (por ejemplo, YouTube).
+                        <a href={challenge.link_video} target="_blank" rel="noreferrer" className="underline ml-1">Abrir enlace</a>.
+                      </div>
+                    )
+                  ) : challenge?.video_id ? (
+                    // Video subido como archivo
                     <div className="aspect-video">
-                      <iframe
-                        src={getVideoEmbedUrl(challenge.link_video) || ''}
+                      <video
+                        controls
                         className="w-full h-full rounded-lg"
-                        allowFullScreen
-                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                      />
+                        preload="metadata"
+                      >
+                        <source src={`/storage/${challenge.video_id}`} type="video/mp4" />
+                        <source src={`/storage/${challenge.video_id}`} type="video/avi" />
+                        <source src={`/storage/${challenge.video_id}`} type="video/mov" />
+                        <source src={`/storage/${challenge.video_id}`} type="video/wmv" />
+                        Tu navegador no soporta el elemento de video.
+                      </video>
                     </div>
-                  ) : (
-                    <div className="bg-amber-50 border border-amber-200 text-amber-800 text-sm p-3 rounded">
-                      No se puede mostrar el video embebido. Verifica que el enlace sea compatible (por ejemplo, YouTube).
-                      <a href={challenge.link_video} target="_blank" rel="noreferrer" className="underline ml-1">Abrir enlace</a>.
-                    </div>
-                  )}
+                  ) : null}
                 </div>
               )}
             </div>

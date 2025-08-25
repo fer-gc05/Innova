@@ -7,6 +7,7 @@ use App\Models\Challenge;
 use App\Models\Company;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
 
 class ChallengeController extends Controller
@@ -113,6 +114,7 @@ class ChallengeController extends Controller
             'end_date' => 'required|date|after:start_date',
             'category_id' => 'required|exists:categories,id',
             'link_video' => 'nullable|url',
+            'video_file' => 'nullable|file|mimes:mp4,avi,mov,wmv|max:102400', // 100MB máximo
             'acquisition_type' => 'required|in:license,purchase',
             'acquisition_details' => 'nullable|string|max:2000',
             'acquisition_terms' => 'nullable|string|max:2000',
@@ -124,7 +126,21 @@ class ChallengeController extends Controller
             'category_questions' => 'nullable|array',
         ]);
 
+        // Validación personalizada: no permitir URL y archivo al mismo tiempo
+        if ($request->filled('link_video') && $request->hasFile('video_file')) {
+            return back()->withErrors(['video_error' => 'No puedes usar una URL y subir un archivo al mismo tiempo. Selecciona solo una opción.']);
+        }
+
         \Log::info('Datos validados:', $validated);
+
+        // Manejar el archivo de video si se subió
+        $videoId = null;
+        if ($request->hasFile('video_file')) {
+            $videoFile = $request->file('video_file');
+            $videoName = time() . '_' . $videoFile->getClientOriginalName();
+            $videoPath = $videoFile->storeAs('videos/challenges', $videoName, 'public');
+            $videoId = $videoPath;
+        }
 
         // Crear el reto
         $challenge = Challenge::create([
@@ -137,6 +153,7 @@ class ChallengeController extends Controller
             'end_date' => $validated['end_date'],
             'category_id' => $validated['category_id'],
             'link_video' => $validated['link_video'],
+            'video_id' => $videoId,
             'acquisition_type' => $validated['acquisition_type'],
             'acquisition_details' => $validated['acquisition_details'],
             'acquisition_terms' => $validated['acquisition_terms'],
@@ -323,12 +340,38 @@ class ChallengeController extends Controller
             'end_date' => 'required|date|after:start_date',
             'category_id' => 'required|exists:categories,id',
             'link_video' => 'nullable|url',
+            'video_file' => 'nullable|file|mimes:mp4,avi,mov,wmv|max:102400', // 100MB máximo
             'reward_amount' => 'nullable|numeric|min:0|max:99999999.99',
             'reward_currency' => 'nullable|string|max:3',
             'reward_description' => 'nullable|string',
             'reward_type' => 'nullable|in:fixed,variable,percentage',
             'category_questions' => 'nullable|array',
         ]);
+
+        // Validación personalizada: no permitir URL y archivo al mismo tiempo
+        if ($request->filled('link_video') && $request->hasFile('video_file')) {
+            return back()->withErrors(['video_error' => 'No puedes usar una URL y subir un archivo al mismo tiempo. Selecciona solo una opción.']);
+        }
+
+        // Manejar el archivo de video si se subió
+        $videoId = $challenge->video_id; // Mantener el video existente por defecto
+        if ($request->hasFile('video_file')) {
+            // Eliminar el video anterior si existe
+            if ($challenge->video_id && Storage::disk('public')->exists($challenge->video_id)) {
+                Storage::disk('public')->delete($challenge->video_id);
+            }
+            
+            $videoFile = $request->file('video_file');
+            $videoName = time() . '_' . $videoFile->getClientOriginalName();
+            $videoPath = $videoFile->storeAs('videos/challenges', $videoName, 'public');
+            $videoId = $videoPath;
+        } elseif ($request->filled('link_video')) {
+            // Si se está usando URL, eliminar el video anterior si existe
+            if ($challenge->video_id && Storage::disk('public')->exists($challenge->video_id)) {
+                Storage::disk('public')->delete($challenge->video_id);
+            }
+            $videoId = null;
+        }
 
         // Actualizar el reto
         $challenge->update([
@@ -341,6 +384,7 @@ class ChallengeController extends Controller
             'end_date' => $validated['end_date'],
             'category_id' => $validated['category_id'],
             'link_video' => $validated['link_video'],
+            'video_id' => $videoId,
             'reward_amount' => $validated['reward_amount'],
             'reward_currency' => $validated['reward_currency'],
             'reward_description' => $validated['reward_description'],

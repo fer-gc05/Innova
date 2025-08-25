@@ -49,12 +49,17 @@ export default function EditChallenge({ challenge, categoryAnswers, categories, 
     end_date: challenge.end_date,
     category_id: challenge.category_id.toString(),
     link_video: challenge.link_video || '',
+    video_file: null as File | null,
     reward_amount: challenge.reward_amount || '',
     reward_currency: challenge.reward_currency || 'COP',
     reward_description: challenge.reward_description || '',
     reward_type: challenge.reward_type || 'fixed',
     category_questions: (categoryAnswers as Record<string, string | string[]>) || {},
   });
+
+  const [videoType, setVideoType] = useState<'url' | 'file' | null>(
+    challenge.link_video ? 'url' : (challenge.video_id ? 'file' : null)
+  );
 
   // Helper to avoid heavy generic inference from Inertia's setData overloads
   const setField = (key: string, value: any) => (setData as any)(key, value);
@@ -101,6 +106,19 @@ export default function EditChallenge({ challenge, categoryAnswers, categories, 
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Validación del video
+    if (videoType === 'url' && !data.link_video.trim()) {
+      alert('Por favor, ingresa una URL de video válida o selecciona otra opción.');
+      return;
+    }
+    
+    if (videoType === 'file' && !data.video_file) {
+      alert('Por favor, selecciona un archivo de video o selecciona otra opción.');
+      return;
+    }
+    
+    // Limpiar campos de video no utilizados
     const payload: any = {
       ...data,
       reward_amount: (() => {
@@ -108,8 +126,19 @@ export default function EditChallenge({ challenge, categoryAnswers, categories, 
         return raw === '' ? null : Number(raw);
       })(),
     };
+    
+    if (videoType === 'url') {
+      payload.video_file = null;
+    } else if (videoType === 'file') {
+      payload.link_video = '';
+    } else {
+      payload.link_video = '';
+      payload.video_file = null;
+    }
+    
     if ((window as any).Inertia?.put) {
       (window as any).Inertia.put(`/businessman/challenges/${challenge.id}`, payload, {
+        forceFormData: true,
         onSuccess: () => alert('¡Reto actualizado exitosamente!'),
         onError: () => alert('Error al actualizar el reto. Por favor, verifica los datos e intenta nuevamente.'),
       });
@@ -430,16 +459,84 @@ export default function EditChallenge({ challenge, categoryAnswers, categories, 
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Link del Video (Opcional)
+                    Video del Reto (Opcional)
                   </label>
-                  <input
-                    type="url"
-                    value={data.link_video}
-                    onChange={(e) => setField('link_video', e.target.value)}
-                    className="w-full px-4 py-3 text-sm border border-gray-300 rounded-lg bg-white shadow-sm transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400"
-                    placeholder="https://www.youtube.com/watch?v=..."
-                  />
-                  {errors.link_video && <p className="mt-1 text-sm text-red-600">{errors.link_video}</p>}
+                  
+                  {/* Selector de tipo de video */}
+                  <div className="mb-4">
+                    <div className="flex space-x-4">
+                      <label className="flex items-center">
+                        <input
+                          type="radio"
+                          name="video_type"
+                          value="url"
+                          checked={videoType === 'url'}
+                          onChange={() => {
+                            setVideoType('url');
+                            setField('link_video', '');
+                            setField('video_file', null);
+                          }}
+                          className="w-4 h-4 text-blue-600 border-gray-300 focus:ring-blue-500 focus:ring-2"
+                        />
+                        <span className="ml-2 text-sm text-gray-700">URL de Video</span>
+                      </label>
+                      <label className="flex items-center">
+                        <input
+                          type="radio"
+                          name="video_type"
+                          value="file"
+                          checked={videoType === 'file'}
+                          onChange={() => {
+                            setVideoType('file');
+                            setField('link_video', '');
+                            setField('video_file', null);
+                          }}
+                          className="w-4 h-4 text-blue-600 border-gray-300 focus:ring-blue-500 focus:ring-2"
+                        />
+                        <span className="ml-2 text-sm text-gray-700">Subir Archivo</span>
+                      </label>
+                    </div>
+                  </div>
+
+                  {/* Campo URL */}
+                  {videoType === 'url' && (
+                    <div>
+                      <input
+                        type="url"
+                        value={data.link_video}
+                        onChange={(e) => setField('link_video', e.target.value)}
+                        className="w-full px-4 py-3 text-sm border border-gray-300 rounded-lg bg-white shadow-sm transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400"
+                        placeholder="https://www.youtube.com/watch?v=..."
+                      />
+                      {errors.link_video && <p className="mt-1 text-sm text-red-600">{errors.link_video}</p>}
+                    </div>
+                  )}
+
+                  {/* Campo archivo */}
+                  {videoType === 'file' && (
+                    <div>
+                      <input
+                        type="file"
+                        accept="video/*"
+                        onChange={(e) => {
+                          const file = e.target.files?.[0] || null;
+                          setField('video_file', file);
+                        }}
+                        className="w-full px-4 py-3 text-sm border border-gray-300 rounded-lg bg-white shadow-sm transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400"
+                      />
+                      <p className="text-xs text-gray-500 mt-1">
+                        Formatos permitidos: MP4, AVI, MOV, WMV. Tamaño máximo: 100MB
+                      </p>
+                      {errors.video_file && <p className="mt-1 text-sm text-red-600">{errors.video_file}</p>}
+                    </div>
+                  )}
+
+                  {/* Validación de tipo de video */}
+                  {videoType === null && (
+                    <p className="text-sm text-gray-500 italic">
+                      Selecciona una opción para agregar un video (opcional)
+                    </p>
+                  )}
                 </div>
               </div>
 

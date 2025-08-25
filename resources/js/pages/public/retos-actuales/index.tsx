@@ -144,31 +144,48 @@ export default function RetosActuales({ challenges, categories, filters }: Props
 
                     {/* Retos Grid */}
                     {challenges.length > 0 ? (
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 items-start">
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                             {challenges.map((challenge) => (
-                                <div key={challenge.id} className="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-all duration-300 flex flex-col min-h-0">
+                                <div key={challenge.id} className="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-all duration-300 flex flex-col h-full">
                                     {/* Video */}
-                                    {challenge.link_video && (
+                                    {(challenge.link_video || challenge.video_id) && (
                                         <div className="aspect-video bg-gray-200">
-                                            <iframe
-                                                src={getVideoEmbedUrl(challenge.link_video) || ''}
-                                                title={challenge.name}
-                                                className="w-full h-full"
-                                                frameBorder="0"
-                                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                                                allowFullScreen
-                                            />
+                                            {challenge.link_video ? (
+                                                // Video de URL (YouTube, etc.)
+                                                <iframe
+                                                    src={getVideoEmbedUrl(challenge.link_video) || ''}
+                                                    title={challenge.name}
+                                                    className="w-full h-full"
+                                                    frameBorder="0"
+                                                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                                    allowFullScreen
+                                                />
+                                            ) : challenge.video_id ? (
+                                                // Video subido como archivo
+                                                <video
+                                                    controls
+                                                    className="w-full h-full"
+                                                    preload="metadata"
+                                                    title={challenge.name}
+                                                >
+                                                    <source src={`/storage/${challenge.video_id}`} type="video/mp4" />
+                                                    <source src={`/storage/${challenge.video_id}`} type="video/avi" />
+                                                    <source src={`/storage/${challenge.video_id}`} type="video/mov" />
+                                                    <source src={`/storage/${challenge.video_id}`} type="video/wmv" />
+                                                    Tu navegador no soporta el elemento de video.
+                                                </video>
+                                            ) : null}
                                         </div>
                                     )}
 
                                     {/* Contenido */}
                                     <div className="p-6 flex flex-col flex-grow">
                                         {/* Header del reto */}
-                                        <div className="mb-4">
-                                            <h3 className="text-xl font-semibold text-gray-900 mb-3 leading-tight">
+                                        <div className="mb-3">
+                                            <h3 className="text-lg font-semibold text-gray-900 mb-2 leading-tight line-clamp-2">
                                                 {challenge.name}
                                             </h3>
-                                            <div className="flex items-center gap-2 mb-3">
+                                            <div className="flex items-center gap-2">
                                                 <span className={`px-2 py-1 rounded-full text-xs font-medium ${getDifficultyColor(challenge.difficulty)}`}>
                                                     {getDifficultyLabel(challenge.difficulty)}
                                                 </span>
@@ -181,34 +198,34 @@ export default function RetosActuales({ challenges, categories, filters }: Props
                                         </div>
 
                                         {/* Descripción */}
-                                        <div className="mb-4">
-                                            <p className="text-gray-600 text-sm leading-relaxed line-clamp-3">
+                                        <div className="mb-3">
+                                            <p className="text-gray-600 text-sm leading-relaxed line-clamp-2">
                                                 {challenge.description}
                                             </p>
                                         </div>
 
                                         {/* Objetivo */}
-                                        <div className="mb-4">
-                                            <h4 className="font-medium text-gray-900 text-sm mb-2">Objetivo:</h4>
-                                            <p className="text-sm text-gray-600 leading-relaxed">
+                                        <div className="mb-3">
+                                            <h4 className="font-medium text-gray-900 text-sm mb-1">Objetivo:</h4>
+                                            <p className="text-sm text-gray-600 leading-relaxed line-clamp-2">
                                                 {challenge.objective}
                                             </p>
                                         </div>
 
                                         {/* Requisitos */}
                                         {challenge.requirements && challenge.requirements.length > 0 && (
-                                            <div className="mb-4">
-                                                <h4 className="font-medium text-gray-900 mb-2 text-sm">Requisitos:</h4>
-                                                <ul className="text-sm text-gray-600 space-y-1">
-                                                    {challenge.requirements.slice(0, 3).map((req, index) => (
+                                            <div className="mb-3">
+                                                <h4 className="font-medium text-gray-900 mb-1 text-sm">Requisitos:</h4>
+                                                <ul className="text-sm text-gray-600 space-y-0.5">
+                                                    {challenge.requirements.slice(0, 2).map((req, index) => (
                                                         <li key={index} className="flex items-start">
                                                             <span className="w-1.5 h-1.5 bg-blue-500 rounded-full mr-2 mt-1.5 flex-shrink-0"></span>
-                                                            <span className="leading-relaxed">{req}</span>
+                                                            <span className="leading-relaxed line-clamp-1">{req}</span>
                                                         </li>
                                                     ))}
-                                                    {challenge.requirements.length > 3 && (
+                                                    {challenge.requirements.length > 2 && (
                                                         <li className="text-blue-600 text-xs mt-1">
-                                                            +{challenge.requirements.length - 3} requisitos más...
+                                                            +{challenge.requirements.length - 2} requisitos más...
                                                         </li>
                                                     )}
                                                 </ul>
@@ -217,15 +234,15 @@ export default function RetosActuales({ challenges, categories, filters }: Props
 
                                         {/* Recompensa */}
                                         {challenge.reward_amount && (
-                                            <div className="mb-4 p-3 bg-green-50 border border-green-200 rounded-lg">
+                                            <div className="mb-3 p-2 bg-green-50 border border-green-200 rounded-lg">
                                                 <div className="flex items-center justify-between">
                                                     <div>
                                                         <span className="text-xs font-medium text-green-800">Recompensa</span>
-                                                        <p className="text-lg font-bold text-green-900">
+                                                        <p className="text-base font-bold text-green-900">
                                                             ${formatCurrency(Number(challenge.reward_amount), (challenge as any).reward_currency as any)} {challenge.reward_currency}
                                                         </p>
                                                     </div>
-                                                    <div className="text-green-600 text-2xl">💰</div>
+                                                    <div className="text-green-600 text-xl">💰</div>
                                                 </div>
                                             </div>
                                         )}
