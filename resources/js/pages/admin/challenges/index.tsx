@@ -320,7 +320,27 @@ export default function AdminChallenges({ challenges, categories, companies, sta
                                     <button onClick={() => setShowEditModal(false)} className="text-gray-500 hover:text-gray-700">✕</button>
                                 </div>
                                 <form onSubmit={handleUpdate} className="p-6 space-y-4 max-h-[70vh] overflow-auto">
-                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div >
+                                                <div className="bg-gradient-to-r from-indigo-500 via-blue-500 to-pink-500 p-4 rounded-xl shadow-lg">
+                                                    <label className="text-sm text-white">Estado de publicación</label>
+                                                    <select
+                                                        value={(data as any).publication_status}
+                                                        onChange={e => setData('publication_status' as any, e.target.value)}
+                                                        className="mt-2 w-full px-4 py-2 rounded-lg bg-white text-gray-800 font-medium shadow-md border-2 border-indigo-400 focus:outline-none focus:ring-4 focus:ring-indigo-300 hover:border-purple-500 transition"
+                                                        required
+                                                    >
+                                                        <option value="draft">Borrador</option>
+                                                        <option value="published">Publicado</option>
+                                                    </select>
+
+                                                    {(errors as any).publication_status && (
+                                                        <p className="text-red-600 text-sm mt-1">
+                                                            {(errors as any).publication_status}
+                                                        </p>
+                                                    )}
+                                                </div>
+
+
                                         <div>
                                             <label className="text-sm text-gray-600">Nombre</label>
                                             <input value={data.name} onChange={e => setData('name', e.target.value)} className="mt-1 w-full border rounded-md px-3 py-2" required />
@@ -359,13 +379,7 @@ export default function AdminChallenges({ challenges, categories, companies, sta
                                             </select>
                                             {errors.difficulty && <p className="text-red-600 text-sm mt-1">{errors.difficulty}</p>}
                                         </div>
-                                        <div>
-                                            <label className="text-sm text-gray-600">Estado de publicación</label>
-                                            <select value={(data as any).publication_status} onChange={e => setData('publication_status' as any, e.target.value)} className="mt-1 w-full border rounded-md px-3 py-2" required>
-                                                {(publicationStatuses || ['draft','published']).map(st => (<option key={st} value={st}>{st}</option>))}
-                                            </select>
-                                            {(errors as any).publication_status && <p className="text-red-600 text-sm mt-1">{(errors as any).publication_status}</p>}
-                                        </div>
+                                        
                                         <div>
                                             <label className="text-sm text-gray-600">Estado de actividad</label>
                                             <select value={(data as any).activity_status} onChange={e => setData('activity_status' as any, e.target.value)} className="mt-1 w-full border rounded-md px-3 py-2" required>
