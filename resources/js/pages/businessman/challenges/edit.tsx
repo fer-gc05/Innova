@@ -50,10 +50,14 @@ export default function EditChallenge({ challenge, categoryAnswers, categories, 
     category_id: challenge.category_id.toString(),
     link_video: challenge.link_video || '',
     video_file: null as File | null,
+    acquisition_type: challenge.acquisition_type || 'license',
+    acquisition_details: challenge.acquisition_details || '',
+    acquisition_terms: challenge.acquisition_terms || '',
     reward_amount: challenge.reward_amount || '',
     reward_currency: challenge.reward_currency || 'COP',
     reward_description: challenge.reward_description || '',
-    reward_type: challenge.reward_type || 'fixed',
+    reward_delivery_type: challenge.reward_delivery_type || 'final_software',
+    reward_delivery_details: challenge.reward_delivery_details || '',
     category_questions: (categoryAnswers as Record<string, string | string[]>) || {},
   });
 
@@ -106,18 +110,18 @@ export default function EditChallenge({ challenge, categoryAnswers, categories, 
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     // Validación del video
     if (videoType === 'url' && !data.link_video.trim()) {
       alert('Por favor, ingresa una URL de video válida o selecciona otra opción.');
       return;
     }
-    
+
     if (videoType === 'file' && !data.video_file) {
       alert('Por favor, selecciona un archivo de video o selecciona otra opción.');
       return;
     }
-    
+
     // Limpiar campos de video no utilizados
     const payload: any = {
       ...data,
@@ -126,7 +130,7 @@ export default function EditChallenge({ challenge, categoryAnswers, categories, 
         return raw === '' ? null : Number(raw);
       })(),
     };
-    
+
     if (videoType === 'url') {
       payload.video_file = null;
     } else if (videoType === 'file') {
@@ -135,7 +139,7 @@ export default function EditChallenge({ challenge, categoryAnswers, categories, 
       payload.link_video = '';
       payload.video_file = null;
     }
-    
+
     if ((window as any).Inertia?.put) {
       (window as any).Inertia.put(`/businessman/challenges/${challenge.id}`, payload, {
         forceFormData: true,
@@ -279,7 +283,7 @@ export default function EditChallenge({ challenge, categoryAnswers, categories, 
                 <h1 className="text-3xl font-bold text-gray-900">Editar Reto</h1>
                 <div className="flex items-center space-x-3 mt-2">
                   <p className="text-sm text-gray-500">{challenge.name}</p>
-                  {getStatusBadge(challenge.status)}
+                                      {getStatusBadge(challenge.status)}
                 </div>
               </div>
 
@@ -345,6 +349,9 @@ export default function EditChallenge({ challenge, categoryAnswers, categories, 
                     <label className="block text-sm font-medium text-gray-700 mb-2">
                       Nombre del Reto *
                     </label>
+                    <p className="text-xs text-gray-500 mb-2">
+                      Elige un nombre atractivo y descriptivo que capture la esencia del reto
+                    </p>
                     <input
                       type="text"
                       value={data.name}
@@ -360,6 +367,9 @@ export default function EditChallenge({ challenge, categoryAnswers, categories, 
                     <label className="block text-sm font-medium text-gray-700 mb-2">
                       Categoría *
                     </label>
+                    <p className="text-xs text-gray-500 mb-2">
+                      Selecciona la categoría que mejor describe el tipo de reto
+                    </p>
                     <select
                       value={data.category_id}
                       onChange={(e) => handleCategoryChange(e.target.value)}
@@ -377,16 +387,165 @@ export default function EditChallenge({ challenge, categoryAnswers, categories, 
                   </div>
                 </div>
 
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Dificultad *
+                    </label>
+                    <p className="text-xs text-gray-500 mb-2">
+                      Define el nivel de complejidad que tendrá el reto para los participantes
+                    </p>
+                    <select
+                      value={data.difficulty}
+                      onChange={(e) => setField('difficulty', e.target.value)}
+                      className="w-full px-4 py-3 text-sm border border-gray-300 rounded-lg bg-white shadow-sm transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400"
+                      required
+                    >
+                      <option value="">Selecciona la dificultad</option>
+                      {difficulties.map((difficulty) => (
+                        <option key={difficulty.value} value={difficulty.value}>
+                          {difficulty.label}
+                        </option>
+                      ))}
+                    </select>
+                    {errors.difficulty && <p className="mt-1 text-sm text-red-600">{errors.difficulty}</p>}
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Fecha de Inicio *
+                    </label>
+                    <p className="text-xs text-gray-500 mb-2">
+                      Fecha en la que los estudiantes podrán comenzar a participar
+                    </p>
+                    <input
+                      type="date"
+                      value={data.start_date}
+                      onChange={(e) => setField('start_date', e.target.value)}
+                      className="w-full px-4 py-3 text-sm border border-gray-300 rounded-lg bg-white shadow-sm transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400"
+                      required
+                    />
+                    {errors.start_date && <p className="mt-1 text-sm text-red-600">{errors.start_date}</p>}
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Fecha de Fin *
+                    </label>
+                    <p className="text-xs text-gray-500 mb-2">
+                      Fecha límite para que los estudiantes entreguen sus propuestas
+                    </p>
+                    <input
+                      type="date"
+                      value={data.end_date}
+                      onChange={(e) => setField('end_date', e.target.value)}
+                      className="w-full px-4 py-3 text-sm border border-gray-300 rounded-lg bg-white shadow-sm transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400"
+                      required
+                    />
+                    {errors.end_date && <p className="mt-1 text-sm text-red-600">{errors.end_date}</p>}
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Video del Reto (Opcional)
+                    </label>
+                    <p className="text-xs text-gray-500 mb-2">
+                      Agrega un video explicativo o promocional para el reto
+                    </p>
+
+                    {/* Selector de tipo de video */}
+                    <div className="mb-4">
+                      <div className="flex space-x-4">
+                        <label className="flex items-center">
+                          <input
+                            type="radio"
+                            name="video_type"
+                            value="url"
+                            checked={videoType === 'url'}
+                            onChange={() => {
+                              setVideoType('url');
+                              setField('link_video', '');
+                              setField('video_file', null);
+                            }}
+                            className="w-4 h-4 text-blue-600 border-gray-300 focus:ring-blue-500 focus:ring-2"
+                          />
+                          <span className="ml-2 text-sm text-gray-700">URL de Video</span>
+                        </label>
+                        <label className="flex items-center">
+                          <input
+                            type="radio"
+                            name="video_type"
+                            value="file"
+                            checked={videoType === 'file'}
+                            onChange={() => {
+                              setVideoType('file');
+                              setField('link_video', '');
+                              setField('video_file', null);
+                            }}
+                            className="w-4 h-4 text-blue-600 border-gray-300 focus:ring-blue-500 focus:ring-2"
+                          />
+                          <span className="ml-2 text-sm text-gray-700">Subir Archivo</span>
+                        </label>
+                      </div>
+                    </div>
+
+                    {/* Campo URL */}
+                    {videoType === 'url' && (
+                      <div>
+                        <input
+                          type="url"
+                          value={data.link_video}
+                          onChange={(e) => setField('link_video', e.target.value)}
+                          className="w-full px-4 py-3 text-sm border border-gray-300 rounded-lg bg-white shadow-sm transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400"
+                          placeholder="https://www.youtube.com/watch?v=..."
+                        />
+                        {errors.link_video && <p className="mt-1 text-sm text-red-600">{errors.link_video}</p>}
+                      </div>
+                    )}
+
+                    {/* Campo archivo */}
+                    {videoType === 'file' && (
+                      <div>
+                        <input
+                          type="file"
+                          accept="video/*"
+                          onChange={(e) => {
+                            const file = e.target.files?.[0] || null;
+                            setField('video_file', file);
+                          }}
+                          className="w-full px-4 py-3 text-sm border border-gray-300 rounded-lg bg-white shadow-sm transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400"
+                        />
+                        <p className="text-xs text-gray-500 mt-1">
+                          Formatos permitidos: MP4, AVI, MOV, WMV. Tamaño máximo: 100MB
+                        </p>
+                        {errors.video_file && <p className="mt-1 text-sm text-red-600">{errors.video_file}</p>}
+                      </div>
+                    )}
+
+                    {/* Validación de tipo de video */}
+                    {videoType === null && (
+                      <p className="text-sm text-gray-500 italic">
+                        Selecciona una opción para agregar un video (opcional)
+                      </p>
+                    )}
+                  </div>
+                </div>
+
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     Descripción *
                   </label>
+                  <p className="text-xs text-gray-500 mb-2">
+                    Explica detalladamente en qué consiste el reto, qué problema resuelve y qué se espera de los participantes
+                  </p>
                   <textarea
                     value={data.description}
                     onChange={(e) => setField('description', e.target.value)}
                     rows={4}
                     className="w-full px-4 py-3 text-sm border border-gray-300 rounded-lg bg-white shadow-sm resize-none transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400"
-                    placeholder="Describe detalladamente en qué consiste tu reto..."
+                    placeholder="Describe detalladamente en qué consiste el reto..."
                     required
                   />
                   {errors.description && <p className="mt-1 text-sm text-red-600">{errors.description}</p>}
@@ -396,15 +555,79 @@ export default function EditChallenge({ challenge, categoryAnswers, categories, 
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     Objetivo *
                   </label>
+                  <p className="text-xs text-gray-500 mb-2">
+                    Define claramente qué se quiere lograr con este reto y cuál es el resultado esperado
+                  </p>
                   <textarea
                     value={data.objective}
                     onChange={(e) => setField('objective', e.target.value)}
                     rows={3}
                     className="w-full px-4 py-3 text-sm border border-gray-300 rounded-lg bg-white shadow-sm resize-none transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400"
-                    placeholder="¿Qué objetivo específico quieres lograr con este reto?"
+                    placeholder="¿Qué objetivo específico se quiere lograr con este reto?"
                     required
                   />
                   {errors.objective && <p className="mt-1 text-sm text-red-600">{errors.objective}</p>}
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Requisitos Técnicos *
+                  </label>
+                  <p className="text-xs text-gray-500 mb-2">
+                    Especifica los requisitos técnicos, tecnologías, herramientas y conocimientos necesarios para participar en el reto
+                  </p>
+
+                                    {/* Lista de requisitos */}
+                  <div className="space-y-3 mb-4">
+                    {Array.isArray(data.requirements) && data.requirements.map((requirement, index) => (
+                      <div key={index} className="flex items-center space-x-3">
+                        <span className="text-gray-500 text-sm">•</span>
+                        <input
+                          type="text"
+                          value={requirement}
+                          onChange={(e) => {
+                            const newRequirements = [...data.requirements];
+                            newRequirements[index] = e.target.value;
+                            setField('requirements', newRequirements);
+                          }}
+                          className="flex-1 px-3 py-2 text-sm border border-gray-300 rounded-lg bg-white shadow-sm transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400"
+                          placeholder="Ej: Conocimientos en JavaScript y React"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const newRequirements = data.requirements.filter((_, i) => i !== index);
+                            setField('requirements', newRequirements);
+                          }}
+                          className="text-red-500 hover:text-red-700 transition-colors p-1"
+                        >
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                          </svg>
+                        </button>
+                      </div>
+                    ))}
+
+                    {(!Array.isArray(data.requirements) || data.requirements.length === 0) && (
+                      <div className="text-center py-4 text-gray-500 text-sm">
+                        No hay requisitos agregados. Haz clic en "Agregar Requisito" para comenzar.
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Botón para agregar más requisitos */}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const newRequirements = [...(Array.isArray(data.requirements) ? data.requirements : []), ''];
+                      setField('requirements', newRequirements);
+                    }}
+                    className="w-full px-4 py-2 bg-gray-100 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-200 transition-colors border border-gray-300"
+                  >
+                    + Agregar otro requisito
+                  </button>
+
+                  {errors.requirements && <p className="mt-1 text-sm text-red-600">{errors.requirements}</p>}
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -461,7 +684,7 @@ export default function EditChallenge({ challenge, categoryAnswers, categories, 
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     Video del Reto (Opcional)
                   </label>
-                  
+
                   {/* Selector de tipo de video */}
                   <div className="mb-4">
                     <div className="flex space-x-4">
@@ -598,6 +821,94 @@ export default function EditChallenge({ challenge, categoryAnswers, categories, 
                 </>
               )}
 
+              {/* Adquisición del Software */}
+              <div className="space-y-6">
+                <h3 className="text-lg font-semibold text-gray-900 border-b border-gray-200 pb-2">
+                  Adquisición del Software
+                </h3>
+                <div className="bg-purple-50 border border-purple-200 rounded-lg p-4">
+                  <p className="text-purple-700 text-sm">
+                    <strong>Importante:</strong> Especifica cómo se obtendrá el software desarrollado por los estudiantes.
+                  </p>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Tipo de Adquisición *
+                  </label>
+                  <p className="text-xs text-gray-500 mb-3">
+                    Define cómo se obtendrá el software desarrollado por los estudiantes
+                  </p>
+                  <div className="space-y-3">
+                    <label className="flex items-center p-4 border border-gray-200 rounded-lg cursor-pointer transition-colors duration-200 hover:bg-gray-50 hover:border-gray-300">
+                      <input
+                        type="radio"
+                        name="acquisition_type"
+                        value="license"
+                        checked={data.acquisition_type === 'license'}
+                        onChange={(e) => setField('acquisition_type', e.target.value)}
+                        className="w-4 h-4 text-blue-600 border-gray-300 focus:ring-blue-500 focus:ring-2"
+                        required
+                      />
+                      <div className="ml-3">
+                        <span className="text-sm font-medium text-gray-700">Licencia de Software</span>
+                        <p className="text-xs text-gray-500 mt-1">Obtener el software mediante una licencia de uso</p>
+                      </div>
+                    </label>
+                    <label className="flex items-center p-4 border border-gray-200 rounded-lg cursor-pointer transition-colors duration-200 hover:bg-gray-50 hover:border-gray-300">
+                      <input
+                        type="radio"
+                        name="acquisition_type"
+                        value="purchase"
+                        checked={data.acquisition_type === 'purchase'}
+                        onChange={(e) => setField('acquisition_type', e.target.value)}
+                        className="w-4 h-4 text-blue-600 border-gray-300 focus:ring-blue-500 focus:ring-2"
+                        required
+                      />
+                      <div className="ml-3">
+                        <span className="text-sm font-medium text-gray-700">Compra del Software</span>
+                        <p className="text-xs text-gray-500 mt-1">Adquirir la propiedad completa del software desarrollado</p>
+                      </div>
+                    </label>
+                  </div>
+                  {errors.acquisition_type && <p className="mt-1 text-sm text-red-600">{errors.acquisition_type}</p>}
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Detalles de la Adquisición
+                  </label>
+                  <p className="text-xs text-gray-500 mb-2">
+                    Especifica los detalles del proceso de adquisición, plazos, entregables y cualquier consideración especial
+                  </p>
+                  <textarea
+                    value={data.acquisition_details}
+                    onChange={(e) => setField('acquisition_details', e.target.value)}
+                    rows={3}
+                    className="w-full px-4 py-3 text-sm border border-gray-300 rounded-lg bg-white shadow-sm resize-none transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400"
+                    placeholder="Describe los detalles específicos de cómo se realizará la adquisición del software..."
+                  />
+                  {errors.acquisition_details && <p className="mt-1 text-sm text-red-600">{errors.acquisition_details}</p>}
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Términos y Condiciones de Adquisición
+                  </label>
+                  <p className="text-xs text-gray-500 mb-2">
+                    Define los términos legales y condiciones que regirán la adquisición del software
+                  </p>
+                  <textarea
+                    value={data.acquisition_terms}
+                    onChange={(e) => setField('acquisition_terms', e.target.value)}
+                    rows={4}
+                    className="w-full px-4 py-3 text-sm border border-gray-300 rounded-lg bg-white shadow-sm resize-none transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400"
+                    placeholder="Especifica los términos y condiciones que aplicarán para la adquisición del software..."
+                  />
+                  {errors.acquisition_terms && <p className="mt-1 text-sm text-red-600">{errors.acquisition_terms}</p>}
+                </div>
+              </div>
+
               {/* Recompensa */}
               <div className="space-y-6">
                 <h3 className="text-lg font-semibold text-gray-900 border-b border-gray-200 pb-2">
@@ -605,7 +916,7 @@ export default function EditChallenge({ challenge, categoryAnswers, categories, 
                 </h3>
                 <div className="bg-green-50 border border-green-200 rounded-lg p-4">
                   <p className="text-green-700 text-sm">
-                    Puedes establecer una recompensa económica para motivar la participación en tu reto.
+                    Puedes establecer una recompensa económica para motivar la participación en el reto.
                   </p>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -613,15 +924,17 @@ export default function EditChallenge({ challenge, categoryAnswers, categories, 
                     <label className="block text-sm font-medium text-gray-700 mb-2">
                       Monto de la Recompensa
                     </label>
+                    <p className="text-xs text-gray-500 mb-2">
+                      Establece el valor económico que recibirá el ganador del reto
+                    </p>
                     <input
-                      type="text"
-                      inputMode="decimal"
-                      value={formatCurrency((data as any).reward_amount, (data as any).reward_currency as any)}
-                      onChange={(e) => {
-                        const parsed = parseCurrency(e.target.value, (data as any).reward_currency as any);
-                        setField('reward_amount', parsed);
-                      }}
+                      type="number"
+                      value={data.reward_amount}
+                      onChange={(e) => setField('reward_amount', e.target.value)}
                       placeholder="500000"
+                      min="0"
+                      max="99999999.99"
+                      step="0.01"
                       className="w-full px-4 py-3 text-sm border border-gray-300 rounded-lg bg-white shadow-sm transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400"
                     />
                     {errors.reward_amount && <p className="mt-1 text-sm text-red-600">{errors.reward_amount}</p>}
@@ -631,6 +944,9 @@ export default function EditChallenge({ challenge, categoryAnswers, categories, 
                     <label className="block text-sm font-medium text-gray-700 mb-2">
                       Moneda
                     </label>
+                    <p className="text-xs text-gray-500 mb-2">
+                      Selecciona la moneda en la que se entregará la recompensa
+                    </p>
                     <select
                       value={data.reward_currency}
                       onChange={(e) => setField('reward_currency', e.target.value)}
@@ -647,6 +963,9 @@ export default function EditChallenge({ challenge, categoryAnswers, categories, 
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     Descripción de la Recompensa
                   </label>
+                  <p className="text-xs text-gray-500 mb-2">
+                    Explica cómo se entregará la recompensa, cuándo y qué criterios se usarán para seleccionar al ganador
+                  </p>
                   <textarea
                     value={data.reward_description}
                     onChange={(e) => setField('reward_description', e.target.value)}
@@ -656,22 +975,66 @@ export default function EditChallenge({ challenge, categoryAnswers, categories, 
                   />
                   {errors.reward_description && <p className="mt-1 text-sm text-red-600">{errors.reward_description}</p>}
                 </div>
+              </div>
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Tipo de Recompensa
+                    Entrega de Recompensa *
                   </label>
-                  <select
-                    value={data.reward_type}
-                    onChange={(e) => setField('reward_type', e.target.value)}
-                    className="w-full px-4 py-3 text-sm border border-gray-300 rounded-lg bg-white shadow-sm transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400"
-                  >
-                    <option value="fixed">Monto Fijo</option>
-                    <option value="variable">Monto Variable</option>
-                    <option value="percentage">Porcentaje</option>
-                  </select>
+                  <p className="text-xs text-gray-500 mb-3">
+                    Especifica cuándo se entregará la recompensa al ganador
+                  </p>
+                  <div className="space-y-3">
+                    <label className="flex items-center p-4 border border-gray-200 rounded-lg cursor-pointer transition-colors duration-200 hover:bg-gray-50 hover:border-gray-300">
+                      <input
+                        type="radio"
+                        name="reward_delivery_type"
+                        value="prototype"
+                        checked={data.reward_delivery_type === 'prototype'}
+                        onChange={(e) => setField('reward_delivery_type', e.target.value)}
+                        className="w-4 h-4 text-blue-600 border-gray-300 focus:ring-blue-500 focus:ring-2"
+                        required
+                      />
+                      <div className="ml-3">
+                        <span className="text-sm font-medium text-gray-700">Por Prototipo</span>
+                        <p className="text-xs text-gray-500 mt-1">La recompensa se entregará cuando el estudiante presente el prototipo inicial</p>
+                      </div>
+                    </label>
+                    <label className="flex items-center p-4 border border-gray-200 rounded-lg cursor-pointer transition-colors duration-200 hover:bg-gray-50 hover:border-gray-300">
+                      <input
+                        type="radio"
+                        name="reward_delivery_type"
+                        value="final_software"
+                        checked={data.reward_delivery_type === 'final_software'}
+                        onChange={(e) => setField('reward_delivery_type', e.target.value)}
+                        className="w-4 h-4 text-blue-600 border-gray-300 focus:ring-blue-500 focus:ring-2"
+                        required
+                      />
+                      <div className="ml-3">
+                        <span className="text-sm font-medium text-gray-700">Por Software Final</span>
+                        <p className="text-xs text-gray-500 mt-1">La recompensa se entregará cuando se complete y entregue el software final</p>
+                      </div>
+                    </label>
+                  </div>
+                  {errors.reward_delivery_type && <p className="mt-1 text-sm text-red-600">{errors.reward_delivery_type}</p>}
                 </div>
-              </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Detalles de Entrega de Recompensa
+                  </label>
+                  <p className="text-xs text-gray-500 mb-2">
+                    Especifica los detalles del proceso de entrega, plazos, criterios de evaluación y cualquier consideración especial
+                  </p>
+                  <textarea
+                    value={data.reward_delivery_details}
+                    onChange={(e) => setField('reward_delivery_details', e.target.value)}
+                    rows={3}
+                    className="w-full px-4 py-3 text-sm border border-gray-300 rounded-lg bg-white shadow-sm resize-none transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400"
+                    placeholder="Describe los detalles específicos de cómo se entregará la recompensa..."
+                  />
+                  {errors.reward_delivery_details && <p className="mt-1 text-sm text-red-600">{errors.reward_delivery_details}</p>}
+                </div>
 
               {/* Botones */}
               <div className="flex justify-end space-x-4 pt-6 border-t border-gray-200">

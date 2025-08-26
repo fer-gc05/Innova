@@ -76,18 +76,18 @@ export default function CreateChallenge({ categories, difficulties, forms }: Pro
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     // Validación del video
     if (videoType === 'url' && !data.link_video.trim()) {
       alert('Por favor, ingresa una URL de video válida o selecciona otra opción.');
       return;
     }
-    
+
     if (videoType === 'file' && !data.video_file) {
       alert('Por favor, selecciona un archivo de video o selecciona otra opción.');
       return;
     }
-    
+
     // Limpiar campos de video no utilizados
     const formData = { ...data };
     if (videoType === 'url') {
@@ -98,7 +98,7 @@ export default function CreateChallenge({ categories, difficulties, forms }: Pro
       formData.link_video = '';
       formData.video_file = null;
     }
-    
+
     post('/businessman/challenges', {
       data: formData,
       forceFormData: true, // Forzar el uso de FormData para archivos
@@ -353,6 +353,67 @@ export default function CreateChallenge({ categories, difficulties, forms }: Pro
                   {errors.objective && <p className="mt-1 text-sm text-red-600">{errors.objective}</p>}
                 </div>
 
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Requisitos Técnicos *
+                  </label>
+                  <p className="text-xs text-gray-500 mb-2">
+                    Especifica los requisitos técnicos, tecnologías, herramientas y conocimientos necesarios para participar en el reto
+                  </p>
+
+                                    {/* Lista de requisitos */}
+                  <div className="space-y-3 mb-4">
+                    {Array.isArray(data.requirements) && data.requirements.map((requirement, index) => (
+                      <div key={index} className="flex items-center space-x-3">
+                        <span className="text-gray-500 text-sm">•</span>
+                        <input
+                          type="text"
+                          value={requirement}
+                          onChange={(e) => {
+                            const newRequirements = [...data.requirements];
+                            newRequirements[index] = e.target.value;
+                            setData('requirements', newRequirements);
+                          }}
+                          className="flex-1 px-3 py-2 text-sm border border-gray-300 rounded-lg bg-white shadow-sm transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400"
+                          placeholder="Ej: Conocimientos en JavaScript y React"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const newRequirements = data.requirements.filter((_, i) => i !== index);
+                            setData('requirements', newRequirements);
+                          }}
+                          className="text-red-500 hover:text-red-700 transition-colors p-1"
+                        >
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                          </svg>
+                        </button>
+                      </div>
+                    ))}
+
+                    {(!Array.isArray(data.requirements) || data.requirements.length === 0) && (
+                      <div className="text-center py-4 text-gray-500 text-sm">
+                        No hay requisitos agregados. Haz clic en "Agregar Requisito" para comenzar.
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Botón para agregar más requisitos */}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const newRequirements = [...(Array.isArray(data.requirements) ? data.requirements : []), ''];
+                      setData('requirements', newRequirements);
+                    }}
+                    className="w-full px-4 py-2 bg-gray-100 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-200 transition-colors border border-gray-300"
+                  >
+                    + Agregar otro requisito
+                  </button>
+
+                  {errors.requirements && <p className="mt-1 text-sm text-red-600">{errors.requirements}</p>}
+                </div>
+
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -433,7 +494,7 @@ export default function CreateChallenge({ categories, difficulties, forms }: Pro
                       </a>
                     </p>
                   </div>
-                  
+
                   {/* Selector de tipo de video */}
                   <div className="mb-4">
                     <div className="flex space-x-4">
@@ -470,7 +531,7 @@ export default function CreateChallenge({ categories, difficulties, forms }: Pro
                     </div>
                   </div>
 
-                  
+
 
 
                   {videoType === 'url' && (

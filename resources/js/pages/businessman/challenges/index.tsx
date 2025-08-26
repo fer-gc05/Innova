@@ -40,8 +40,7 @@ interface Props {
 
 export default function ChallengesIndex({ challenges, stats, categories = [], difficulties = [], forms = [] }: Props) {
   const [activeTab, setActiveTab] = useState<'all' | 'active' | 'pending' | 'completed'>('all');
-  const [showEditModal, setShowEditModal] = useState(false);
-  const [editingChallenge, setEditingChallenge] = useState<BusinessmanChallenge | null>(null);
+
   const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
   const [categoryQuestions, setCategoryQuestions] = useState<FormQuestion[]>([]);
 
@@ -55,10 +54,14 @@ export default function ChallengesIndex({ challenges, stats, categories = [], di
     end_date: '',
     category_id: '',
     link_video: '',
+    acquisition_type: 'license',
+    acquisition_details: '',
+    acquisition_terms: '',
     reward_amount: '',
     reward_currency: 'COP',
     reward_description: '',
-    reward_type: 'fixed',
+    reward_delivery_type: 'final_software',
+    reward_delivery_details: '',
     category_questions: {},
   });
 
@@ -116,10 +119,14 @@ export default function ChallengesIndex({ challenges, stats, categories = [], di
           end_date: '',
           category_id: '',
           link_video: '',
+          acquisition_type: 'license',
+          acquisition_details: '',
+          acquisition_terms: '',
           reward_amount: '',
           reward_currency: 'COP',
           reward_description: '',
-          reward_type: 'fixed',
+          reward_delivery_type: 'final_software',
+          reward_delivery_details: '',
           category_questions: {},
         });
       },
@@ -127,61 +134,10 @@ export default function ChallengesIndex({ challenges, stats, categories = [], di
   };
 
   const handleEdit = (challenge: BusinessmanChallenge) => {
-    setEditingChallenge(challenge);
-    const category = categories.find(cat => cat.id === challenge.category_id);
-    setSelectedCategory(category || null);
-
-    // Cargar datos del reto para editar
-    setData({
-      name: challenge.name,
-      description: challenge.description,
-      objective: challenge.objective,
-      difficulty: challenge.difficulty,
-      requirements: challenge.requirements || [],
-      start_date: challenge.start_date,
-      end_date: challenge.end_date,
-      category_id: challenge.category_id.toString(),
-      link_video: challenge.link_video || '',
-      reward_amount: challenge.reward_amount?.toString() || '',
-      reward_currency: challenge.reward_currency || 'COP',
-      reward_description: challenge.reward_description || '',
-      reward_type: challenge.reward_type || 'fixed',
-      category_questions: {},
-    });
-
-    setShowEditModal(true);
+    router.visit(`/businessman/challenges/${challenge.id}/edit`);
   };
 
-  const handleUpdate = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!editingChallenge) return;
 
-    post(`/businessman/challenges/${editingChallenge.id}`, {
-      method: 'put',
-      onSuccess: () => {
-        setShowEditModal(false);
-        setEditingChallenge(null);
-        setSelectedCategory(null);
-        setCategoryQuestions([]);
-        setData({
-          name: '',
-          description: '',
-          objective: '',
-          difficulty: '',
-          requirements: [],
-          start_date: '',
-          end_date: '',
-          category_id: '',
-          link_video: '',
-          reward_amount: '',
-          reward_currency: 'COP',
-          reward_description: '',
-          reward_type: 'fixed',
-          category_questions: {},
-        });
-      },
-    });
-  };
 
   const renderQuestion = (question: FormQuestion, index: number) => {
     const value = (data.category_questions as Record<string, string | string[]>)[question.text] || '';
@@ -604,285 +560,7 @@ export default function ChallengesIndex({ challenges, stats, categories = [], di
 
 
 
-      {/* Modal de Edición de Reto */}
-      {showEditModal && editingChallenge && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-lg shadow-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
-            <div className="p-6 border-b border-gray-200">
-              <div className="flex justify-between items-center">
-                <h2 className="text-2xl font-bold text-gray-900">Editar Reto</h2>
-                <button
-                  onClick={() => setShowEditModal(false)}
-                  className="text-gray-400 hover:text-gray-600"
-                >
-                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                  </svg>
-                </button>
-              </div>
-            </div>
 
-            <form onSubmit={handleUpdate} className="p-6">
-              {/* Información Básica */}
-              <div className="space-y-6">
-                <h3 className="text-lg font-semibold text-gray-900">Información Básica</h3>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Nombre del Reto *
-                    </label>
-                    <input
-                      type="text"
-                      value={data.name}
-                      onChange={(e) => setData('name', e.target.value)}
-                      className="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                      required
-                    />
-                    {errors.name && <p className="mt-1 text-sm text-red-600">{errors.name}</p>}
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Categoría *
-                    </label>
-                    <select
-                      value={data.category_id}
-                      onChange={(e) => handleCategoryChange(e.target.value)}
-                      className="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                      required
-                    >
-                      <option value="">Selecciona una categoría</option>
-                      {categories.map((category) => (
-                        <option key={category.id} value={category.id}>
-                          {category.name}
-                        </option>
-                      ))}
-                    </select>
-                    {errors.category_id && <p className="mt-1 text-sm text-red-600">{errors.category_id}</p>}
-                  </div>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Descripción *
-                  </label>
-                  <textarea
-                    value={data.description}
-                    onChange={(e) => setData('description', e.target.value)}
-                    rows={4}
-                    className="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                    required
-                  />
-                  {errors.description && <p className="mt-1 text-sm text-red-600">{errors.description}</p>}
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Objetivo *
-                  </label>
-                  <textarea
-                    value={data.objective}
-                    onChange={(e) => setData('objective', e.target.value)}
-                    rows={3}
-                    className="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                    required
-                  />
-                  {errors.objective && <p className="mt-1 text-sm text-red-600">{errors.objective}</p>}
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Dificultad *
-                    </label>
-                    <select
-                      value={data.difficulty}
-                      onChange={(e) => setData('difficulty', e.target.value)}
-                      className="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                      required
-                    >
-                      <option value="">Selecciona la dificultad</option>
-                      {difficulties.map((difficulty) => (
-                        <option key={difficulty.value} value={difficulty.value}>
-                          {difficulty.label}
-                        </option>
-                      ))}
-                    </select>
-                    {errors.difficulty && <p className="mt-1 text-sm text-red-600">{errors.difficulty}</p>}
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Fecha de Inicio *
-                    </label>
-                    <input
-                      type="date"
-                      value={data.start_date}
-                      onChange={(e) => setData('start_date', e.target.value)}
-                      className="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                      required
-                    />
-                    {errors.start_date && <p className="mt-1 text-sm text-red-600">{errors.start_date}</p>}
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Fecha de Fin *
-                    </label>
-                    <input
-                      type="date"
-                      value={data.end_date}
-                      onChange={(e) => setData('end_date', e.target.value)}
-                      className="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                      required
-                    />
-                    {errors.end_date && <p className="mt-1 text-sm text-red-600">{errors.end_date}</p>}
-                  </div>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Link del Video (Opcional)
-                  </label>
-                  <input
-                    type="url"
-                    value={data.link_video}
-                    onChange={(e) => setData('link_video', e.target.value)}
-                    placeholder="https://www.youtube.com/watch?v=..."
-                    className="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                  />
-                  {errors.link_video && <p className="mt-1 text-sm text-red-600">{errors.link_video}</p>}
-                </div>
-              </div>
-
-              {/* Preguntas Específicas de Categoría */}
-              {selectedCategory && categoryQuestions.length > 0 && (
-                <div className="mt-8 space-y-6">
-                  <h3 className="text-lg font-semibold text-gray-900">
-                    Preguntas Específicas - {selectedCategory.name}
-                  </h3>
-                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
-                    <p className="text-blue-700 text-sm">
-                      Estas preguntas ayudarán a definir mejor los criterios de tu reto según la categoría seleccionada.
-                    </p>
-                  </div>
-                  <div className="space-y-6">
-                    {categoryQuestions.map((question, index) => (
-                      <div key={index} className="border border-gray-200 rounded-lg p-4">
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                          {question.text} {question.required && <span className="text-red-500">*</span>}
-                        </label>
-                        {renderQuestion(question, index)}
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {/* Recompensa */}
-              <div className="mt-8 space-y-6">
-                <h3 className="text-lg font-semibold text-gray-900">Recompensa (Opcional)</h3>
-                <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-6">
-                  <p className="text-green-700 text-sm">
-                    Puedes establecer una recompensa económica para motivar la participación en tu reto.
-                  </p>
-                </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Monto de la Recompensa
-                    </label>
-                    <input
-                      type="number"
-                      value={data.reward_amount}
-                      onChange={(e) => setData('reward_amount', e.target.value)}
-                      placeholder="500000"
-                      className="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                    />
-                    {errors.reward_amount && <p className="mt-1 text-sm text-red-600">{errors.reward_amount}</p>}
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Moneda
-                    </label>
-                    <select
-                      value={data.reward_currency}
-                      onChange={(e) => setData('reward_currency', e.target.value)}
-                      className="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                    >
-                      <option value="COP">COP (Pesos Colombianos)</option>
-                      <option value="USD">USD (Dólares)</option>
-                      <option value="EUR">EUR (Euros)</option>
-                    </select>
-                  </div>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Descripción de la Recompensa
-                  </label>
-                  <textarea
-                    value={data.reward_description}
-                    onChange={(e) => setData('reward_description', e.target.value)}
-                    rows={3}
-                    placeholder="Describe cómo se entregará la recompensa y los criterios para ganarla..."
-                    className="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                  />
-                  {errors.reward_description && <p className="mt-1 text-sm text-red-600">{errors.reward_description}</p>}
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Tipo de Recompensa
-                  </label>
-                  <select
-                    value={data.reward_type}
-                    onChange={(e) => setData('reward_type', e.target.value)}
-                    className="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                  >
-                    <option value="fixed">Monto Fijo</option>
-                    <option value="variable">Monto Variable</option>
-                    <option value="percentage">Porcentaje</option>
-                  </select>
-                </div>
-              </div>
-
-              {/* Información Importante */}
-              <div className="mt-8 bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-                <h3 className="text-lg font-medium text-yellow-900 mb-2">
-                  Información Importante
-                </h3>
-                <ul className="text-yellow-700 text-sm space-y-1">
-                  <li>• Tu reto será revisado por el equipo administrativo antes de ser publicado</li>
-                  <li>• Recibirás una notificación cuando sea aprobado o rechazado</li>
-                  <li>• Solo puedes editar retos en estado "Pendiente"</li>
-                  <li>• Una vez aprobado, los estudiantes podrán inscribirse</li>
-                </ul>
-              </div>
-
-              {/* Botones */}
-              <div className="flex justify-end space-x-4 mt-8 pt-6 border-t border-gray-200">
-                <button
-                  type="button"
-                  onClick={() => setShowEditModal(false)}
-                  className="px-6 py-2 rounded-lg font-medium bg-gray-200 text-gray-700 hover:bg-gray-300"
-                >
-                  Cancelar
-                </button>
-                <button
-                  type="submit"
-                  disabled={processing}
-                  className="px-6 py-2 rounded-lg font-medium bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50"
-                >
-                  {processing ? 'Actualizando...' : 'Actualizar Reto'}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
 
     </MainLayout>
   );

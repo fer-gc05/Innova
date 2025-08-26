@@ -329,16 +329,20 @@ class ChallengeController extends Controller
             'description' => 'required|string|max:1000',
             'objective' => 'required|string|max:500',
             'difficulty' => 'required|in:easy,medium,hard',
-            'requirements.*nullable.*array',
+            'requirements' => 'nullable|array',
             'start_date' => 'required|date',
             'end_date' => 'required|date|after:start_date',
             'category_id' => 'required|exists:categories,id',
             'link_video' => 'nullable|url',
             'video_file' => 'nullable|file|mimes:mp4,avi,mov,wmv|max:102400', // 100MB máximo
+            'acquisition_type' => 'required|in:license,purchase',
+            'acquisition_details' => 'nullable|string|max:2000',
+            'acquisition_terms' => 'nullable|string|max:2000',
             'reward_amount' => 'nullable|numeric|min:0|max:99999999.99',
             'reward_currency' => 'nullable|string|max:3',
             'reward_description' => 'nullable|string',
-            'reward_type' => 'nullable|in:fixed,variable,percentage',
+            'reward_delivery_type' => 'required|in:prototype,final_software',
+            'reward_delivery_details' => 'nullable|string|max:2000',
             'category_questions' => 'nullable|array',
         ]);
 
@@ -354,7 +358,7 @@ class ChallengeController extends Controller
             if ($challenge->video_id && Storage::disk('public')->exists($challenge->video_id)) {
                 Storage::disk('public')->delete($challenge->video_id);
             }
-            
+
             $videoFile = $request->file('video_file');
             $videoName = time() . '_' . $videoFile->getClientOriginalName();
             $videoPath = $videoFile->storeAs('videos/challenges', $videoName, 'public');
@@ -379,10 +383,14 @@ class ChallengeController extends Controller
             'category_id' => $validated['category_id'],
             'link_video' => $validated['link_video'],
             'video_id' => $videoId,
+            'acquisition_type' => $validated['acquisition_type'],
+            'acquisition_details' => $validated['acquisition_details'],
+            'acquisition_terms' => $validated['acquisition_terms'],
             'reward_amount' => $validated['reward_amount'],
             'reward_currency' => $validated['reward_currency'],
             'reward_description' => $validated['reward_description'],
-            'reward_type' => $validated['reward_type'],
+            'reward_delivery_type' => $validated['reward_delivery_type'],
+            'reward_delivery_details' => $validated['reward_delivery_details'],
         ]);
 
         // Manejar las respuestas del formulario único

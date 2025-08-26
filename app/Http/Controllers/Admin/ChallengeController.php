@@ -56,7 +56,11 @@ class ChallengeController extends Controller
         $publicationStatuses = ['draft', 'published'];
         $activityStatuses = ['active', 'completed', 'inactive'];
         // Align with DB enum('easy','medium','hard')
-        $difficulties = ['easy', 'medium', 'hard'];
+        $difficulties = [
+            ['value' => 'easy', 'label' => 'Fácil'],
+            ['value' => 'medium', 'label' => 'Medio'],
+            ['value' => 'hard', 'label' => 'Difícil'],
+        ];
 
         return Inertia::render('admin/challenges/index', [
             'challenges' => $challenges,
@@ -286,7 +290,7 @@ class ChallengeController extends Controller
                 if ($challenge->video_id && Storage::disk('public')->exists($challenge->video_id)) {
                     Storage::disk('public')->delete($challenge->video_id);
                 }
-                
+
                 $videoFile = $request->file('video_file');
                 $videoName = time() . '_' . $videoFile->getClientOriginalName();
                 $videoPath = $videoFile->storeAs('videos/challenges', $videoName, 'public');
