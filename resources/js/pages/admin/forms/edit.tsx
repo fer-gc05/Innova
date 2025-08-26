@@ -108,7 +108,7 @@ function SortableQuestion({
           <label className="block text-sm font-medium text-gray-700 mb-1">Texto</label>
           <input
             type="text"
-            className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full px-4 py-3 text-sm border border-gray-300 rounded-lg bg-white shadow-sm transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400"
             value={question.text}
             onChange={(e) => updateQuestion(index, 'text', e.target.value)}
             required
@@ -121,7 +121,7 @@ function SortableQuestion({
         <div className="md:col-span-2">
           <label className="block text-sm font-medium text-gray-700 mb-1">Descripción (Opcional)</label>
           <textarea
-            className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full px-4 py-3 text-sm border border-gray-300 rounded-lg bg-white shadow-sm resize-none transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400"
             rows={2}
             value={question.description}
             onChange={(e) => updateQuestion(index, 'description', e.target.value)}
@@ -135,7 +135,7 @@ function SortableQuestion({
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">Tipo</label>
           <select
-            className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full px-4 py-3 text-sm border border-gray-300 rounded-lg bg-white shadow-sm transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400"
             value={question.type}
             onChange={(e) => updateQuestion(index, 'type', e.target.value as FormQuestion['type'])}
           >
@@ -336,8 +336,21 @@ export default function EditForm({ form, categories }: Props) {
       <div className="bg-gray-50 py-8">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="mb-6">
-            <h1 className="text-3xl font-bold text-gray-900">Editar Formulario</h1>
-            <p className="mt-1 text-sm text-gray-500">Modifica el nombre, categoría y preguntas.</p>
+            <div className="flex justify-between items-center">
+              <div>
+                <h1 className="text-3xl font-bold text-gray-900">Editar Formulario</h1>
+                <p className="mt-1 text-sm text-gray-500">Modifica el nombre, categoría y preguntas.</p>
+              </div>
+              <Link
+                href="/admin/dashboard"
+                className="bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-lg transition-colors inline-flex items-center"
+              >
+                <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                </svg>
+                Panel Admin
+              </Link>
+            </div>
           </div>
 
           <div className="bg-white rounded-lg shadow-sm p-6">

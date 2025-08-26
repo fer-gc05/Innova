@@ -35,16 +35,22 @@ export default function ChallengeShow({ challenge, stats, participants }: Props)
               </div>
               <div className="flex items-center space-x-2">
                 <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                  challenge?.status === 'draft' ? 'bg-gray-100 text-gray-800' :
-                  challenge?.status === 'active' ? 'bg-green-100 text-green-800' :
-                  challenge?.status === 'completed' ? 'bg-blue-100 text-blue-800' :
-                  challenge?.status === 'published' ? 'bg-purple-100 text-purple-800' :
+                  challenge?.publication_status === 'draft' ? 'bg-gray-100 text-gray-800' :
+                  challenge?.publication_status === 'published' ? 'bg-purple-100 text-purple-800' :
                   'bg-gray-100 text-gray-800'
                 }`}>
-                  {challenge?.status === 'draft' ? 'Borrador' :
-                   challenge?.status === 'active' ? 'Activo' :
-                   challenge?.status === 'completed' ? 'Completado' :
-                   challenge?.status === 'published' ? 'Publicado' : challenge?.status}
+                  {challenge?.publication_status === 'draft' ? 'Borrador' :
+                   challenge?.publication_status === 'published' ? 'Publicado' : challenge?.publication_status}
+                </span>
+                <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                  challenge?.activity_status === 'active' ? 'bg-green-100 text-green-800' :
+                  challenge?.activity_status === 'completed' ? 'bg-blue-100 text-blue-800' :
+                  challenge?.activity_status === 'inactive' ? 'bg-gray-100 text-gray-800' :
+                  'bg-gray-100 text-gray-800'
+                }`}>
+                  {challenge?.activity_status === 'active' ? 'Activo' :
+                   challenge?.activity_status === 'completed' ? 'Completado' :
+                   challenge?.activity_status === 'inactive' ? 'Inactivo' : challenge?.activity_status}
                 </span>
                 <span className={`px-2 py-1 rounded-full text-xs font-medium ${
                   challenge?.difficulty === 'easy' ? 'bg-green-100 text-green-800' :
@@ -128,6 +134,23 @@ export default function ChallengeShow({ challenge, stats, participants }: Props)
                 />
               </div>
 
+              {/* Respuestas del Formulario Específico */}
+              {challenge.formAnswers && (
+                <div className="bg-white rounded-lg shadow-sm p-6">
+                  <h2 className="text-xl font-semibold text-gray-900 mb-4">Formulario Específico - {challenge.category?.name}</h2>
+                  <div className="space-y-4">
+                    {Object.entries(challenge.formAnswers.answers || {}).map(([question, answer]) => (
+                      <div key={question} className="border border-gray-200 rounded-lg p-4">
+                        <h3 className="text-sm font-medium text-gray-700 mb-2">{question}</h3>
+                        <p className="text-gray-600 text-sm">
+                          {Array.isArray(answer) ? answer.join(', ') : answer}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
               {/* Entrega de Recompensa */}
               {challenge.reward_amount && (
                 <div className="bg-white rounded-lg shadow-sm p-6">
@@ -151,6 +174,12 @@ export default function ChallengeShow({ challenge, stats, participants }: Props)
                         Recompensa
                       </div>
                     </div>
+                    {challenge.reward_description && (
+                      <div className="mt-4 p-4 bg-gray-50 border border-gray-200 rounded-lg">
+                        <h3 className="text-sm font-medium text-gray-700 mb-2">Descripción de la Recompensa</h3>
+                        <p className="text-gray-600 text-sm">{challenge.reward_description}</p>
+                      </div>
+                    )}
                   </div>
                 </div>
               )}

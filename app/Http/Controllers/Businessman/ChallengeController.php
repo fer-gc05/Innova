@@ -222,7 +222,9 @@ class ChallengeController extends Controller
 
             $challenge->load([
                 'category',
+                'company',
                 'students.user',
+                'formAnswers',
                 'students' => function($query) {
                     $query->orderBy('created_at', 'desc');
                 }
@@ -279,7 +281,7 @@ class ChallengeController extends Controller
                 abort(403, 'No tienes permisos para editar este reto.');
             }
 
-            $challenge->load('category');
+            $challenge->load(['category', 'formAnswers']);
 
             // Cargar las respuestas del formulario específico si existen
             $categoryAnswers = null;

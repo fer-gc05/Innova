@@ -24,7 +24,10 @@ export default function AdminChallengesShow({ challenge }: Props) {
               <h1 className="text-2xl font-bold">{challenge.name}</h1>
               <p className="text-sm text-gray-500">{challenge.category?.name} • {challenge.company?.name}</p>
             </div>
-            <Link href="/admin/challenges" className="px-3 py-2 rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-700">Volver</Link>
+            <div className="flex items-center space-x-3">
+              <Link href="/admin/dashboard" className="px-3 py-2 rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-700">Panel Admin</Link>
+              <Link href="/admin/challenges" className="px-3 py-2 rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-700">Volver</Link>
+            </div>
           </div>
 
           <div className="bg-white rounded-lg shadow-sm p-6 space-y-6">

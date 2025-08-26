@@ -218,6 +218,9 @@ class ChallengeController extends Controller
      */
     public function edit(Challenge $challenge)
     {
+        // Cargar las relaciones necesarias
+        $challenge->load(['category', 'company', 'formAnswers']);
+
         $categories = Category::all();
         $companies = Company::all();
         $forms = Form::with('category')->get();

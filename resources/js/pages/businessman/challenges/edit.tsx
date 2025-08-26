@@ -39,6 +39,8 @@ export default function EditChallenge({ challenge, categoryAnswers, categories, 
   const [selectedCategory, setSelectedCategory] = useState<Category | null>(challenge.category);
   const [categoryQuestions, setCategoryQuestions] = useState<FormQuestion[]>([]);
 
+
+
   const { data, setData, put, processing, errors } = useForm<any>({
     name: challenge.name,
     description: challenge.description,

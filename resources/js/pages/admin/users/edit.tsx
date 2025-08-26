@@ -59,9 +59,14 @@ export default function EditUser({ roles, user }: Props) {
                         Modifica los datos del usuario seleccionado
                     </p>
                 </div>
-                <Button variant="outline" asChild className="mr-15">
-                    <Link href="/admin/users">Volver</Link>
-                </Button>
+                <div className="flex items-center space-x-3 mr-15">
+                    <Button variant="outline" asChild>
+                        <Link href="/admin/dashboard">Panel Admin</Link>
+                    </Button>
+                    <Button variant="outline" asChild>
+                        <Link href="/admin/users">Volver</Link>
+                    </Button>
+                </div>
             </div>
 
             <Card className="max-w-2xl mx-auto p-6 mb-20">

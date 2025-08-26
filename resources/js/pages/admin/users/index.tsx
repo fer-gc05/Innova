@@ -128,12 +128,23 @@ export default function UsersIndex({ users, filters }: Props) {
                                     Administra todos los usuarios del sistema IN-NOVA
                                 </p>
                             </div>
-                            <Link
-                                href="/admin/users/create"
-                                className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
-                            >
-                                Crear Nuevo Usuario
-                            </Link>
+                            <div className="flex items-center space-x-3">
+                                <Link
+                                    href="/admin/dashboard"
+                                    className="bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-lg transition-colors inline-flex items-center"
+                                >
+                                    <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                                    </svg>
+                                    Panel Admin
+                                </Link>
+                                <Link
+                                    href="/admin/users/create"
+                                    className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+                                >
+                                    Crear Nuevo Usuario
+                                </Link>
+                            </div>
                         </div>
                     </div>
 
@@ -148,7 +159,7 @@ export default function UsersIndex({ users, filters }: Props) {
                                 <input
                                     type="text"
                                     placeholder="Buscar por nombre o email..."
-                                    className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                    className="w-full px-4 py-3 text-sm border border-gray-300 rounded-lg bg-white shadow-sm transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400"
                                     value={searchTerm}
                                     onChange={(e) => setSearchTerm(e.target.value)}
                                     onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
@@ -159,7 +170,7 @@ export default function UsersIndex({ users, filters }: Props) {
                                     Rol
                                 </label>
                                 <select
-                                    className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                    className="w-full px-4 py-3 text-sm border border-gray-300 rounded-lg bg-white shadow-sm transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400"
                                     value={selectedRole}
                                     onChange={(e) => setSelectedRole(e.target.value)}
                                 >

@@ -22,6 +22,8 @@ export default function AdminChallengesEdit({ challenge, categories, companies, 
   const [selectedCategory, setSelectedCategory] = useState<Category | null>(challenge.category || null);
   const [categoryQuestions, setCategoryQuestions] = useState<FormQuestion[]>([]);
 
+
+
   const { data, setData, put, processing, errors } = useForm({
     name: challenge.name || '',
     description: challenge.description || '',
@@ -210,6 +212,15 @@ export default function AdminChallengesEdit({ challenge, categories, companies, 
 
               {/* Botones de acción */}
               <div className="flex space-x-3">
+                <Link
+                  href="/admin/dashboard"
+                  className="bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium py-2 px-4 rounded-lg transition-colors inline-flex items-center"
+                >
+                  <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                  </svg>
+                  Panel Admin
+                </Link>
                 <Link
                   href="/admin/challenges"
                   className="bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium py-2 px-4 rounded-lg transition-colors inline-flex items-center"

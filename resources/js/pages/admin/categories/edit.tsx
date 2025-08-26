@@ -27,8 +27,21 @@ export default function EditCategory({ category }: Props) {
       <div className="bg-gray-50 py-8">
         <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="mb-6">
-            <h1 className="text-3xl font-bold text-gray-900">Editar Categoría</h1>
-            <p className="mt-1 text-sm text-gray-500">Modifica los datos de la categoría seleccionada.</p>
+            <div className="flex justify-between items-center">
+              <div>
+                <h1 className="text-3xl font-bold text-gray-900">Editar Categoría</h1>
+                <p className="mt-1 text-sm text-gray-500">Modifica los datos de la categoría seleccionada.</p>
+              </div>
+              <Link
+                href="/admin/dashboard"
+                className="bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-lg transition-colors inline-flex items-center"
+              >
+                <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                </svg>
+                Panel Admin
+              </Link>
+            </div>
           </div>
 
           <div className="bg-white rounded-lg shadow-sm p-6">

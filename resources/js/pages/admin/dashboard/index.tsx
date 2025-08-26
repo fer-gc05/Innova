@@ -96,14 +96,7 @@ export default function AdminDashboard(props: Props) {
                         </div>
                     </div>
 
-                    {/* Debug Info */}
-                    <div className="bg-yellow-100 border border-yellow-400 text-yellow-700 px-4 py-3 rounded mt-8">
-                        <h4 className="font-bold">Debug Info:</h4>
-                        <p>Stats: {JSON.stringify(props.stats)}</p>
-                        <p>Recent Challenges: {props.recentChallenges?.length || 0}</p>
-                        <p>Recent Users: {props.recentUsers?.length || 0}</p>
-                        <p>Recent Answers: {props.recentAnswers?.length || 0}</p>
-                    </div>
+
                 </div>
             </div>
         </MainLayout>

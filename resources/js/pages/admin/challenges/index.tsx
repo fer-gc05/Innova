@@ -132,6 +132,25 @@ export default function AdminChallenges({ challenges, categories, companies, sta
                                     Administra todos los retos del sistema IN-NOVA
                                 </p>
                             </div>
+                            <div className="flex items-center space-x-3">
+                                <Link
+                                    href="/admin/dashboard"
+                                    className="bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-lg transition-colors inline-flex items-center"
+                                >
+                                    <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                                    </svg>
+                                    Panel Admin
+                                </Link>
+                                <Link
+                                    href="/admin/challenges/create"
+                                    className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+                                >
+                                    Crear Nuevo Reto
+                                </Link>
+                            </div>
+                        </div>
+                    </div>
 
                     {/* Modal Ver Reto */}
                     {showViewModal && viewChallenge && (
@@ -216,16 +235,6 @@ export default function AdminChallenges({ challenges, categories, companies, sta
                             </div>
                         </div>
                     )}
-
-
-                            <Link
-                                href="/admin/challenges/create"
-                                className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
-                            >
-                                Crear Nuevo Reto
-                            </Link>
-                        </div>
-                    </div>
 
                     {/* Filtros */}
                     <div className="bg-white rounded-lg shadow-sm p-6 mb-8">

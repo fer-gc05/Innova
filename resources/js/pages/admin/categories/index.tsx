@@ -102,12 +102,23 @@ export default function CategoriesIndex({ categories, filters }: Props) {
                                     Administra todas las categorías del sistema IN-NOVA
                                 </p>
                             </div>
-                            <Link
-                                href="/admin/categories/create"
-                                className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
-                            >
-                                Crear Nueva Categoría
-                            </Link>
+                            <div className="flex items-center space-x-3">
+                                <Link
+                                    href="/admin/dashboard"
+                                    className="bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-lg transition-colors inline-flex items-center"
+                                >
+                                    <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                                    </svg>
+                                    Panel Admin
+                                </Link>
+                                <Link
+                                    href="/admin/categories/create"
+                                    className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+                                >
+                                    Crear Nueva Categoría
+                                </Link>
+                            </div>
                         </div>
                     </div>
 
@@ -122,7 +133,7 @@ export default function CategoriesIndex({ categories, filters }: Props) {
                                 <input
                                     type="text"
                                     placeholder="Buscar categorías..."
-                                    className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                    className="w-full px-4 py-3 text-sm border border-gray-300 rounded-lg bg-white shadow-sm transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400"
                                     value={searchTerm}
                                     onChange={(e) => setSearchTerm(e.target.value)}
                                     onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
@@ -290,7 +301,7 @@ export default function CategoriesIndex({ categories, filters }: Props) {
                                             <label className="block text-sm font-medium text-gray-700 mb-1">Nombre</label>
                                             <input
                                                 type="text"
-                                                className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                                className="w-full px-4 py-3 text-sm border border-gray-300 rounded-lg bg-white shadow-sm transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400"
                                                 value={data.name}
                                                 onChange={(e) => setData('name', e.target.value)}
                                                 required
@@ -301,7 +312,7 @@ export default function CategoriesIndex({ categories, filters }: Props) {
                                         <div>
                                             <label className="block text-sm font-medium text-gray-700 mb-1">Descripción</label>
                                             <textarea
-                                                className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                                className="w-full px-4 py-3 text-sm border border-gray-300 rounded-lg bg-white shadow-sm resize-none transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400"
                                                 rows={4}
                                                 value={data.description}
                                                 onChange={(e) => setData('description', e.target.value)}

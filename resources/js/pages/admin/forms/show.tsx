@@ -17,6 +17,9 @@ export default function ShowForm({ form }: Props) {
               <p className="mt-1 text-sm text-gray-500">Categoría: {form.category?.name ?? 'N/A'}</p>
             </div>
             <div className="flex gap-2">
+              <Link href="/admin/dashboard" className="px-3 py-2 rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-700">
+                Panel Admin
+              </Link>
               <Link href={`/admin/forms/${form.id}/edit`} className="px-3 py-2 rounded-lg bg-indigo-600 text-white hover:bg-indigo-700">
                 Editar
               </Link>
