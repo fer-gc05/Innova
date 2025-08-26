@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Link, usePage } from '@inertiajs/react';
 import { Menu, ChevronDown, User, Settings, LogOut } from 'lucide-react';
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 
 interface User {
   id: number;
@@ -17,7 +18,6 @@ interface PageProps {
 }
 
 export default function Header() {
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isAuthOpen, setIsAuthOpen] = useState(false);
   const { auth } = usePage<PageProps>().props;
   const user = auth.user;
@@ -141,65 +141,143 @@ export default function Header() {
                 </div>
               )}
 
-              {/* Mobile Menu Button */}
-              <button
-                className="lg:hidden"
-                onClick={() => setIsMenuOpen(!isMenuOpen)}
-                aria-label="Abrir menú"
-              >
-                <Menu className="h-6 w-6 text-white" />
-              </button>
+              {/* Mobile Sidebar Trigger */}
+              <Sheet>
+                <SheetTrigger asChild>
+                  <button
+                    className="lg:hidden"
+                    aria-label="Abrir menú"
+                  >
+                    <Menu className="h-6 w-6 text-white" />
+                  </button>
+                </SheetTrigger>
+                <SheetContent side="right" className="w-80 bg-blue-600 text-white border-l border-blue-500 p-0">
+                  <SheetHeader className="p-4 border-b border-blue-500">
+                    <SheetTitle className="text-white flex items-center gap-2">
+                      <img
+                        src="/images/IN-Nova%20logo.svg"
+                        alt="IN-NOVA Logo"
+                        className="h-8 w-auto"
+                      />
+                      <span className="text-lg font-semibold">IN-NOVA</span>
+                    </SheetTitle>
+                  </SheetHeader>
+
+                  <div className="flex flex-col h-full">
+                    {/* Navigation Links */}
+                    <div className="p-4 space-y-2">
+                      <Link
+                        href="/"
+                        className="flex items-center text-white hover:text-blue-300 py-3 px-4 rounded-lg hover:bg-blue-700 transition-colors font-medium"
+                        onClick={() => document.querySelector('[data-radix-sheet-content]')?.dispatchEvent(new Event('pointerdown', { bubbles: true }))}
+                      >
+                        Inicio
+                      </Link>
+                      <Link
+                        href="/empresas"
+                        className="flex items-center text-white hover:text-blue-300 py-3 px-4 rounded-lg hover:bg-blue-700 transition-colors font-medium"
+                        onClick={() => document.querySelector('[data-radix-sheet-content]')?.dispatchEvent(new Event('pointerdown', { bubbles: true }))}
+                      >
+                        Empresas
+                      </Link>
+                      <Link
+                        href="/retos-actuales"
+                        className="flex items-center text-white hover:text-blue-300 py-3 px-4 rounded-lg hover:bg-blue-700 transition-colors font-medium"
+                        onClick={() => document.querySelector('[data-radix-sheet-content]')?.dispatchEvent(new Event('pointerdown', { bubbles: true }))}
+                      >
+                        Retos Actuales
+                      </Link>
+                    </div>
+
+                    {/* Separator */}
+                    <div className="border-t border-blue-500 mx-4"></div>
+
+                    {/* Auth Options */}
+                    <div className="p-4 space-y-2 flex-1">
+                      {user ? (
+                        <>
+                          <Link
+                            href={route('mi-cuenta')}
+                            className="flex items-center text-white hover:text-blue-300 py-3 px-4 rounded-lg hover:bg-blue-700 transition-colors"
+                            onClick={() => document.querySelector('[data-radix-sheet-content]')?.dispatchEvent(new Event('pointerdown', { bubbles: true }))}
+                          >
+                            <User className="h-5 w-5 mr-3" />
+                            Mi Cuenta
+                          </Link>
+
+                          {user.roles.some(role => role.name === 'admin') && (
+                            <Link
+                              href="/admin/panel"
+                              className="flex items-center text-white hover:text-blue-300 py-3 px-4 rounded-lg hover:bg-blue-700 transition-colors"
+                              onClick={() => document.querySelector('[data-radix-sheet-content]')?.dispatchEvent(new Event('pointerdown', { bubbles: true }))}
+                            >
+                              <Settings className="h-5 w-5 mr-3" />
+                              Panel Administrativo
+                            </Link>
+                          )}
+
+                          {user.roles.some(role => role.name === 'businessman') && (
+                            <Link
+                              href="/businessman/panel"
+                              className="flex items-center text-white hover:text-blue-300 py-3 px-4 rounded-lg hover:bg-blue-700 transition-colors"
+                              onClick={() => document.querySelector('[data-radix-sheet-content]')?.dispatchEvent(new Event('pointerdown', { bubbles: true }))}
+                            >
+                              <Settings className="h-5 w-5 mr-3" />
+                              Panel de Retos
+                            </Link>
+                          )}
+
+                          <Link
+                            href={route('logout')}
+                            method="post"
+                            as="button"
+                            className="flex items-center w-full text-white hover:text-blue-300 py-3 px-4 rounded-lg hover:bg-blue-700 transition-colors"
+                            onClick={() => document.querySelector('[data-radix-sheet-content]')?.dispatchEvent(new Event('pointerdown', { bubbles: true }))}
+                          >
+                            <LogOut className="h-5 w-5 mr-3" />
+                            Cerrar Sesión
+                          </Link>
+                        </>
+                      ) : (
+                        <>
+                          <Link
+                            href={route('login')}
+                            className="flex items-center text-white hover:text-blue-300 py-3 px-4 rounded-lg hover:bg-blue-700 transition-colors"
+                            onClick={() => document.querySelector('[data-radix-sheet-content]')?.dispatchEvent(new Event('pointerdown', { bubbles: true }))}
+                          >
+                            Inicia Sesión
+                          </Link>
+                          <Link
+                            href={route('register.company')}
+                            className="flex items-center text-white hover:text-blue-300 py-3 px-4 rounded-lg hover:bg-blue-700 transition-colors"
+                            onClick={() => document.querySelector('[data-radix-sheet-content]')?.dispatchEvent(new Event('pointerdown', { bubbles: true }))}
+                          >
+                            Registrarse como Empresa
+                          </Link>
+                          <Link
+                            href={route('register.student')}
+                            className="flex items-center text-white hover:text-blue-300 py-3 px-4 rounded-lg hover:bg-blue-700 transition-colors"
+                            onClick={() => document.querySelector('[data-radix-sheet-content]')?.dispatchEvent(new Event('pointerdown', { bubbles: true }))}
+                          >
+                            Registrarse como Estudiante
+                          </Link>
+                        </>
+                      )}
+                    </div>
+
+                    {/* Footer */}
+                    <div className="p-4 border-t border-blue-500">
+                      <div className="text-xs text-blue-300 text-center">
+                        © 2024 IN-NOVA. Todos los derechos reservados.
+                      </div>
+                    </div>
+                  </div>
+                </SheetContent>
+              </Sheet>
             </div>
           </div>
 
-          {/* Mobile Menu */}
-          {isMenuOpen && (
-            <div className="lg:hidden bg-blue-600 mt-2 rounded-md border border-blue-500">
-              <div className="px-4 py-2 space-y-2">
-                <Link href="/" className="block text-white hover:text-blue-300 py-2 px-3 rounded hover:bg-blue-700 transition-colors">Inicio</Link>
-                <Link href="/empresas" className="block text-white hover:text-blue-300 py-2 px-3 rounded hover:bg-blue-700 transition-colors">Empresas</Link>
-                <Link href="/retos-actuales" className="block text-white hover:text-blue-300 py-2 px-3 rounded hover:bg-blue-700 transition-colors">Retos Actuales</Link>
 
-                {/* Separador */}
-                <div className="border-t border-blue-500 my-2"></div>
-
-                {/* Opciones de autenticación para móvil */}
-                {user ? (
-                  <>
-                    <Link href={route('mi-cuenta')} className="flex items-center text-white hover:text-blue-300 py-2 px-3 rounded hover:bg-blue-700 transition-colors">
-                      <User className="h-4 w-4 mr-2" />
-                      Mi Cuenta
-                    </Link>
-
-                    {user.roles.some(role => role.name === 'admin') && (
-                      <Link href="/admin/panel" className="flex items-center text-white hover:text-blue-300 py-2 px-3 rounded hover:bg-blue-700 transition-colors">
-                        <Settings className="h-4 w-4 mr-2" />
-                        Panel Administrativo
-                      </Link>
-                    )}
-
-                    {user.roles.some(role => role.name === 'businessman') && (
-                      <Link href="/businessman/panel" className="flex items-center text-white hover:text-blue-300 py-2 px-3 rounded hover:bg-blue-700 transition-colors">
-                        <Settings className="h-4 w-4 mr-2" />
-                        Panel de Retos
-                      </Link>
-                    )}
-
-                    <Link href={route('logout')} method="post" as="button" className="flex items-center w-full text-white hover:text-blue-300 py-2 px-3 rounded hover:bg-blue-700 transition-colors">
-                      <LogOut className="h-4 w-4 mr-2" />
-                      Cerrar Sesión
-                    </Link>
-                  </>
-                ) : (
-                  <>
-                    <Link href={route('login')} className="block text-white hover:text-blue-300 py-2 px-3 rounded hover:bg-blue-700 transition-colors">Inicia Sesión</Link>
-                    <Link href={route('register.company')} className="block text-white hover:text-blue-300 py-2 px-3 rounded hover:bg-blue-700 transition-colors">Registrarse como Empresa</Link>
-                    <Link href={route('register.student')} className="block text-white hover:text-blue-300 py-2 px-3 rounded hover:bg-blue-700 transition-colors">Registrarse como Estudiante</Link>
-                  </>
-                )}
-              </div>
-            </div>
-          )}
         </div>
       </header>
       {/* Spacer to offset fixed header height on desktop */}
