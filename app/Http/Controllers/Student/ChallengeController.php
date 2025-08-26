@@ -657,8 +657,7 @@ class ChallengeController extends Controller
                     'updated_at' => now(),
                 ]);
 
-            return redirect()->route('student.challenges.submissions', $challenge->id)
-                ->with('success', 'Propuesta actualizada exitosamente.');
+            return back()->with('success', 'Propuesta actualizada exitosamente.');
         } catch (\Exception $e) {
             return back()->withErrors(['error' => $e->getMessage()]);
         }

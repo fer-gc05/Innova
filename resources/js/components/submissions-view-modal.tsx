@@ -22,8 +22,9 @@ interface Props {
 export default function SubmissionsViewModal({ challenge, submissions, groupMembers, isOpen, onClose, onEditSubmission }: Props) {
   const [selectedSubmission, setSelectedSubmission] = useState<any>(null);
   const [showEditForm, setShowEditForm] = useState(false);
+  const [updateStatus, setUpdateStatus] = useState<'idle' | 'updating' | 'success' | 'error'>('idle');
 
-  const { data, setData, put, processing, errors } = useForm({
+  const { data, setData, put, processing, errors, reset } = useForm({
     prototype_price: '',
     estimated_delivery_days: '',
     motivation: '',
@@ -41,15 +42,25 @@ export default function SubmissionsViewModal({ challenge, submissions, groupMemb
 
   const handleUpdateSubmission = (e: React.FormEvent) => {
     e.preventDefault();
+    setUpdateStatus('updating');
 
     put(`/student/challenges/${challenge.id}/submission/update`, {
       onSuccess: () => {
+        setUpdateStatus('success');
         setShowEditForm(false);
         setSelectedSubmission(null);
-        router.reload();
+        reset();
+        // Recargar la página para mostrar los datos actualizados
+        setTimeout(() => {
+          window.location.reload();
+        }, 1000);
       },
       onError: (errors: any) => {
         console.error('Error al actualizar:', errors);
+        setUpdateStatus('error');
+      },
+      onFinish: () => {
+        // Asegurar que el botón se habilite después de la respuesta
       },
     });
   };
@@ -156,6 +167,18 @@ export default function SubmissionsViewModal({ challenge, submissions, groupMemb
                 {errors.motivation && <InputError message={errors.motivation} />}
               </div>
 
+              {updateStatus === 'success' && (
+                <div className="p-3 bg-green-100 border border-green-400 text-green-700 rounded">
+                  ¡Propuesta actualizada exitosamente!
+                </div>
+              )}
+
+              {updateStatus === 'error' && (
+                <div className="p-3 bg-red-100 border border-red-400 text-red-700 rounded">
+                  Error al actualizar la propuesta. Por favor, intenta de nuevo.
+                </div>
+              )}
+
               <div className="flex justify-end space-x-3">
                 <Button
                   type="button"
@@ -163,15 +186,18 @@ export default function SubmissionsViewModal({ challenge, submissions, groupMemb
                   onClick={() => {
                     setShowEditForm(false);
                     setSelectedSubmission(null);
+                    setUpdateStatus('idle');
                   }}
                 >
                   Cancelar
                 </Button>
                 <Button
                   type="submit"
-                  disabled={processing}
+                  disabled={processing || updateStatus === 'updating'}
                 >
-                  {processing ? 'Actualizando...' : 'Actualizar Propuesta'}
+                  {updateStatus === 'updating' ? 'Actualizando...' :
+                   updateStatus === 'success' ? '¡Actualizado!' :
+                   'Actualizar Propuesta'}
                 </Button>
               </div>
             </form>
