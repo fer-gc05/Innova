@@ -1,11 +1,16 @@
+import React, { useState } from 'react';
 import MainLayout from '@/layouts/main-layout';
 import { Challenge } from '@/types';
 import { Link, usePage } from '@inertiajs/react';
 import ChallengeRegistrationForm from '@/components/challenge-registration-form';
+import StepByStepRegistrationModal from '@/components/step-by-step-registration-modal';
+import SubmissionsViewModal from '@/components/submissions-view-modal';
 import AcquisitionInfo from '@/components/AcquisitionInfo';
 import RewardDeliveryInfo from '@/components/RewardDeliveryInfo';
 import getVideoEmbedUrl, { getYouTubeId } from '@/utils/video';
 import { formatCurrency } from '@/utils/number';
+import { Button } from '@/components/ui/button';
+import { Users, Eye, Edit } from 'lucide-react';
 
 interface Props {
     challenge: Challenge;
@@ -19,10 +24,15 @@ interface Props {
         max_participants: number;
         group_code: string;
     };
+    submissions?: any[];
+    groupMembers?: any[];
+    student?: any;
 }
 
-export default function RetoDetalle({ challenge, isRegistered, userGroupCode, isGroupLeader, groupInfo }: Props) {
+export default function RetoDetalle({ challenge, isRegistered, userGroupCode, isGroupLeader, groupInfo, submissions = [], groupMembers = [], student }: Props) {
     const { auth } = usePage().props as any;
+    const [showRegistrationModal, setShowRegistrationModal] = useState(false);
+    const [showSubmissionsModal, setShowSubmissionsModal] = useState(false);
     const getDifficultyColor = (difficulty: string) => {
         switch (difficulty) {
             case 'easy': return 'bg-green-100 text-green-800';
@@ -291,17 +301,59 @@ export default function RetoDetalle({ challenge, isRegistered, userGroupCode, is
                         </div>
                     </div>
 
-                    {/* Formulario de Inscripción - Sección Completa */}
+                    {/* Sección de Inscripción */}
                     {auth?.user && auth.user.roles?.some((role: any) => role.name === 'student') ? (
                         <div className="mt-12">
-                            <ChallengeRegistrationForm
-                                challenge={challenge}
-                                isRegistered={isRegistered}
-                                userGroupCode={userGroupCode}
-                                isGroupLeader={isGroupLeader}
-                                groupInfo={groupInfo}
-                                onSuccess={() => window.location.reload()}
-                            />
+                            {isRegistered ? (
+                                <div className="bg-white rounded-lg shadow-sm p-8">
+                                    <div className="text-center max-w-2xl mx-auto">
+                                        <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                                            <Users className="w-8 h-8 text-green-600" />
+                                        </div>
+                                        <h2 className="text-2xl font-bold text-gray-900 mb-4">¡Ya estás inscrito!</h2>
+                                        <p className="text-gray-600 mb-6">
+                                            Has sido inscrito exitosamente en este reto.
+                                            {userGroupCode && (
+                                                <span className="block mt-2">
+                                                    Tu código de grupo es: <span className="font-mono bg-gray-100 px-2 py-1 rounded">{userGroupCode}</span>
+                                                </span>
+                                            )}
+                                        </p>
+                                        <div className="flex flex-col sm:flex-row gap-3 justify-center">
+                                            <Button
+                                                onClick={() => setShowSubmissionsModal(true)}
+                                                className="bg-blue-600 hover:bg-blue-700 text-white"
+                                            >
+                                                <Eye className="w-4 h-4 mr-2" />
+                                                Ver Todas las Propuestas
+                                            </Button>
+                                            <Button
+                                                variant="outline"
+                                                onClick={() => setShowSubmissionsModal(true)}
+                                            >
+                                                <Edit className="w-4 h-4 mr-2" />
+                                                Editar Mi Propuesta
+                                            </Button>
+                                        </div>
+                                    </div>
+                                </div>
+                            ) : (
+                                <div className="bg-white rounded-lg shadow-sm p-8">
+                                    <div className="text-center max-w-2xl mx-auto">
+                                        <h2 className="text-2xl font-bold text-gray-900 mb-4">¿Te interesa este reto?</h2>
+                                        <p className="text-gray-600 mb-6">
+                                            Participa en este reto y presenta tu propuesta de solución.
+                                            El proceso de inscripción es simple y paso a paso.
+                                        </p>
+                                        <Button
+                                            onClick={() => setShowRegistrationModal(true)}
+                                            className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3"
+                                        >
+                                            Inscribirse en el Reto
+                                        </Button>
+                                    </div>
+                                </div>
+                            )}
                         </div>
                     ) : (
                         <div className="mt-12">
@@ -344,6 +396,24 @@ export default function RetoDetalle({ challenge, isRegistered, userGroupCode, is
                     )}
                 </div>
             </div>
+
+            {/* Modal de Inscripción Paso a Paso */}
+            <StepByStepRegistrationModal
+                challenge={challenge}
+                student={student}
+                isOpen={showRegistrationModal}
+                onClose={() => setShowRegistrationModal(false)}
+            />
+
+            {/* Modal de Propuestas */}
+            <SubmissionsViewModal
+                challenge={challenge}
+                submissions={submissions}
+                groupMembers={groupMembers}
+                isOpen={showSubmissionsModal}
+                onClose={() => setShowSubmissionsModal(false)}
+                onEditSubmission={() => {}}
+            />
         </MainLayout>
     );
 }

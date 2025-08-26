@@ -104,12 +104,43 @@ class ChallengeController extends Controller
             }
         }
 
+        // Obtener datos del estudiante autenticado (siempre que esté logueado)
+        $student = null;
+        if (auth()->check()) {
+            $student = DB::table('students')
+                ->join('users', 'students.user_id', '=', 'users.id')
+                ->where('students.user_id', auth()->id())
+                ->select('students.*', 'users.name', 'users.email')
+                ->first();
+        }
+
+        // Obtener datos adicionales para estudiantes inscritos
+        $submissions = [];
+        $groupMembers = [];
+
+        if (auth()->check() && $isRegistered) {
+            // Obtener todas las propuestas del reto
+            $submissions = DB::table('challenge_student')
+                ->where('challenge_id', $challenge->id)
+                ->get();
+
+            // Obtener miembros de grupos
+            $groupMembers = DB::table('group_members')
+                ->join('challenge_student', 'group_members.challenge_student_id', '=', 'challenge_student.id')
+                ->where('challenge_student.challenge_id', $challenge->id)
+                ->select('group_members.*', 'challenge_student.group_name')
+                ->get();
+        }
+
         return Inertia::render('public/retos-actuales/show', [
             'challenge' => $challenge,
             'isRegistered' => $isRegistered,
             'userGroupCode' => $userGroupCode,
             'isGroupLeader' => $isGroupLeader,
             'groupInfo' => $groupInfo,
+            'submissions' => $submissions,
+            'groupMembers' => $groupMembers,
+            'student' => $student,
         ]);
     }
 }
