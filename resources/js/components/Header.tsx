@@ -156,11 +156,47 @@ export default function Header() {
           {isMenuOpen && (
             <div className="lg:hidden bg-blue-600 mt-2 rounded-md border border-blue-500">
               <div className="px-4 py-2 space-y-2">
-                <Link href="/" className="block text-white hover:text-blue-300">Inicio</Link>
-                <Link href="/empresas" className="block text-white hover:text-blue-300">Empresas</Link>
-                <Link href="/cluster-turistico" className="block text-white hover:text-blue-300">Cluster Turismo</Link>
-                <Link href="/casos-negocio" className="block text-white hover:text-blue-300">Casos de Negocio</Link>
-                <Link href="/retos-actuales" className="block text-white hover:text-blue-300">Retos Actuales</Link>
+                <Link href="/" className="block text-white hover:text-blue-300 py-2 px-3 rounded hover:bg-blue-700 transition-colors">Inicio</Link>
+                <Link href="/empresas" className="block text-white hover:text-blue-300 py-2 px-3 rounded hover:bg-blue-700 transition-colors">Empresas</Link>
+                <Link href="/retos-actuales" className="block text-white hover:text-blue-300 py-2 px-3 rounded hover:bg-blue-700 transition-colors">Retos Actuales</Link>
+
+                {/* Separador */}
+                <div className="border-t border-blue-500 my-2"></div>
+
+                {/* Opciones de autenticación para móvil */}
+                {user ? (
+                  <>
+                    <Link href={route('mi-cuenta')} className="flex items-center text-white hover:text-blue-300 py-2 px-3 rounded hover:bg-blue-700 transition-colors">
+                      <User className="h-4 w-4 mr-2" />
+                      Mi Cuenta
+                    </Link>
+
+                    {user.roles.some(role => role.name === 'admin') && (
+                      <Link href="/admin/panel" className="flex items-center text-white hover:text-blue-300 py-2 px-3 rounded hover:bg-blue-700 transition-colors">
+                        <Settings className="h-4 w-4 mr-2" />
+                        Panel Administrativo
+                      </Link>
+                    )}
+
+                    {user.roles.some(role => role.name === 'businessman') && (
+                      <Link href="/businessman/panel" className="flex items-center text-white hover:text-blue-300 py-2 px-3 rounded hover:bg-blue-700 transition-colors">
+                        <Settings className="h-4 w-4 mr-2" />
+                        Panel de Retos
+                      </Link>
+                    )}
+
+                    <Link href={route('logout')} method="post" as="button" className="flex items-center w-full text-white hover:text-blue-300 py-2 px-3 rounded hover:bg-blue-700 transition-colors">
+                      <LogOut className="h-4 w-4 mr-2" />
+                      Cerrar Sesión
+                    </Link>
+                  </>
+                ) : (
+                  <>
+                    <Link href={route('login')} className="block text-white hover:text-blue-300 py-2 px-3 rounded hover:bg-blue-700 transition-colors">Inicia Sesión</Link>
+                    <Link href={route('register.company')} className="block text-white hover:text-blue-300 py-2 px-3 rounded hover:bg-blue-700 transition-colors">Registrarse como Empresa</Link>
+                    <Link href={route('register.student')} className="block text-white hover:text-blue-300 py-2 px-3 rounded hover:bg-blue-700 transition-colors">Registrarse como Estudiante</Link>
+                  </>
+                )}
               </div>
             </div>
           )}
