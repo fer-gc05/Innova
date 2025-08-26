@@ -277,23 +277,15 @@
         </div>
         @endif
 
-        <!-- Video (solo si existe) -->
-        @if($challenge->link_video || $challenge->video_id)
+        <!-- Video (solo si existe link de YouTube) -->
+        @if($challenge->link_video)
         <div class="section">
             <div class="section-title">Recursos Multimedia</div>
             <div class="info-grid">
-                @if($challenge->link_video)
                 <div class="info-row">
                     <div class="info-label">Link del Video</div>
                     <div class="info-value">{{ $challenge->link_video }}</div>
                 </div>
-                @endif
-                @if($challenge->video_id)
-                <div class="info-row">
-                    <div class="info-label">ID del Video</div>
-                    <div class="info-value">{{ $challenge->video_id }}</div>
-                </div>
-                @endif
             </div>
         </div>
         @endif
