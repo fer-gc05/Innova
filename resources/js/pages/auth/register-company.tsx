@@ -8,8 +8,12 @@ import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import InputError from '@/components/input-error';
 import TextLink from '@/components/text-link';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
+import { Checkbox } from '@/components/ui/checkbox';
 
 export default function RegisterCompany() {
+  const [openTerms, setOpenTerms] = React.useState(false);
+  const [acceptedTerms, setAcceptedTerms] = React.useState(false);
   return (
     <MainLayout title="Registro de Empresa - IN-NOVA" description="Crea la cuenta de tu empresa para gestionar retos">
       <div className="bg-gradient-to-br from-blue-50 to-white min-h-screen flex items-center py-12">
@@ -31,6 +35,7 @@ export default function RegisterCompany() {
                 <Form method="post" action={route('register.company')} encType="multipart/form-data" className="space-y-8">
                   {({ processing, errors }) => (
                     <>
+                      <input type="hidden" name="accept_terms" value={acceptedTerms ? '1' : '0'} />
                       {/* Datos de usuario */}
                       <section>
                         <h3 className="text-sm font-semibold text-gray-700 mb-3">Datos del usuario</h3>
@@ -149,7 +154,30 @@ export default function RegisterCompany() {
                         </div>
                       </section>
 
-                      <Button type="submit" className="w-full bg-blue-600 hover:bg-blue-700 text-white" disabled={processing}>
+                      {/* Aceptación de términos */}
+                      <section>
+                        <div className="flex items-start gap-3">
+                          <Checkbox
+                            id="accept_terms"
+                            checked={acceptedTerms}
+                            onCheckedChange={(v) => setAcceptedTerms(Boolean(v))}
+                            className="mt-1"
+                          />
+                          <div className="text-sm text-gray-700">
+                            <Label htmlFor="accept_terms" className="font-medium text-gray-800">He leído y acepto los Términos y Condiciones</Label>
+                            <div>
+                              <button type="button" onClick={() => setOpenTerms(true)} className="text-blue-600 hover:text-blue-800 underline">
+                                Ver Términos y Condiciones
+                              </button>
+                            </div>
+                            {!acceptedTerms && (
+                              <p className="text-xs text-gray-500 mt-1">Debes aceptar los términos para continuar.</p>
+                            )}
+                          </div>
+                        </div>
+                      </section>
+
+                      <Button type="submit" className="w-full bg-blue-600 hover:bg-blue-700 text-white" disabled={processing || !acceptedTerms}>
                         {processing && <LoaderCircle className="h-4 w-4 animate-spin mr-2" />}
                         Crear cuenta de empresa
                       </Button>
@@ -161,6 +189,81 @@ export default function RegisterCompany() {
                     </>
                   )}
                 </Form>
+
+                {/* Modal de Términos y Condiciones */}
+                <Dialog open={openTerms} onOpenChange={setOpenTerms}>
+                  <DialogContent className="max-w-3xl">
+                    <DialogHeader>
+                      <DialogTitle>Formato de Aceptación – Convenio de Colaboración para la Innovación Abierta</DialogTitle>
+                      <DialogDescription>
+                        La empresa que suscribe este documento acepta las siguientes condiciones para su participación como aliada estratégica dentro de la Red de Innovación de Córdoba:
+                      </DialogDescription>
+                    </DialogHeader>
+                    <div className="max-h-[60vh] overflow-y-auto space-y-4 text-sm text-gray-700">
+                      <section>
+                        <h4 className="font-semibold">1. Bienvenida y participación en Innovación Abierta</h4>
+                        <ul className="list-none space-y-2">
+                          <li className="relative pl-6 before:content-[''] before:absolute before:left-0 before:top-2 before:w-2.5 before:h-2.5 before:rounded-full before:bg-gray-500">Acepto que mi empresa participe en la iniciativa de Innovación Abierta de IN-NOVA S.A.S., diseñada para promover un enfoque colaborativo entre empresas, universidades, instituciones educativas y emprendedores.</li>
+                          <li className="relative pl-6 before:content-[''] before:absolute before:left-0 before:top-2 before:w-2.5 before:h-2.5 before:rounded-full before:bg-gray-500">Reconozco que este modelo busca desarrollar soluciones innovadoras para los desafíos específicos de las organizaciones, potenciando la transformación y el crecimiento empresarial mediante la creatividad colectiva.</li>
+                        </ul>
+                      </section>
+                      <section>
+                        <h4 className="font-semibold">2. Retos empresariales y participación de estudiantes</h4>
+                        <ul className="list-none space-y-2">
+                          <li className="relative pl-6 before:content-[''] before:absolute before:left-0 before:top-2 before:w-2.5 before:h-2.5 before:rounded-full before:bg-gray-500">Me comprometo a plantear un reto o desafío concreto, que será presentado a estudiantes de universidades e instituciones educativas vinculadas.</li>
+                          <li className="relative pl-6 before:content-[''] before:absolute before:left-0 before:top-2 before:w-2.5 before:h-2.5 before:rounded-full before:bg-gray-500">Acepto que los estudiantes desarrollen prototipos de solución, los cuales serán evaluados por mi empresa, con la posibilidad de seleccionar el más prometedor según su capacidad de cumplir los resultados esperados.</li>
+                          <li className="relative pl-6 before:content-[''] before:absolute before:left-0 before:top-2 before:w-2.5 before:h-2.5 before:rounded-full before:bg-gray-500">Reconozco que el prototipo ganador será sometido a un periodo de prueba de máximo un mes dentro de la empresa, para verificar su efectividad y viabilidad en condiciones reales.</li>
+                        </ul>
+                      </section>
+                      <section>
+                        <h4 className="font-semibold">3. Reconocimientos e incentivos para estudiantes y docentes</h4>
+                        <ul className="list-none space-y-2">
+                          <li className="relative pl-6 before:content-[''] before:absolute before:left-0 before:top-2 before:w-2.5 before:h-2.5 before:rounded-full before:bg-gray-500">Acepto que los estudiantes que desarrollen un prototipo funcional recibirán una recompensa compuesta por:</li>
+                          <li className="relative pl-6 before:content-[''] before:absolute before:left-0 before:top-2 before:w-2.5 before:h-2.5 before:rounded-full before:bg-gray-500">Beneficios en especie: opcionales y definidos por la empresa.</li>
+                          <li className="relative pl-6 before:content-[''] before:absolute before:left-0 before:top-2 before:w-2.5 before:h-2.5 before:rounded-full before:bg-gray-500">Premio económico: de valor libremente establecido por la empresa, calculado en función de los beneficios que la solución pueda aportar durante un mes.</li>
+                          <li className="relative pl-6 before:content-[''] before:absolute before:left-0 before:top-2 before:w-2.5 before:h-2.5 before:rounded-full before:bg-gray-500">Me comprometo a otorgar a los estudiantes un Certificado de Experiencia y Habilidades en Innovación y al profesor un Certificado de Innovación Empresarial, que reconozca su acompañamiento y orientación.</li>
+                          <li className="relative pl-6 before:content-[''] before:absolute before:left-0 before:top-2 before:w-2.5 before:h-2.5 before:rounded-full before:bg-gray-500">Reconozco que el mentor de In-nova podrá desarrollar un artículo científico basado en la investigación realizada, siempre en cumplimiento de las políticas de datos de la empresa.</li>
+                        </ul>
+                      </section>
+                      <section>
+                        <h4 className="font-semibold">4. Vinculación de estudiantes y obligaciones de la empresa</h4>
+                        <ul className="list-none space-y-2">
+                          <li className="relative pl-6 before:content-[''] before:absolute before:left-0 before:top-2 before:w-2.5 before:h-2.5 before:rounded-full before:bg-gray-500">Acepto que los estudiantes vinculados serán considerados pasantes o practicantes de In-nova, bajo la coordinación de esta entidad.</li>
+                          <li className="relative pl-6 before:content-[''] before:absolute before:left-0 before:top-2 before:w-2.5 before:h-2.5 before:rounded-full before:bg-gray-500">Me comprometo a realizar un pago a In-nova, con el fin de que esta gestione el cubrimiento de la seguridad social (ARL) de los estudiantes seleccionados como ganadores del reto propuesto.</li>
+                          <li className="relative pl-6 before:content-[''] before:absolute before:left-0 before:top-2 before:w-2.5 before:h-2.5 before:rounded-full before:bg-gray-500">Reconozco que los estudiantes podrán realizar monografías, estudios o informes académicos basados en su experiencia, pudiendo emplear esta participación como proyecto de grado o requisito de graduación según las políticas de su institución educativa.</li>
+                        </ul>
+                      </section>
+                      <section>
+                        <h4 className="font-semibold">5. Propiedad intelectual y continuidad del proyecto</h4>
+                        <ul className="list-none space-y-2">
+                          <li className="relative pl-6 before:content-[''] before:absolute before:left-0 before:top-2 before:w-2.5 before:h-2.5 before:rounded-full before:bg-gray-500">Reconozco y acepto que toda la propiedad intelectual derivada de los resultados, investigaciones y productos obtenidos en el marco de este convenio pertenecerá de manera exclusiva a In-nova, sin perjuicio del reconocimiento académico para los estudiantes.</li>
+                          <li className="relative pl-6 before:content-[''] before:absolute before:left-0 before:top-2 before:w-2.5 before:h-2.5 before:rounded-full before:bg-gray-500">Entiendo que, al finalizar el periodo de prueba, mi empresa podrá optar libremente y sin obligación por formalizar un contrato con IN-NOVA S.A.S., para implementar la solución de manera completa y permanente.</li>
+                        </ul>
+                      </section>
+                      <section>
+                        <h4 className="font-semibold">6. Ecosistema de innovación y responsabilidades adicionales</h4>
+                        <ul className="list-none space-y-2">
+                          <li className="relative pl-6 before:content-[''] before:absolute before:left-0 before:top-2 before:w-2.5 before:h-2.5 before:rounded-full before:bg-gray-500">Acepto que este proceso hace parte de la Red de Innovación de Córdoba, estrategia que conecta empresas, universidades e instituciones para fortalecer la competitividad, la tecnología y el impacto económico regional.</li>
+                          <li className="relative pl-6 before:content-[''] before:absolute before:left-0 before:top-2 before:w-2.5 before:h-2.5 before:rounded-full before:bg-gray-500">Reconozco que, si para la prueba del prototipo se requieren equipos, maquinaria, información, bases de datos u otros insumos, mi empresa será responsable de proveerlos.</li>
+                          <li className="relative pl-6 before:content-[''] before:absolute before:left-0 before:top-2 before:w-2.5 before:h-2.5 before:rounded-full before:bg-gray-500">Acepto que los estudiantes aportarán únicamente su conocimiento, creatividad, análisis y ejecución, sin que se les exija asumir gastos adicionales ni inversión en materiales.</li>
+                        </ul>
+                      </section>
+                    </div>
+                    <DialogFooter>
+                      <Button type="button" variant="secondary" onClick={() => setOpenTerms(false)}>Cerrar</Button>
+                      <Button
+                        type="button"
+                        onClick={() => {
+                          setAcceptedTerms(true);
+                          setOpenTerms(false);
+                        }}
+                      >
+                        Acepto los Términos
+                      </Button>
+                    </DialogFooter>
+                  </DialogContent>
+                </Dialog>
+
               </CardContent>
             </Card>
           </div>
