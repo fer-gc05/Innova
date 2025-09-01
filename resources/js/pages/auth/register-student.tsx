@@ -9,8 +9,12 @@ import { Label } from '@/components/ui/label';
 
 import InputError from '@/components/input-error';
 import TextLink from '@/components/text-link';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
+import { Checkbox } from '@/components/ui/checkbox';
 
 export default function RegisterStudent() {
+  const [openTerms, setOpenTerms] = React.useState(false);
+  const [acceptedTerms, setAcceptedTerms] = React.useState(false);
   return (
     <MainLayout title="Registro de Estudiante - IN-NOVA" description="Crea tu cuenta de estudiante para participar en retos activos">
       <div className="bg-gradient-to-br from-blue-50 to-white min-h-screen flex items-center py-12">
@@ -32,6 +36,7 @@ export default function RegisterStudent() {
                 <Form method="post" action={route('register.student')} className="space-y-6">
                   {({ processing, errors }) => (
                     <>
+                      <input type="hidden" name="accept_terms" value={acceptedTerms ? '1' : '0'} />
                       <div className="space-y-4">
                         <div>
                           <Label htmlFor="name" className="text-gray-700">Nombre completo *</Label>
@@ -81,7 +86,30 @@ export default function RegisterStudent() {
 
                       </div>
 
-                      <Button type="submit" className="w-full bg-blue-600 hover:bg-blue-700 text-white" disabled={processing}>
+                      {/* Aceptación de términos */}
+                      <section>
+                        <div className="flex items-start gap-3">
+                          <Checkbox
+                            id="accept_terms"
+                            checked={acceptedTerms}
+                            onCheckedChange={(v) => setAcceptedTerms(Boolean(v))}
+                            className="mt-1"
+                          />
+                          <div className="text-sm text-gray-700">
+                            <Label htmlFor="accept_terms" className="font-medium text-gray-800">He leído y acepto el Acuerdo de Colaboración</Label>
+                            <div>
+                              <button type="button" onClick={() => setOpenTerms(true)} className="text-blue-600 hover:text-blue-800 underline">
+                                Ver Acuerdo de Colaboración
+                              </button>
+                            </div>
+                            {!acceptedTerms && (
+                              <p className="text-xs text-gray-500 mt-1">Debes aceptar el acuerdo para continuar.</p>
+                            )}
+                          </div>
+                        </div>
+                      </section>
+
+                      <Button type="submit" className="w-full bg-blue-600 hover:bg-blue-700 text-white" disabled={processing || !acceptedTerms}>
                         {processing && <LoaderCircle className="h-4 w-4 animate-spin mr-2" />}
                         Crear cuenta de estudiante
                       </Button>
@@ -93,6 +121,109 @@ export default function RegisterStudent() {
                     </>
                   )}
                 </Form>
+
+                {/* Modal de Acuerdo de Colaboración */}
+                <Dialog open={openTerms} onOpenChange={setOpenTerms}>
+                  <DialogContent className="max-w-3xl">
+                    <DialogHeader>
+                      <DialogTitle>Acuerdo de Colaboración entre In-nova y Estudiantes</DialogTitle>
+                      <DialogDescription>
+                        A continuación se describen las condiciones de participación para estudiantes ("Retadores") en procesos de innovación abierta.
+                      </DialogDescription>
+                    </DialogHeader>
+                    <div className="max-h-[60vh] overflow-y-auto space-y-4 text-sm text-gray-700">
+                      <section>
+                        <h4 className="font-semibold">1. Objetivo del Acuerdo</h4>
+                        <ul className="list-none space-y-2">
+                          <li className="relative pl-6 before:content-[''] before:absolute before:left-0 before:top-2 before:w-2.5 before:h-2.5 before:rounded-full before:bg-gray-500">El presente acuerdo establece la colaboración entre In-nova y un grupo de estudiantes ("Retadores"), junto con un Líder de Proyecto, para participar en un proceso de innovación abierta. El objetivo es desarrollar un prototipo funcional que se presentará a una empresa para su evaluación y selección según sus necesidades.</li>
+                          
+                        </ul>
+                      </section>
+                      <section>
+                        <h4 className="font-semibold">2. Confidencialidad</h4>
+                        <ul className="list-none space-y-2">
+                          <li className="relative pl-6 before:content-[''] before:absolute before:left-0 before:top-2 before:w-2.5 before:h-2.5 before:rounded-full before:bg-gray-500">Los Retadores se comprometen a no utilizar la información y datos proporcionados por la empresa para ninguna otra finalidad que no sea la presentación y validación del prototipo.</li>
+                        </ul>
+                      </section>
+                      <section>
+                        <h4 className="font-semibold">3. Remuneración</h4>
+                        <ul className="list-none space-y-2">
+                          <li className="relative pl-6 before:content-[''] before:absolute before:left-0 before:top-2 before:w-2.5 before:h-2.5 before:rounded-full before:bg-gray-500">Los Retadores recibirán los beneficios y recompensas económicas que la empresa decida otorgar.</li>
+                        </ul>
+                      </section>
+                      <section>
+                        <h4 className="font-semibold">4. Proceso de Ajustes</h4>
+                        <ul className="list-none space-y-2">
+                          <li className="relative pl-6 before:content-[''] before:absolute before:left-0 before:top-2 before:w-2.5 before:h-2.5 before:rounded-full before:bg-gray-500">Durante el mes de pruebas, los Retadores deberán realizar los ajustes necesarios al prototipo. Se establecerá un espacio de retroalimentación con un coordinador de In-nova para verificar la implementación de las mejoras.</li>
+                        </ul>
+                      </section>
+                      <section>
+                        <h4 className="font-semibold">5. Orientación y Mentoría</h4>
+                        <ul className="list-none space-y-2">
+                          <li className="relative pl-6 before:content-[''] before:absolute before:left-0 before:top-2 before:w-2.5 before:h-2.5 before:rounded-full before:bg-gray-500">Los Retadores podrán contar con el apoyo de su profesor como orientador; sin embargo, este orientador o mentor no será reconocido como parte del equipo del proyecto.</li>
+                        </ul>
+                      </section>
+                      <section>
+                        <h4 className="font-semibold">6. Derechos de Autor</h4>
+                        <ul className="list-none space-y-2">
+                          <li className="relative pl-6 before:content-[''] before:absolute before:left-0 before:top-2 before:w-2.5 before:h-2.5 before:rounded-full before:bg-gray-500">Los estudiantes deben participar en un proyecto colaborativo como requisito para participar en retos de empresas; los derechos de autor de estos proyectos serán propiedad de In-nova.</li>
+                          <li className="relative pl-6 before:content-[''] before:absolute before:left-0 before:top-2 before:w-2.5 before:h-2.5 before:rounded-full before:bg-gray-500">Los derechos de autor del prototipo pertenecen exclusivamente a los Retadores.</li>
+                          <li className="relative pl-6 before:content-[''] before:absolute before:left-0 before:top-2 before:w-2.5 before:h-2.5 before:rounded-full before:bg-gray-500">El valor del prototipo será evaluado por In-nova y, en caso de ser aprobado, la empresa podrá conocer la oferta de los Retadores. In-nova tendrá opción de compra del prototipo para su comercialización.</li>
+                        </ul>
+                      </section>
+                      <section>
+                        <h4 className="font-semibold">7. Apoyo Profesional dentro del Proyecto</h4>
+                        <ul className="list-none space-y-2">
+                          <li className="relative pl-6 before:content-[''] before:absolute before:left-0 before:top-2 before:w-2.5 before:h-2.5 before:rounded-full before:bg-gray-500">Los estudiantes serán el único equipo de trabajo para el proyecto. No se aceptará ningún apoyo profesional dentro de los equipos de prototipado.</li>
+                        </ul>
+                      </section>
+                      <section>
+                        <h4 className="font-semibold">8. Penalización por Incumplimiento</h4>
+                        <ul className="list-none space-y-2">
+                          <li className="relative pl-6 before:content-[''] before:absolute before:left-0 before:top-2 before:w-2.5 before:h-2.5 before:rounded-full before:bg-gray-500">Si algún miembro del equipo no cumple con los entregables del proyecto, será apartado para garantizar la entrega de los requerimientos en los plazos acordados.</li>
+                        </ul>
+                      </section>
+                      <section>
+                        <h4 className="font-semibold">9. Oportunidades Adicionales</h4>
+                        <ul className="list-none space-y-2">
+                          <li className="relative pl-6 before:content-[''] before:absolute before:left-0 before:top-2 before:w-2.5 before:h-2.5 before:rounded-full before:bg-gray-500">Los estudiantes podrán desarrollar otros prototipos y presentarlos como demos de un mes para evaluación por parte de empresas de la red de innovación, previa autorización de In-nova.</li>
+                          <li className="relative pl-6 before:content-[''] before:absolute before:left-0 before:top-2 before:w-2.5 before:h-2.5 before:rounded-full before:bg-gray-500">Esto facilita la incubación de startups, la posibilidad de conseguir clientes y financiamiento, reduciendo la necesidad de inversión inicial.</li>
+                        </ul>
+                      </section>
+                      <section>
+                        <h4 className="font-semibold">10. Prohibición de Contratación Directa</h4>
+                        <ul className="list-none space-y-2">
+                          <li className="relative pl-6 before:content-[''] before:absolute before:left-0 before:top-2 before:w-2.5 before:h-2.5 before:rounded-full before:bg-gray-500">Los Retadores no podrán realizar contratos directos con la empresa que emite el reto.</li>
+                        </ul>
+                      </section>
+                      <section>
+                        <h4 className="font-semibold">11. Condiciones de Participación</h4>
+                        <ul className="list-none space-y-2">
+                          <li className="relative pl-6 before:content-[''] before:absolute before:left-0 before:top-2 before:w-2.5 before:h-2.5 before:rounded-full before:bg-gray-500">Solo podrán participar estudiantes universitarios o de otras instituciones que acrediten estar cursando estudios en el campo del reto.</li>
+                        </ul>
+                      </section>
+                      <section>
+                        <h4 className="font-semibold">12. Beneficios Académicos para Profesores Líderes</h4>
+                        <ul className="list-none space-y-2">
+                          <li className="relative pl-6 before:content-[''] before:absolute before:left-0 before:top-2 before:w-2.5 before:h-2.5 before:rounded-full before:bg-gray-500">Los profesores orientadores podrán acceder a los beneficios que sus universidades ofrezcan (fondos de investigación, laboratorios, asesoría técnica, respaldo institucional, etc.) y tendrán la posibilidad de realizar publicaciones científicas basadas en la experiencia y resultados del proyecto, previa autorización de la empresa.</li>
+                        </ul>
+                      </section>
+                    </div>
+                    <DialogFooter>
+                      <Button type="button" variant="secondary" onClick={() => setOpenTerms(false)}>Cerrar</Button>
+                      <Button
+                        type="button"
+                        onClick={() => {
+                          setAcceptedTerms(true);
+                          setOpenTerms(false);
+                        }}
+                      >
+                        Acepto el Acuerdo
+                      </Button>
+                    </DialogFooter>
+                  </DialogContent>
+                </Dialog>
+
               </CardContent>
             </Card>
           </div>
